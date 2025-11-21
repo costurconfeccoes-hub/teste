@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Costur Confecções - Alecrim</title>
+    <title>Área do Colaborador - Costur Confecções</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -27,16 +27,14 @@
             background-color: #f9f9f9;
             color: var(--text);
             line-height: 1.6;
-            min-height: 100vh;
-            padding-bottom: 100px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
-        
+
         /* Header */
         header {
             background-color: var(--primary);
@@ -44,7 +42,6 @@
             padding: 15px 0;
             box-shadow: var(--shadow);
             position: relative;
-            margin-bottom: 30px;
         }
 
         .header-content {
@@ -92,482 +89,274 @@
             font-size: 0.9rem;
             color: white;
         }
-        
-        /* Panel Sections */
-        .panel-section {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-            overflow: hidden;
-        }
-        
-        .section-title {
-            background-color: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .section-title i {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .panel-content {
-            padding: 20px;
-        }
-        
-        .iframe-container {
-            height: 750px;
-            width: 100%;
-            border: none;
-            border-radius: 8px;
-            background-color: var(--light);
-            overflow: hidden;
-        }
-        
-        .iframe-placeholder {
+
+        .header-contact {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: var(--secondary);
-            font-weight: 500;
-            background-color: var(--light);
+            align-items: flex-end;
+            gap: 5px;
         }
-        
-        .iframe-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-        
-        .download-area {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .download-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background-color: #f8fbff;
-            border-radius: 8px;
-            border-left: 4px solid var(--secondary);
-            transition: all 0.3s ease;
-        }
-        
-        .download-item:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow);
-            background-color: #e3f2fd;
-        }
-        
-        .file-info {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .file-name {
-            font-weight: 600;
-            color: var(--primary);
-        }
-        
-        .file-date {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .download-btn {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
+
+        .contact-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none;
-        }
-        
-        .download-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #78909c;
-        }
-        
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: #b0bec5;
-        }
-        
-        .empty-state p {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-        
-        .empty-state .subtext {
-            font-size: 0.9rem;
-            color: #90a4ae;
-        }
-        
-        .floating-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background-color: var(--secondary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 100;
-            border: none;
-            text-decoration: none;
-        }
-        
-        .floating-btn:hover {
-            background-color: #2980b9;
-            transform: scale(1.1);
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            color: #546e7a;
+            color: #FFF;
             font-size: 0.9rem;
         }
 
-        /* Estilos para as notas do Firebase - VERSÃO COMPACTA */
-        .nota-item {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: white;
-            transition: all 0.3s ease;
-        }
-
-        .nota-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .nota-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .nota-info-compact {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .nota-id {
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 1rem;
-        }
-
-        .nota-status {
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        .status-pendente {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .status-pago {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .status-cancelado {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .nota-details-compact {
-            display: flex;
-            gap: 20px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .nota-valor {
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .nota-data {
-            color: #666;
-        }
-
-        .nota-toggle {
-            background: none;
-            border: none;
-            color: var(--secondary);
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
-
-        .nota-toggle.rotated {
-            transform: rotate(180deg);
-        }
-
-        .nota-details-expanded {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            display: none;
-        }
-
-        .nota-details-expanded.show {
-            display: block;
-        }
-
-        .nota-details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .detail-label {
+        .contact-item i {
+            color: #FFF;
             font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 5px;
         }
 
-        .detail-value {
+        .contact-item span {
+            color: #FFF;
             font-weight: 500;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 3px;
+            background-color: var(--secondary);
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--secondary);
+        }
+
+        .card i {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .card p {
+            margin-bottom: 25px;
             color: var(--text);
         }
 
-        .valor-total {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .services-list {
-            margin-top: 10px;
-        }
-
-        .service-item {
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
-        }
-
-        .service-name {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .service-model {
-            color: #666;
-            font-size: 0.8rem;
-        }
-
-        .service-quantity {
-            color: var(--secondary);
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        .service-price {
-            color: #27ae60;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        .service-subtotal {
-            color: #e67e22;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--secondary);
-        }
-
-        .loading i {
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .nota-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            justify-content: flex-end;
-        }
-
-        .btn-download {
-            background-color: #27ae60;
+        .card-btn {
+            display: inline-block;
+            background-color: var(--secondary);
             color: white;
-            border: none;
-            padding: 6px 12px;
+            padding: 12px 30px;
             border-radius: 5px;
-            cursor: pointer;
+            text-decoration: none;
             font-weight: bold;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            text-decoration: none;
-            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
-        .btn-download:hover {
-            background-color: #219653;
+        .card-btn:hover {
+            background-color: #2980b9;
             transform: translateY(-2px);
         }
 
-        /* Container para gerar PNG sem o botão */
-        .nota-print {
-            display: none;
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 40px 0 20px;
         }
 
-        .nota-print-content {
-            padding: 20px;
-            background: white;
-            border: 2px solid #333;
-            border-radius: 10px;
-            max-width: 600px;
-            margin: 20px;
-        }
-
-        .print-header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #333;
-        }
-
-        .print-header h2 {
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-
-        .print-details {
+        .footer-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
             margin-bottom: 20px;
+            font-size: 1.2rem;
         }
 
-        .print-service-item {
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border-left: 3px solid var(--secondary);
+        .footer-column p, .footer-column a {
+            margin-bottom: 10px;
+            display: block;
+            color: #ddd;
+            text-decoration: none;
         }
 
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover {
+            background-color: #1a252f;
+            transform: translateY(-3px);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 0 10px;
-            }
-            
             .header-content {
                 flex-direction: column;
                 text-align: center;
                 gap: 15px;
             }
-            
+
+            .header-contact {
+                align-items: center;
+            }
+
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
             .logo-container {
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .logo-text h1 {
                 font-size: 1.3rem;
             }
-            
+
             .logo-text p {
                 font-size: 0.8rem;
             }
-            
-            .iframe-container {
-                height: 500px;
-            }
-            
-            .download-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .download-btn {
-                align-self: flex-end;
+
+            .contact-item {
+                font-size: 0.8rem;
             }
 
-            .nota-info-compact {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
+            .section-title h2 {
+                font-size: 1.8rem;
             }
 
-            .nota-details-compact {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .nota-details-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .nota-actions {
-                justify-content: flex-start;
+            .card {
+                padding: 30px 20px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header>
         <div class="container header-content">
             <div class="logo-container">
@@ -575,453 +364,139 @@
                     <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções">
                 </div>
                 <div class="logo-text">
-                    <h1>Costur Confecções - Alecrim</h1>
-                    <p>Sua marca, nossa costura.</p>
+                    <h1>Costur Confecções</h1>
+                    <p>Área do Colaborador</p>
+                </div>
+            </div>
+            <div class="header-contact">
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <span>Colaborador</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-calendar"></i>
+                    <span id="current-date"></span>
                 </div>
             </div>
         </div>
     </header>
-    
-    <div class="container">
-        <section class="panel-section">
-            <div class="section-title">
-                <i class="fas fa-chart-line"></i>
-                Painel de Acompanhamento
-            </div>
-            <div class="panel-content">
-                <iframe 
-                    src="https://www.appsheet.com/start/11158fe7-7a14-4174-9a56-fa2c5e40be12" 
-                    class="iframe-container" 
-                    frameborder="0"
-                    allowfullscreen>
-                    <div class="iframe-placeholder">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Carregando painel de acompanhamento...</p>
-                    </div>
-                </iframe>
-            </div>
-        </section>
-        
-        <!-- NOTA DE COBRANÇA ATUAL (PENDENTE) -->
-        <section class="panel-section">
-            <div class="section-title">
-                <i class="fas fa-file-invoice-dollar"></i>
-                Nota de Cobrança Atual
-            </div>
-            <div class="panel-content">
-                <div id="nota-atual">
-                    <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Carregando nota atual...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- HISTÓRICO DE NOTAS (PAGAS E CANCELADAS) -->
-        <section class="panel-section">
-            <div class="section-title">
-                <i class="fas fa-history"></i>
-                Histórico de Notas de Cobrança
-            </div>
-            <div class="panel-content">
-                <div id="historico-notas">
-                    <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Carregando histórico...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <section class="panel-section">
-            <div class="section-title">
-                <i class="fas fa-chart-pie"></i>
-                Relatório Anual
-            </div>
-            <div class="panel-content">
-                <div class="empty-state">
-                    <i class="fas fa-file-alt"></i>
-                    <p>Nenhum relatório anual disponível</p>
-                    <p class="subtext">Os relatórios anuais aparecerão aqui quando forem gerados</p>
-                </div>
-            </div>
-        </section>
-    </div>
 
-    <!-- Container oculto para gerar PNG -->
-    <div id="nota-print" class="nota-print"></div>
-    
-    <a href="https://call.doorvi.co/en/home/a582975f330bac0b10d743d0931107300a5a0ed05c06a40e1efce2c9961b671bc01f98b52109d1d0eff5010ed23dcf158baaef6c5f8cfde913c9f7c232ce47ba" class="floating-btn" target="_blank">
-        <i class="fas fa-bell"></i>
-    </a>
-    
-    <footer class="container">
-        <p>Costur Confecções &copy; 2023 - Todos os direitos reservados</p>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2>Área do Colaborador</h2>
+            <p>Gerencie notas de cobrança, agendamentos, cadastros de clientes e utilize o calculador de medidas</p>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard">
+        <div class="container">
+            <div class="section-title">
+                <h2>Painel Principal</h2>
+            </div>
+            
+            <div class="cards-grid">
+                <!-- Gerar Nota de Cobrança -->
+                <div class="card">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <h3>Nota de Cobrança</h3>
+                    <p>Gere notas de cobrança para clientes com detalhes completos dos serviços prestados</p>
+                    <a href="https://costurconfeccoes-hub.github.io/notadecobranca/" class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
+                    </a>
+                </div>
+
+                <!-- Agendamento -->
+                <div class="card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Agendamentos</h3>
+                    <p>Gerencie agendamentos de clientes e visualize a agenda de produção</p>
+                    <a href="https://costurconfeccoes-hub.github.io/Agendamento/" class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
+                    </a>
+                </div>
+
+                <!-- Cadastro de Cliente -->
+                <div class="card">
+                    <i class="fas fa-user-plus"></i>
+                    <h3>Cadastro de Clientes</h3>
+                    <p>Cadastre novos clientes e mantenha as informações atualizadas</p>
+                    <a href="https://costurconfeccoes-hub.github.io/cadastrodeclientes/" class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
+                    </a>
+                </div>
+
+                <!-- Calculador de Medidas -->
+                <div class="card">
+                    <i class="fas fa-ruler-combined"></i>
+                    <h3>Calculador de Medidas</h3>
+                    <p>Calcule e converta medidas de forma rápida e precisa para seus projetos de costura</p>
+                    <a href="https://costurconfeccoes-hub.github.io/calculadordemedidas/" class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
+                    </a>
+                </div>
+
+                <!-- Painel de Acompanhamento -->
+                <div class="card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Acompanhamento de Clientes</h3>
+                    <p>Acompanhe o status e histórico dos clientes de forma detalhada</p>
+                    <a href="https://costurconfeccoes-hub.github.io/paineldeacompanhamento/" class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
+                    </a>
+                </div>
+
+                <!-- Cálculo de Apoio -->
+                <div class="card">
+                    <i class="fas fa-calculator"></i>
+                    <h3>Cálculo de Apoio</h3>
+                    <p>Ferramentas de cálculo auxiliar para projetos de design e costura</p>
+                    <a href="https://costurconfeccoes-hub.github.io/calculodeapoioartdesigner/" class="card-btn">
+                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Costur Confecções</h3>
+                    <p>Sua marca, nossa costura. Sistema interno para colaboradores.</p>
+                    <a href="https://costurconfeccoes-hub.github.io/inicio/" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Voltar ao Site Principal
+                    </a>
+                </div>
+                <div class="footer-column">
+                    <h3>Sistemas</h3>
+                    <a href="https://costurconfeccoes-hub.github.io/notadecobranca/">Notas de Cobrança</a>
+                    <a href="https://costurconfeccoes-hub.github.io/Agendamento/">Agendamentos</a>
+                    <a href="https://costurconfeccoes-hub.github.io/cadastrodeclientes/">Clientes</a>
+                    <a href="https://costurconfeccoes-hub.github.io/calculadordemedidas/">Calculador de Medidas</a>
+                    <a href="https://costurconfeccoes-hub.github.io/paineldeacompanhamento/">Acompanhamento</a>
+                    <a href="https://costurconfeccoes-hub.github.io/calculodeapoioartdesigner/">Cálculo de Apoio</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Contato</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Rua professor ferrucio, 436</p>
+                    <p><i class="fas fa-phone"></i> (81) 9.2140-5569</p>
+                    <p><i class="fas fa-phone"></i> (81) 9.9201-4171</p>
+                    <p><i class="fas fa-envelope"></i> costurconfecoes@gmail.com</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Costur Confecções. Área Restrita.</p>
+            </div>
+        </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <!-- html2canvas para gerar PNG -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyChK3nnmmyJ-jxwIgRMkmiJ-toonT6oQCA",
-            authDomain: "gerador-de-notas-e591f.firebaseapp.com",
-            projectId: "gerador-de-notas-e591f",
-            storageBucket: "gerador-de-notas-e591f.firebasestorage.app",
-            messagingSenderId: "700565084876",
-            appId: "1:700565084876:web:f69a2742868da5255f8069"
-        };
-
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Função para calcular o valor total da nota
-        function calcularValorTotal(nota) {
-            if (nota.total !== undefined) {
-                return parseFloat(nota.total);
-            }
-            
-            let total = 0;
-            if (nota.services && Array.isArray(nota.services)) {
-                nota.services.forEach(servico => {
-                    if (servico.subtotal !== undefined) {
-                        total += parseFloat(servico.subtotal);
-                    }
-                });
-            }
-            
-            const desconto = parseFloat(nota.discount) || 0;
-            return total - desconto;
-        }
-
-        // Função para determinar o status da nota
-        function determinarStatus(nota) {
-            if (nota.status) return nota.status.toLowerCase();
-            return 'pendente';
-        }
-
-        // Função para criar o card da nota (VERSÃO COMPACTA)
-        function criarCardNota(nota) {
-            const status = determinarStatus(nota);
-            const dataFormatada = nota.date ? new Date(nota.date).toLocaleDateString('pt-BR') : 'Data não informada';
-            const valorTotal = calcularValorTotal(nota);
-            
-            let servicosHTML = '';
-            if (nota.services && Array.isArray(nota.services)) {
-                nota.services.forEach(servico => {
-                    const unitPrice = servico.unitPrice ? parseFloat(servico.unitPrice).toFixed(2) : '0.00';
-                    const quantity = servico.quantity || 0;
-                    const subtotal = servico.subtotal ? parseFloat(servico.subtotal).toFixed(2) : '0.00';
-                    
-                    servicosHTML += `
-                        <div class="service-item">
-                            <div class="service-name">${servico.description || 'Serviço'}</div>
-                            <div class="service-model">Modelo: ${servico.model || 'Não informado'}</div>
-                            <div class="service-quantity">Quantidade: ${quantity} unidades</div>
-                            <div class="service-price">Preço unitário: R$ ${unitPrice}</div>
-                            <div class="service-subtotal">Valor do serviço: R$ ${subtotal}</div>
-                        </div>
-                    `;
-                });
-            }
-
-            return `
-                <div class="nota-item" data-nota-id="${nota.id}">
-                    <div class="nota-header" onclick="toggleNotaDetails('${nota.id}')">
-                        <div class="nota-info-compact">
-                            <div class="nota-id">${nota.id || 'Sem ID'}</div>
-                            <div class="nota-status status-${status}">${status.toUpperCase()}</div>
-                            <div class="nota-details-compact">
-                                <span class="nota-valor">R$ ${valorTotal.toFixed(2)}</span>
-                                <span class="nota-data">${dataFormatada}</span>
-                            </div>
-                        </div>
-                        <button class="nota-toggle">
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="nota-details-expanded" id="details-${nota.id}">
-                        <div class="nota-details-grid">
-                            <div class="detail-item">
-                                <span class="detail-label">Data</span>
-                                <span class="detail-value">${dataFormatada}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Desconto</span>
-                                <span class="detail-value">R$ ${(nota.discount || 0).toFixed(2)}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Gerado por</span>
-                                <span class="detail-value">${nota.generatedBy || 'Não informado'}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Valor Total</span>
-                                <span class="detail-value valor-total">R$ ${valorTotal.toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        ${servicosHTML ? `
-                        <div class="services-list">
-                            <strong>Serviços:</strong>
-                            ${servicosHTML}
-                        </div>
-                        ` : ''}
-
-                        <div class="nota-actions">
-                            <button class="btn-download" onclick="gerarPNG('${nota.id}', '${nota.clientName}', ${valorTotal}, '${dataFormatada}')">
-                                <i class="fas fa-download"></i> Download
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Função para criar conteúdo para impressão (sem botão)
-        function criarConteudoPrint(nota) {
-            const status = determinarStatus(nota);
-            const dataFormatada = nota.date ? new Date(nota.date).toLocaleDateString('pt-BR') : 'Data não informada';
-            const valorTotal = calcularValorTotal(nota);
-            
-            let servicosHTML = '';
-            if (nota.services && Array.isArray(nota.services)) {
-                nota.services.forEach(servico => {
-                    const unitPrice = servico.unitPrice ? parseFloat(servico.unitPrice).toFixed(2) : '0.00';
-                    const quantity = servico.quantity || 0;
-                    const subtotal = servico.subtotal ? parseFloat(servico.subtotal).toFixed(2) : '0.00';
-                    
-                    servicosHTML += `
-                        <div class="print-service-item">
-                            <div class="service-name">${servico.description || 'Serviço'}</div>
-                            <div class="service-model">Modelo: ${servico.model || 'Não informado'}</div>
-                            <div class="service-quantity">Quantidade: ${quantity} unidades</div>
-                            <div class="service-price">Preço unitário: R$ ${unitPrice}</div>
-                            <div class="service-subtotal">Valor do serviço: R$ ${subtotal}</div>
-                        </div>
-                    `;
-                });
-            }
-
-            return `
-                <div class="nota-print-content">
-                    <div class="print-header">
-                        <h2>Costur Confecções</h2>
-                        <p>Comprovante de serviço - ${nota.clientName}</p>
-                        <p><strong>Status:</strong> ${status.toUpperCase()}</p>
-                    </div>
-                    
-                    <div class="print-details">
-                        <div class="detail-item">
-                            <span class="detail-label">ID da Nota</span>
-                            <span class="detail-value">${nota.id || 'Sem ID'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Data</span>
-                            <span class="detail-value">${dataFormatada}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Desconto</span>
-                            <span class="detail-value">R$ ${(nota.discount || 0).toFixed(2)}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Gerado por</span>
-                            <span class="detail-value">${nota.generatedBy || 'Não informado'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Valor Total</span>
-                            <span class="detail-value valor-total">R$ ${valorTotal.toFixed(2)}</span>
-                        </div>
-                    </div>
-
-                    ${servicosHTML ? `
-                    <div class="services-list">
-                        <h3>Serviços:</h3>
-                        ${servicosHTML}
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        // Função para expandir/recolher detalhes
-        function toggleNotaDetails(notaId) {
-            const details = document.getElementById(`details-${notaId}`);
-            const toggle = document.querySelector(`[data-nota-id="${notaId}"] .nota-toggle`);
-            
-            details.classList.toggle('show');
-            toggle.classList.toggle('rotated');
-        }
-
-        // Função para gerar nome do arquivo
-        function gerarNomeArquivo(clientName, valorTotal, data) {
-            // Remove caracteres especiais e espaços
-            const nomeLimpo = clientName.replace(/[^a-zA-Z0-9]/g, '_');
-            const dataLimpa = data.replace(/\//g, '-');
-            const valorLimpo = valorTotal.toFixed(2).replace('.', '_');
-            
-            return `nota_${nomeLimpo}_${valorLimpo}_${dataLimpa}.png`;
-        }
-
-        // Função para gerar PNG da nota
-        function gerarPNG(notaId, clientName, valorTotal, dataFormatada) {
-            // Buscar os dados completos da nota
-            db.collection("invoices")
-                .where("id", "==", notaId)
-                .get()
-                .then((querySnapshot) => {
-                    if (!querySnapshot.empty) {
-                        const nota = querySnapshot.docs[0].data();
-                        
-                        // Criar conteúdo para impressão
-                        const printContainer = document.getElementById('nota-print');
-                        printContainer.innerHTML = criarConteudoPrint(nota);
-                        printContainer.style.display = 'block';
-
-                        // Gerar PNG
-                        html2canvas(printContainer, {
-                            scale: 2,
-                            backgroundColor: '#ffffff',
-                            useCORS: true
-                        }).then(canvas => {
-                            // Criar link de download
-                            const link = document.createElement('a');
-                            const fileName = gerarNomeArquivo(clientName, valorTotal, dataFormatada);
-                            link.download = fileName;
-                            link.href = canvas.toDataURL('image/png');
-                            link.click();
-                            
-                            // Limpar container
-                            printContainer.innerHTML = '';
-                            printContainer.style.display = 'none';
-                        }).catch(error => {
-                            console.error('Erro ao gerar PNG:', error);
-                            alert('Erro ao gerar a imagem da nota. Tente novamente.');
-                            printContainer.style.display = 'none';
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao buscar nota:', error);
-                    alert('Erro ao carregar dados da nota.');
-                });
-        }
-
-        // Função para carregar e separar as notas
-        function carregarNotasAlecrim() {
-            db.collection("invoices")
-                .where("clientName", "==", "Alecrim")
-                .get()
-                .then((querySnapshot) => {
-                    if (querySnapshot.empty) {
-                        document.getElementById('nota-atual').innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-file-alt"></i>
-                                <p>Nenhuma nota encontrada para a Alecrim</p>
-                            </div>
-                        `;
-                        document.getElementById('historico-notas').innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-file-alt"></i>
-                                <p>Nenhum histórico disponível</p>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    let notasPendentes = [];
-                    let notasHistorico = [];
-
-                    querySnapshot.forEach((doc) => {
-                        const nota = doc.data();
-                        const status = determinarStatus(nota);
-                        
-                        if (status === 'pendente') {
-                            notasPendentes.push(nota);
-                        } else {
-                            notasHistorico.push(nota);
-                        }
-                    });
-
-                    // Ordenar por data (mais recente primeiro)
-                    notasPendentes.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-                    notasHistorico.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-
-                    // Exibir nota atual (pendente)
-                    if (notasPendentes.length > 0) {
-                        let htmlPendentes = '';
-                        notasPendentes.forEach(nota => {
-                            htmlPendentes += criarCardNota(nota);
-                        });
-                        document.getElementById('nota-atual').innerHTML = htmlPendentes;
-                    } else {
-                        document.getElementById('nota-atual').innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-check-circle"></i>
-                                <p>Nenhuma nota pendente</p>
-                                <p class="subtext">Todas as notas estão quitadas</p>
-                            </div>
-                        `;
-                    }
-
-                    // Exibir histórico (pago e cancelado)
-                    if (notasHistorico.length > 0) {
-                        let htmlHistorico = '';
-                        notasHistorico.forEach(nota => {
-                            htmlHistorico += criarCardNota(nota);
-                        });
-                        document.getElementById('historico-notas').innerHTML = htmlHistorico;
-                    } else {
-                        document.getElementById('historico-notas').innerHTML = `
-                            <div class="empty-state">
-                                <i class="fas fa-history"></i>
-                                <p>Nenhum histórico disponível</p>
-                                <p class="subtext">As notas quitadas aparecerão aqui</p>
-                            </div>
-                        `;
-                    }
-                })
-                .catch((error) => {
-                    console.error("Erro ao buscar notas: ", error);
-                    document.getElementById('nota-atual').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Erro ao carregar notas</p>
-                        </div>
-                    `;
-                    document.getElementById('historico-notas').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Erro ao carregar histórico</p>
-                        </div>
-                    `;
-                });
-        }
-
-        // Carregar notas quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            carregarNotasAlecrim();
-            
-            const iframe = document.querySelector('.iframe-container');
-            iframe.addEventListener('load', function() {
-                console.log('Painel AppSheet carregado com sucesso!');
-            });
-            
-            iframe.addEventListener('error', function() {
-                console.error('Erro ao carregar o painel AppSheet');
-                const placeholder = document.querySelector('.iframe-placeholder');
-                placeholder.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar o painel. Verifique a conexão.</p>';
-            });
-        });
-
-        // Atualizar automaticamente a cada 30 segundos
-        setInterval(carregarNotasAlecrim, 30000);
+        // Data atual
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR');
     </script>
 </body>
 </html>
