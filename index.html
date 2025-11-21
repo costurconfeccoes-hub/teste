@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área do Colaborador - Costur Confecções</title>
+    <title>Gerador de Nota de Cobrança - Costur Confecções</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -21,18 +28,26 @@
             --dark: #2c3e50;
             --text: #333;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --admin-color: #8e44ad;
+            --completed-color: #27ae60;
+            --pix-color: #32BCAD;
         }
 
         body {
             background-color: #f9f9f9;
             color: var(--text);
             line-height: 1.6;
+            min-width: 100%;
+            overflow-x: auto;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 15px;
         }
 
         /* Header */
@@ -117,38 +132,54 @@
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 100px 0;
+            padding: 60px 0;
             text-align: center;
         }
 
         .hero h2 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 20px;
         }
 
         .hero p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             max-width: 700px;
             margin: 0 auto 30px;
         }
 
-        /* Dashboard Section */
-        .dashboard {
-            padding: 80px 0;
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        /* Sections */
+        section {
+            padding: 50px 0;
         }
 
         .section-title {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
             position: relative;
         }
 
         .section-title h2 {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: var(--primary);
             display: inline-block;
             padding-bottom: 10px;
@@ -165,63 +196,562 @@
             transform: translateX(-50%);
         }
 
-        /* Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
+        /* Card Styles */
         .card {
             background-color: white;
-            padding: 40px 30px;
-            border-radius: 15px;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
             box-shadow: var(--shadow);
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            transition: transform 0.3s ease;
         }
-
+        
         .card:hover {
-            transform: translateY(-10px);
-            border-color: var(--secondary);
+            transform: translateY(-5px);
         }
-
-        .card i {
-            font-size: 3rem;
-            color: var(--secondary);
+        
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h2 i {
+            margin-right: 10px;
+        }
+        
+        .form-group {
             margin-bottom: 20px;
         }
-
-        .card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: var(--primary);
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
-
-        .card p {
-            margin-bottom: 25px;
-            color: var(--text);
+        
+        input, select, button, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
         }
-
-        .card-btn {
-            display: inline-block;
-            background-color: var(--secondary);
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        button {
+            background: var(--secondary);
             color: white;
-            padding: 12px 30px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-image {
+            background: var(--success-color);
+            padding: 12px 25px;
             font-size: 1rem;
+            width: auto;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-image i {
+            margin-right: 8px;
+        }
+        
+        .btn-pix {
+            background: var(--pix-color);
+            padding: 12px 25px;
+            font-size: 1rem;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-pix i {
+            margin-right: 8px;
+        }
+        
+        .btn-delete {
+            background: var(--danger-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-left: 10px;
+        }
+        
+        .btn-add-service {
+            background: var(--success-color);
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-add-service i {
+            margin-right: 8px;
+        }
+        
+        .btn-remove-service {
+            background: var(--danger-color);
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            width: auto;
         }
 
-        .card-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
+        .btn-change-status {
+            background: var(--admin-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-left: 10px;
+        }
+
+        .invoice-preview {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            background: white;
+            display: none;
+            overflow-x: auto;
+        }
+        
+        .invoice-preview-content {
+            max-width: 100%;
+            min-width: 300px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        
+        .image-actions {
+            margin-top: 20px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .invoice-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        
+        .invoice-address {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .invoice-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .invoice-number {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .invoice-date {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .invoice-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .client-info, .service-info {
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            min-width: 600px;
+        }
+        
+        .invoice-table th {
+            background: var(--primary);
+            color: white;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.8rem;
+        }
+        
+        .invoice-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .invoice-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .invoice-totals {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        
+        .total-final {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+            border-top: 2px solid var(--primary);
+            margin-top: 8px;
+            padding-top: 8px;
+        }
+        
+        .discount-info {
+            margin-top: 12px;
+            padding: 12px;
+            background: #fff9e6;
+            border-radius: 6px;
+            border-left: 4px solid var(--warning-color);
+            font-size: 0.85rem;
+        }
+        
+        .calculation-result {
+            background: linear-gradient(135deg, #e8f4fd, #d4e9fa);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .calculation-result h3 {
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        .calculation-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #ccc;
+            font-size: 0.9rem;
+        }
+        
+        .calculation-final {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 2px solid var(--secondary);
+        }
+        
+        .saved-invoices {
+            margin-top: 30px;
+        }
+        
+        .invoice-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .invoice-item-info {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .invoice-item-info h4 {
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+        
+        .invoice-item-details {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .invoice-item-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .pix-section {
+            background: linear-gradient(135deg, #e8f6f3, #d4f0eb);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid var(--pix-color);
+            text-align: center;
+        }
+        
+        .pix-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .pix-icon {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+        
+        .pix-title {
+            font-size: 1.2rem;
+            color: var(--pix-color);
+            font-weight: bold;
+        }
+        
+        .pix-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .pix-details {
+            text-align: center;
+        }
+        
+        .pix-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .pix-info h4 {
+            color: var(--pix-color);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .pix-amount {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--pix-color);
+            margin-bottom: 12px;
+        }
+        
+        .pix-receiver-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        
+        .pix-receiver-info p {
+            margin-bottom: 6px;
+        }
+        
+        .pix-key-container {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px dashed var(--pix-color);
+            margin-bottom: 15px;
+        }
+        
+        .pix-key-label {
+            font-weight: bold;
+            color: var(--pix-color);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .pix-key {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
+            word-break: break-all;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 350px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .local-info {
+            background: linear-gradient(135deg, #e8f4fd, #d4e9fa);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        .local-info strong {
+            color: var(--primary);
+        }
+        
+        .service-container {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            position: relative;
+        }
+        
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .service-title {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .service-fields {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .service-other-description {
+            grid-column: 1 / -1;
+            display: none;
+        }
+        
+        .image-preview-container {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .image-download-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: var(--primary);
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Footer */
@@ -284,26 +814,66 @@
             font-size: 0.9rem;
             color: #aaa;
         }
-
-        .back-btn {
+        
+        .status-badge {
             display: inline-block;
-            background-color: var(--primary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
             font-weight: bold;
-            transition: all 0.3s ease;
-            margin-top: 20px;
+            margin-left: 10px;
         }
-
-        .back-btn:hover {
-            background-color: #1a252f;
-            transform: translateY(-3px);
+        
+        .status-pendente {
+            background-color: var(--warning-color);
+            color: white;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
+        
+        .status-pago {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .status-cancelado {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 720px;
+            }
+            
+            .invoice-details, .invoice-totals {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .service-fields {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .invoice-item {
+                flex-wrap: nowrap;
+            }
+            
+            .invoice-item-actions {
+                margin-top: 0;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .container {
+                max-width: 960px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1140px;
+            }
+        }
+        
+        @media (max-width: 767px) {
             .header-content {
                 flex-direction: column;
                 text-align: center;
@@ -315,15 +885,39 @@
             }
 
             .hero h2 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
 
             .hero p {
                 font-size: 1rem;
             }
+            
+            .invoice-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .invoice-item-actions {
+                margin-top: 8px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .image-actions {
+                flex-direction: column;
+            }
+            
+            .invoice-preview {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
 
-            .cards-grid {
+            .footer-content {
                 grid-template-columns: 1fr;
+                text-align: center;
             }
         }
 
@@ -346,11 +940,23 @@
             }
 
             .section-title h2 {
-                font-size: 1.8rem;
+                font-size: 1.5rem;
             }
-
-            .card {
-                padding: 30px 20px;
+            
+            .hero {
+                padding: 40px 0;
+            }
+            
+            .hero h2 {
+                font-size: 1.5rem;
+            }
+            
+            .hero p {
+                font-size: 0.9rem;
+            }
+            
+            section {
+                padding: 30px 0;
             }
         }
     </style>
@@ -361,21 +967,21 @@
         <div class="container header-content">
             <div class="logo-container">
                 <div class="logo">
-                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções">
+                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções" id="logo-image">
                 </div>
                 <div class="logo-text">
                     <h1>Costur Confecções</h1>
-                    <p>Área do Colaborador</p>
+                    <p>Sua marca, nossa costura.</p>
                 </div>
             </div>
             <div class="header-contact">
                 <div class="contact-item">
-                    <i class="fas fa-user"></i>
-                    <span>Colaborador</span>
+                    <i class="fas fa-phone"></i>
+                    <span>(81) 9.2140-5569 / (81) 9.9201-4171</span>
                 </div>
                 <div class="contact-item">
-                    <i class="fas fa-calendar"></i>
-                    <span id="current-date"></span>
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</span>
                 </div>
             </div>
         </div>
@@ -384,77 +990,248 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h2>Área do Colaborador</h2>
-            <p>Gerencie notas de cobrança, agendamentos, cadastros de clientes e utilize o calculador de medidas</p>
+            <h2>Gerador de Nota de Cobrança</h2>
+            <p>Crie notas de cobrança profissionais de forma rápida e prática.</p>
+            <a href="#gerador" class="btn">Criar Nota de Cobrança</a>
         </div>
     </section>
 
-    <!-- Dashboard Section -->
-    <section class="dashboard">
+    <!-- Sistema de Agendamento -->
+    <section id="gerador">
         <div class="container">
             <div class="section-title">
-                <h2>Painel Principal</h2>
+                <h2>Gerador de Notas de Cobrança</h2>
             </div>
             
-            <div class="cards-grid">
-                <!-- Gerar Nota de Cobrança -->
-                <div class="card">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <h3>Nota de Cobrança</h3>
-                    <p>Gere notas de cobrança para clientes com detalhes completos dos serviços prestados</p>
-                    <a href="https://costurconfeccoes-hub.github.io/notadecobranca/" class="card-btn">
-                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
-                    </a>
+            <div class="card">
+                <h2><i class="fas fa-file-invoice"></i> Dados da Nota de Cobrança</h2>
+                <form id="invoice-form">
+                    <div class="form-group">
+                        <label for="client-name">Nome do Cliente</label>
+                        <select id="client-name" required>
+                            <option value="">Selecione um cliente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="generated-by">Gerado por</label>
+                        <select id="generated-by" required>
+                            <option value="">Selecione quem gerou a nota</option>
+                            <option value="Wallison Vinicius">Wallison Vinicius</option>
+                            <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="invoice-status">Status da Nota</label>
+                        <select id="invoice-status" required>
+                            <option value="">Selecione o status</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="pago">Pago</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Seção de serviços -->
+                    <div class="form-group">
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Serviços</h3>
+                        <div id="services-container">
+                            <!-- Primeiro serviço (não pode ser removido) -->
+                            <div class="service-container" id="service-0">
+                                <div class="service-header">
+                                    <div class="service-title">Serviço #1</div>
+                                </div>
+                                <div class="service-fields">
+                                    <div>
+                                        <label for="model-0">Modelo</label>
+                                        <input type="text" id="model-0" required placeholder="Digite o modelo da peça" class="service-model">
+                                    </div>
+                                    <div>
+                                        <label for="service-type-0">Tipo de Serviço</label>
+                                        <select id="service-type-0" required class="service-type">
+                                            <option value="">Selecione o tipo de serviço</option>
+                                            <option value="Confecção Completa">Confecção Completa</option>
+                                            <option value="Confecção Parcial">Confecção Parcial</option>
+                                            <option value="Conserto de terceiros">Conserto de terceiros</option>
+                                            <option value="Garantia">Garantia</option>
+                                            <option value="Outros">Outros</option>
+                                        </select>
+                                    </div>
+                                    <div class="service-other-description" id="other-description-0">
+                                        <label for="other-description-text-0">Descrição do serviço (para "Outros")</label>
+                                        <textarea id="other-description-text-0" placeholder="Descreva o serviço realizado"></textarea>
+                                    </div>
+                                    <div>
+                                        <label for="quantity-0">Quantidade de Peças</label>
+                                        <input type="number" id="quantity-0" min="1" value="1" required class="service-quantity">
+                                    </div>
+                                    <div>
+                                        <label for="unit-price-0">Valor Unitário (R$)</label>
+                                        <input type="number" id="unit-price-0" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn-add-service" id="add-service-btn">
+                            <i class="fas fa-plus"></i> Adicionar Outro Serviço
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="discount">Desconto (R$)</label>
+                        <input type="number" id="discount" min="0" step="0.01" value="0" placeholder="0,00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="discount-info">Informações sobre o Desconto (Opcional)</label>
+                        <textarea id="discount-info" rows="3" placeholder="Descreva o motivo do desconto, se aplicável"></textarea>
+                    </div>
+                    
+                    <div class="calculation-result">
+                        <h3>Cálculos da Nota</h3>
+                        <div class="calculation-line">
+                            <span>Subtotal dos Serviços:</span>
+                            <span id="subtotal-display">R$ 0,00</span>
+                        </div>
+                        <div class="calculation-line">
+                            <span>Desconto:</span>
+                            <span id="discount-display">R$ 0,00</span>
+                        </div>
+                        <div class="calculation-final">
+                            <span>VALOR TOTAL:</span>
+                            <span id="total-display">R$ 0,00</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="generate-btn">Gerar e Salvar</button>
+                </form>
+                
+                <div class="local-info">
+                    <strong><i class="fas fa-info-circle"></i> Sistema em Nuvem:</strong> Esta nota será salva no banco de dados em nuvem (Firebase).
                 </div>
-
-                <!-- Agendamento -->
-                <div class="card">
-                    <i class="fas fa-calendar-check"></i>
-                    <h3>Agendamentos</h3>
-                    <p>Gerencie agendamentos de clientes e visualize a agenda de produção</p>
-                    <a href="https://costurconfeccoes-hub.github.io/Agendamento/" class="card-btn">
-                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
-                    </a>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-file-alt"></i> Prévia da Nota de Cobrança</h2>
+                <div class="loading" id="image-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Gerando imagem, aguarde...</p>
                 </div>
+                <div class="invoice-preview" id="invoice-preview">
+                    <div class="invoice-preview-content" id="invoice-preview-content">
+                        <div class="invoice-header">
+                            <div class="invoice-logo">Costur Confecções</div>
+                            <div class="invoice-address">
+                                <div>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</div>
+                                <div>CEP: 55008-230</div>
+                                <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
+                            </div>
+                            <div class="invoice-title">NOTA DE COBRANÇA</div>
+                            <div class="invoice-number" id="invoice-number">Número: </div>
+                            <div class="invoice-date" id="invoice-date">Data de emissão: </div>
+                        </div>
+                        
+                        <div class="invoice-details">
+                            <div class="client-info">
+                                <h3>Dados do Cliente</h3>
+                                <p><strong>Nome:</strong> <span id="preview-client-name">-</span></p>
+                            </div>
+                            
+                            <div class="service-info">
+                                <h3>Detalhes do Serviço</h3>
+                                <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
+                                <p><strong>Status:</strong> <span id="preview-status">-</span></p>
+                                <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
+                            </div>
+                        </div>
+                        
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Modelo</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-services-table">
+                                <!-- Serviços serão inseridos aqui dinamicamente -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="invoice-totals">
+                            <div>
+                                <div class="total-row">
+                                    <span>Subtotal:</span>
+                                    <span id="preview-subtotal-final">R$ 0,00</span>
+                                </div>
+                                <div class="total-row">
+                                    <span>Desconto:</span>
+                                    <span id="preview-discount-final">R$ 0,00</span>
+                                </div>
+                                <div class="total-row total-final">
+                                    <span>VALOR TOTAL:</span>
+                                    <span id="preview-total-final">R$ 0,00</span>
+                                </div>
+                            </div>
+                            
+                            <div id="preview-discount-info-container" class="discount-info" style="display: none;">
+                                <h4>Informações do Desconto</h4>
+                                <p id="preview-discount-info">-</p>
+                            </div>
+                        </div>
 
-                <!-- Cadastro de Cliente -->
-                <div class="card">
-                    <i class="fas fa-user-plus"></i>
-                    <h3>Cadastro de Clientes</h3>
-                    <p>Cadastre novos clientes e mantenha as informações atualizadas</p>
-                    <a href="https://costurconfeccoes-hub.github.io/cadastrodeclientes/" class="card-btn">
-                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
-                    </a>
+                        <!-- Seção PIX (Sem QR Code) -->
+                        <div class="pix-section" id="pix-section">
+                            <div class="pix-header">
+                                <div class="pix-icon"><i class="fas fa-qrcode"></i></div>
+                                <div class="pix-title">PAGAMENTO VIA PIX</div>
+                            </div>
+                            
+                            <div class="pix-content">
+                                <div class="pix-details">
+                                    <div class="pix-info">
+                                        <div class="pix-amount" id="pix-amount">R$ 0,00</div>
+                                        <h4>Valor para pagamento</h4>
+                                        
+                                        <div class="pix-receiver-info">
+                                            <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
+                                            <p><strong>Banco:</strong> <span id="pix-bank">PagSeguro</span></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pix-key-container">
+                                        <div class="pix-key-label">CHAVE PIX (CPF)</div>
+                                        <div class="pix-key" id="pix-key">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="image-preview-container" id="image-preview-container">
+                        <h3>Prévia da Imagem Gerada</h3>
+                        <img id="image-preview" class="image-preview" alt="Prévia da nota fiscal">
+                        <p class="image-download-info">A imagem foi gerada com sucesso! Use o botão abaixo para baixar.</p>
+                    </div>
+                    
+                    <div class="image-actions">
+                        <button class="btn-image" id="generate-image">
+                            <i class="fas fa-image"></i> Gerar Imagem
+                        </button>
+                        <button class="btn-pix" id="new-invoice">
+                            <i class="fas fa-plus"></i> Nova Nota
+                        </button>
+                    </div>
                 </div>
-
-                <!-- Calculador de Medidas -->
-                <div class="card">
-                    <i class="fas fa-ruler-combined"></i>
-                    <h3>Calculador de Medidas</h3>
-                    <p>Calcule e converta medidas de forma rápida e precisa para seus projetos de costura</p>
-                    <a href="https://costurconfeccoes-hub.github.io/calculadordemedidas/" class="card-btn">
-                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
-                    </a>
-                </div>
-
-                <!-- Painel de Acompanhamento -->
-                <div class="card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Acompanhamento de Clientes</h3>
-                    <p>Acompanhe o status e histórico dos clientes de forma detalhada</p>
-                    <a href="https://costurconfeccoes-hub.github.io/paineldeacompanhamento/" class="card-btn">
-                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
-                    </a>
-                </div>
-
-                <!-- Cálculo de Apoio -->
-                <div class="card">
-                    <i class="fas fa-calculator"></i>
-                    <h3>Cálculo de Apoio</h3>
-                    <p>Ferramentas de cálculo auxiliar para projetos de design e costura</p>
-                    <a href="https://costurconfeccoes-hub.github.io/calculodeapoioartdesigner/" class="card-btn">
-                        <i class="fas fa-external-link-alt"></i> Acessar Sistema
-                    </a>
+            </div>
+            
+            <div class="card saved-invoices">
+                <h2><i class="fas fa-list"></i> Notas Salvas <small>(Banco de dados em nuvem)</small></h2>
+                <div id="saved-invoices-list">
+                    <!-- Notas salvas serão listadas aqui -->
                 </div>
             </div>
         </div>
@@ -466,37 +1243,752 @@
             <div class="footer-content">
                 <div class="footer-column">
                     <h3>Costur Confecções</h3>
-                    <p>Sua marca, nossa costura. Sistema interno para colaboradores.</p>
-                    <a href="https://costurconfeccoes-hub.github.io/inicio/" class="back-btn">
-                        <i class="fas fa-arrow-left"></i> Voltar ao Site Principal
-                    </a>
-                </div>
-                <div class="footer-column">
-                    <h3>Sistemas</h3>
-                    <a href="https://costurconfeccoes-hub.github.io/notadecobranca/">Notas de Cobrança</a>
-                    <a href="https://costurconfeccoes-hub.github.io/Agendamento/">Agendamentos</a>
-                    <a href="https://costurconfeccoes-hub.github.io/cadastrodeclientes/">Clientes</a>
-                    <a href="https://costurconfeccoes-hub.github.io/calculadordemedidas/">Calculador de Medidas</a>
-                    <a href="https://costurconfeccoes-hub.github.io/paineldeacompanhamento/">Acompanhamento</a>
-                    <a href="https://costurconfeccoes-hub.github.io/calculodeapoioartdesigner/">Cálculo de Apoio</a>
+                    <p>Sua marca, nossa costura. Oferecemos serviços de confecção com qualidade e agilidade.</p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/costurconfeccoes"><i class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
                 <div class="footer-column">
                     <h3>Contato</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Rua professor ferrucio, 436</p>
                     <p><i class="fas fa-phone"></i> (81) 9.2140-5569</p>
                     <p><i class="fas fa-phone"></i> (81) 9.9201-4171</p>
-                    <p><i class="fas fa-envelope"></i> costurconfecoes@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Rua professor ferrucio, 436, São Francisco - Caruaru/PE</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Horário de Funcionamento</h3>
+                    <p>Segunda a Sexta: 08:00 às 12:00 - 14:00 às 18:00</p>
+                    <p>Sábado: 08:00 às 14:00</p>
+                    <p>Domingo: Fechado</p>
                 </div>
             </div>
+            
             <div class="copyright">
-                <p>&copy; 2023 Costur Confecções. Área Restrita.</p>
+                &copy; 2023 Costur Confecções. Todos os direitos reservados.
             </div>
         </div>
     </footer>
 
+    <!-- Modal de Mudança de Status -->
+    <div class="modal" id="status-modal">
+        <div class="modal-content">
+            <h3>Alterar Status da Nota</h3>
+            <div class="form-group">
+                <label for="new-status">Novo Status:</label>
+                <select id="new-status" required>
+                    <option value="">Selecione o novo status</option>
+                    <option value="pendente">Pendente</option>
+                    <option value="pago">Pago</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="status-password">Senha Administrativa:</label>
+                <input type="password" id="status-password" placeholder="Digite a senha administrativa" required>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="changeInvoiceStatus()" style="flex: 1;">Confirmar Alteração</button>
+                <button onclick="closeStatusModal()" style="flex: 1; background: var(--danger-color);">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Data atual
-        document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR');
+        // =============================================
+        // CONFIGURAÇÃO DO FIREBASE
+        // =============================================
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyChK3nnmmyJ-jxwIgRMkmiJ-toonT6oQCA",
+            authDomain: "gerador-de-notas-e591f.firebaseapp.com",
+            projectId: "gerador-de-notas-e591f",
+            storageBucket: "gerador-de-notas-e591f.firebasestorage.app",
+            messagingSenderId: "700565084876",
+            appId: "1:700565084876:web:f69a2742868da5255f8069"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Configuração do Firebase para clientes
+        const clientFirebaseConfig = {
+            apiKey: "AIzaSyCyTwlzsMG5-l07vnrb8XIx9J6AIP_Xuvw",
+            authDomain: "cadastro-cliente-6bd66.firebaseapp.com",
+            projectId: "cadastro-cliente-6bd66",
+            storageBucket: "cadastro-cliente-6bd66.firebasestorage.app",
+            messagingSenderId: "492238035100",
+            appId: "1:492238035100:web:cfb93092a71798dd2e7559"
+        };
+
+        // Inicializar segundo app Firebase para clientes
+        const clientApp = firebase.initializeApp(clientFirebaseConfig, "clientApp");
+        const clientDb = firebase.app("clientApp").firestore();
+
+        // Senha administrativa
+        const ADMIN_PASSWORD = "CostuADM2023";
+        let currentInvoiceToUpdate = null;
+
+        // Dados PIX por gerador
+        const PIX_DATA = {
+            "Eduarda Emmanoelly": {
+                cpf: "70923137408",
+                nome: "Eduarda Emmanoelly Torres do Nascimento",
+                banco: "PagSeguro"
+            },
+            "Wallison Vinicius": {
+                cpf: "10844833436", 
+                nome: "Wallison Vinicius da Silva de Oliveira",
+                banco: "PagSeguro"
+            }
+        };
+
+        // Contador de serviços
+        let serviceCounter = 1;
+
+        // =============================================
+        // FUNÇÕES UTILITÁRIAS
+        // =============================================
+        
+        function generateInvoiceId() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            
+            let result = '';
+            
+            // Gerar 4 letras aleatórias
+            for (let i = 0; i < 4; i++) {
+                result += letters.charAt(Math.floor(Math.random() * letters.length));
+            }
+            
+            // Gerar 8 números aleatórios
+            for (let i = 0; i < 8; i++) {
+                result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            
+            return result;
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        function getStatusBadge(status) {
+            const statusMap = {
+                'pendente': { text: 'PENDENTE', class: 'status-pendente' },
+                'pago': { text: 'PAGO', class: 'status-pago' },
+                'cancelado': { text: 'CANCELADO', class: 'status-cancelado' }
+            };
+            
+            const statusInfo = statusMap[status] || { text: status, class: '' };
+            return `<span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
+        }
+
+        // =============================================
+        // INICIALIZAÇÃO DO SISTEMA
+        // =============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystem();
+            setupEventListeners();
+            loadSavedInvoices();
+            loadClients();
+        });
+
+        function initializeSystem() {
+            setupCalculations();
+        }
+
+        function setupEventListeners() {
+            // Formulário principal
+            document.getElementById('invoice-form').addEventListener('submit', handleFormSubmit);
+            
+            // Botões de ação
+            document.getElementById('generate-image').addEventListener('click', generateImage);
+            document.getElementById('new-invoice').addEventListener('click', resetForm);
+            
+            // Botão para adicionar serviços
+            document.getElementById('add-service-btn').addEventListener('click', addService);
+            
+            // Campos para cálculos em tempo real
+            document.getElementById('discount').addEventListener('input', updateCalculations);
+            
+            // Event delegation para campos de serviço (que são adicionados dinamicamente)
+            document.getElementById('services-container').addEventListener('input', function(e) {
+                if (e.target.classList.contains('service-quantity') || 
+                    e.target.classList.contains('service-unit-price')) {
+                    updateCalculations();
+                }
+            });
+            
+            // Event delegation para mostrar/ocultar campo de descrição quando "Outros" é selecionado
+            document.getElementById('services-container').addEventListener('change', function(e) {
+                if (e.target.classList.contains('service-type')) {
+                    const serviceId = e.target.id.split('-')[2];
+                    toggleOtherDescription(serviceId);
+                }
+            });
+        }
+
+        function setupCalculations() {
+            updateCalculations();
+        }
+
+        // =============================================
+        // FUNÇÕES DE CARREGAMENTO DE CLIENTES
+        // =============================================
+        
+        async function loadClients() {
+            try {
+                const snapshot = await clientDb.collection('clientes').get();
+                const clientSelect = document.getElementById('client-name');
+                
+                snapshot.forEach(doc => {
+                    const client = doc.data();
+                    // Verificar se o cliente está ativo (statusCadastro === "Ativo")
+                    // E se tem uma marca definida
+                    if (client.statusCadastro === "Ativo" && client.marca) {
+                        const option = document.createElement('option');
+                        option.value = client.marca;
+                        option.textContent = client.marca;
+                        clientSelect.appendChild(option);
+                    }
+                });
+
+                // Se não encontrou nenhum cliente ativo, mostrar mensagem
+                if (clientSelect.children.length === 1) { // Apenas a opção padrão "Selecione um cliente"
+                    console.log('Nenhum cliente ativo encontrado no banco de dados');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+                // Fallback para input caso haja erro
+                const clientSelect = document.getElementById('client-name');
+                clientSelect.outerHTML = '<input type="text" id="client-name" required placeholder="Digite o nome completo do cliente">';
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DE SERVIÇOS
+        // =============================================
+        
+        function addService() {
+            const servicesContainer = document.getElementById('services-container');
+            const serviceId = serviceCounter++;
+            
+            const serviceHTML = `
+                <div class="service-container" id="service-${serviceId}">
+                    <div class="service-header">
+                        <div class="service-title">Serviço #${serviceId + 1}</div>
+                        <button type="button" class="btn-remove-service" onclick="removeService(${serviceId})">
+                            <i class="fas fa-trash"></i> Remover
+                        </button>
+                    </div>
+                    <div class="service-fields">
+                        <div>
+                            <label for="model-${serviceId}">Modelo</label>
+                            <input type="text" id="model-${serviceId}" required placeholder="Digite o modelo da peça" class="service-model">
+                        </div>
+                        <div>
+                            <label for="service-type-${serviceId}">Tipo de Serviço</label>
+                            <select id="service-type-${serviceId}" required class="service-type">
+                                <option value="">Selecione o tipo de serviço</option>
+                                <option value="Confecção Completa">Confecção Completa</option>
+                                <option value="Confecção Parcial">Confecção Parcial</option>
+                                <option value="Conserto de terceiros">Conserto de terceiros</option>
+                                <option value="Garantia">Garantia</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="service-other-description" id="other-description-${serviceId}">
+                            <label for="other-description-text-${serviceId}">Descrição do serviço (para "Outros")</label>
+                            <textarea id="other-description-text-${serviceId}" placeholder="Descreva o serviço realizado"></textarea>
+                        </div>
+                        <div>
+                            <label for="quantity-${serviceId}">Quantidade de Peças</label>
+                            <input type="number" id="quantity-${serviceId}" min="1" value="1" required class="service-quantity">
+                        </div>
+                        <div>
+                            <label for="unit-price-${serviceId}">Valor Unitário (R$)</label>
+                            <input type="number" id="unit-price-${serviceId}" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            servicesContainer.insertAdjacentHTML('beforeend', serviceHTML);
+            updateCalculations();
+        }
+
+        function removeService(serviceId) {
+            const serviceElement = document.getElementById(`service-${serviceId}`);
+            if (serviceElement) {
+                serviceElement.remove();
+                updateCalculations();
+            }
+        }
+
+        function toggleOtherDescription(serviceId) {
+            const serviceType = document.getElementById(`service-type-${serviceId}`).value;
+            const otherDescription = document.getElementById(`other-description-${serviceId}`);
+            
+            if (serviceType === 'Outros') {
+                otherDescription.style.display = 'block';
+            } else {
+                otherDescription.style.display = 'none';
+            }
+        }
+
+        function getAllServices() {
+            const services = [];
+            const serviceElements = document.querySelectorAll('.service-container');
+            
+            serviceElements.forEach((element, index) => {
+                const serviceId = element.id.split('-')[1];
+                const model = document.getElementById(`model-${serviceId}`).value;
+                const serviceType = document.getElementById(`service-type-${serviceId}`).value;
+                const quantity = parseInt(document.getElementById(`quantity-${serviceId}`).value) || 0;
+                const unitPrice = parseFloat(document.getElementById(`unit-price-${serviceId}`).value) || 0;
+                const otherDescription = document.getElementById(`other-description-text-${serviceId}`).value;
+                
+                // Se for "Outros", usar a descrição personalizada
+                const description = serviceType === 'Outros' && otherDescription ? otherDescription : serviceType;
+                
+                if (model && serviceType && quantity > 0 && unitPrice > 0) {
+                    services.push({
+                        id: serviceId,
+                        model,
+                        serviceType,
+                        description,
+                        quantity,
+                        unitPrice,
+                        subtotal: quantity * unitPrice
+                    });
+                }
+            });
+            
+            return services;
+        }
+
+        // =============================================
+        // FUNÇÕES DE CÁLCULO
+        // =============================================
+        
+        function updateCalculations() {
+            const services = getAllServices();
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            
+            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+            const total = subtotal - discount;
+            
+            // Atualizar display dos cálculos
+            document.getElementById('subtotal-display').textContent = formatCurrency(subtotal);
+            document.getElementById('discount-display').textContent = formatCurrency(discount);
+            document.getElementById('total-display').textContent = formatCurrency(total);
+            
+            // Atualizar preview se visível
+            if (document.getElementById('invoice-preview').style.display === 'block') {
+                updatePreview();
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DO FORMULÁRIO
+        // =============================================
+        
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Validar campos obrigatórios
+            if (!validateForm()) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Gerar nota
+            generateInvoice();
+        }
+
+        function validateForm() {
+            const requiredFields = [
+                'client-name', 'generated-by', 'invoice-status'
+            ];
+            
+            for (const fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.focus();
+                    return false;
+                }
+            }
+            
+            // Validar serviços
+            const services = getAllServices();
+            if (services.length === 0) {
+                alert('Por favor, adicione pelo menos um serviço válido.');
+                return false;
+            }
+            
+            // Validar descrição para serviços do tipo "Outros"
+            for (const service of services) {
+                if (service.serviceType === 'Outros' && !service.description) {
+                    alert('Por favor, preencha a descrição para serviços do tipo "Outros".');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        async function generateInvoice() {
+            // Gerar ID único
+            const invoiceId = generateInvoiceId();
+            
+            // Coletar dados do formulário
+            const invoiceData = {
+                id: invoiceId,
+                clientName: document.getElementById('client-name').value,
+                services: getAllServices(),
+                discount: parseFloat(document.getElementById('discount').value) || 0,
+                discountInfo: document.getElementById('discount-info').value,
+                generatedBy: document.getElementById('generated-by').value,
+                status: document.getElementById('invoice-status').value,
+                date: new Date().toISOString()
+            };
+            
+            // Calcular totais
+            invoiceData.subtotal = invoiceData.services.reduce((sum, service) => sum + service.subtotal, 0);
+            invoiceData.total = invoiceData.subtotal - invoiceData.discount;
+            
+            // Salvar nota no Firebase
+            try {
+                await saveInvoiceToFirebase(invoiceData);
+                alert('Nota salva com sucesso no banco de dados! ID: ' + invoiceId);
+                
+                // Mostrar preview
+                showInvoicePreview(invoiceData);
+                
+                // Recarregar lista
+                loadSavedInvoices();
+            } catch (error) {
+                console.error('Erro ao salvar nota:', error);
+                alert('Erro ao salvar nota. Tente novamente.');
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DO FIREBASE
+        // =============================================
+        
+        async function saveInvoiceToFirebase(invoiceData) {
+            try {
+                await db.collection('invoices').doc(invoiceData.id).set(invoiceData);
+                return true;
+            } catch (error) {
+                console.error('Erro ao salvar no Firebase:', error);
+                throw error;
+            }
+        }
+
+        async function updateInvoiceStatus(invoiceId, newStatus) {
+            try {
+                await db.collection('invoices').doc(invoiceId).update({
+                    status: newStatus
+                });
+                return true;
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+                throw error;
+            }
+        }
+
+        async function loadInvoicesFromFirebase() {
+            try {
+                const snapshot = await db.collection('invoices').orderBy('date', 'desc').get();
+                const invoices = [];
+                snapshot.forEach(doc => {
+                    invoices.push(doc.data());
+                });
+                return invoices;
+            } catch (error) {
+                console.error('Erro ao carregar do Firebase:', error);
+                return [];
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DE PREVIEW
+        // =============================================
+        
+        function showInvoicePreview(invoiceData) {
+            // Atualizar dados no preview
+            document.getElementById('invoice-number').textContent = `Número: ${invoiceData.id}`;
+            document.getElementById('invoice-date').textContent = `Data de emissão: ${new Date(invoiceData.date).toLocaleDateString('pt-BR')}`;
+            
+            document.getElementById('preview-client-name').textContent = invoiceData.clientName;
+            document.getElementById('preview-generated-by').textContent = invoiceData.generatedBy;
+            document.getElementById('preview-status').innerHTML = getStatusBadge(invoiceData.status);
+            document.getElementById('preview-service-count').textContent = invoiceData.services.length;
+            
+            // Atualizar tabela de serviços
+            const servicesTable = document.getElementById('preview-services-table');
+            servicesTable.innerHTML = '';
+            
+            invoiceData.services.forEach(service => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${service.description}</td>
+                    <td>${service.model}</td>
+                    <td>${service.quantity}</td>
+                    <td>${formatCurrency(service.unitPrice)}</td>
+                    <td>${formatCurrency(service.subtotal)}</td>
+                `;
+                servicesTable.appendChild(row);
+            });
+            
+            document.getElementById('preview-subtotal-final').textContent = formatCurrency(invoiceData.subtotal);
+            document.getElementById('preview-discount-final').textContent = formatCurrency(invoiceData.discount);
+            document.getElementById('preview-total-final').textContent = formatCurrency(invoiceData.total);
+            
+            // Informações de desconto
+            if (invoiceData.discountInfo) {
+                document.getElementById('preview-discount-info-container').style.display = 'block';
+                document.getElementById('preview-discount-info').textContent = invoiceData.discountInfo;
+            } else {
+                document.getElementById('preview-discount-info-container').style.display = 'none';
+            }
+            
+            // Configurar PIX
+            setupPixSection(invoiceData);
+            
+            // Mostrar preview
+            document.getElementById('invoice-preview').style.display = 'block';
+            
+            // Esconder prévia de imagem se existir
+            document.getElementById('image-preview-container').style.display = 'none';
+            
+            // Scroll para o preview
+            document.getElementById('invoice-preview').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updatePreview() {
+            const services = getAllServices();
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
+            const total = subtotal - discount;
+            
+            document.getElementById('preview-subtotal-final').textContent = formatCurrency(subtotal);
+            document.getElementById('preview-discount-final').textContent = formatCurrency(discount);
+            document.getElementById('preview-total-final').textContent = formatCurrency(total);
+            
+            // Atualizar PIX
+            const generatedBy = document.getElementById('generated-by').value;
+            if (generatedBy && PIX_DATA[generatedBy]) {
+                document.getElementById('pix-amount').textContent = formatCurrency(total);
+            }
+        }
+
+        function setupPixSection(invoiceData) {
+            const pixData = PIX_DATA[invoiceData.generatedBy];
+            
+            if (pixData) {
+                document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.total);
+                document.getElementById('pix-receiver').textContent = pixData.nome;
+                document.getElementById('pix-bank').textContent = pixData.banco;
+                document.getElementById('pix-key').textContent = pixData.cpf;
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DE GERAÇÃO DE IMAGEM
+        // =============================================
+        
+        async function generateImage() {
+            const element = document.getElementById('invoice-preview-content');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const generateBtn = document.getElementById('generate-image');
+            const loadingElement = document.getElementById('image-loading');
+            
+            // Mostrar loading
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i class="fas fa-spinner"></i> Gerando Imagem...';
+            generateBtn.disabled = true;
+            loadingElement.style.display = 'block';
+            
+            try {
+                // Configurações otimizadas para html2canvas
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
+                });
+                
+                // Converter para URL de dados
+                const imageData = canvas.toDataURL('image/png', 1.0);
+                
+                // Mostrar prévia
+                imagePreview.src = imageData;
+                imagePreviewContainer.style.display = 'block';
+                
+                // Criar link de download
+                const downloadLink = document.createElement('a');
+                downloadLink.href = imageData;
+                downloadLink.download = `Nota_Cobrança_${new Date().toISOString().slice(0, 10)}.png`;
+                
+                // Disparar download automaticamente
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // Scroll para a imagem
+                imagePreviewContainer.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Erro ao gerar imagem:', error);
+                alert('Erro ao gerar imagem. Tente novamente ou use a função de impressão do navegador.');
+            } finally {
+                // Restaurar botão
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DA LISTA DE NOTAS SALVAS
+        // =============================================
+        
+        async function loadSavedInvoices() {
+            try {
+                const invoices = await loadInvoicesFromFirebase();
+                displaySavedInvoices(invoices);
+            } catch (error) {
+                console.error('Erro ao carregar notas:', error);
+                alert('Erro ao carregar notas salvas.');
+            }
+        }
+
+        function displaySavedInvoices(invoices) {
+            const container = document.getElementById('saved-invoices-list');
+            
+            if (invoices.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma nota salva ainda.</p>';
+                return;
+            }
+            
+            container.innerHTML = invoices.map(invoice => `
+                <div class="invoice-item">
+                    <div class="invoice-item-info">
+                        <h4>${invoice.clientName} ${getStatusBadge(invoice.status)}</h4>
+                        <div class="invoice-item-details">
+                            <strong>ID:</strong> ${invoice.id} | 
+                            <strong>Serviços:</strong> ${invoice.services.length} | 
+                            <strong>Valor:</strong> ${formatCurrency(invoice.total)} | 
+                            <strong>Data:</strong> ${new Date(invoice.date).toLocaleDateString('pt-BR')} |
+                            <strong>Gerado por:</strong> ${invoice.generatedBy}
+                        </div>
+                    </div>
+                    <div class="invoice-item-actions">
+                        <button class="btn-image" onclick="viewInvoice('${invoice.id}')">Ver</button>
+                        <button class="btn-change-status" onclick="openStatusModal('${invoice.id}')">
+                            <i class="fas fa-edit"></i> Alterar Status
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function viewInvoice(invoiceId) {
+            try {
+                const doc = await db.collection('invoices').doc(invoiceId).get();
+                if (doc.exists) {
+                    const invoice = doc.data();
+                    showInvoicePreview(invoice);
+                } else {
+                    alert('Nota não encontrada.');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar nota:', error);
+                alert('Erro ao carregar nota.');
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES DE MUDANÇA DE STATUS
+        // =============================================
+        
+        function openStatusModal(invoiceId) {
+            currentInvoiceToUpdate = invoiceId;
+            document.getElementById('status-modal').style.display = 'flex';
+            document.getElementById('new-status').focus();
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').style.display = 'none';
+            document.getElementById('new-status').value = '';
+            document.getElementById('status-password').value = '';
+            currentInvoiceToUpdate = null;
+        }
+
+        async function changeInvoiceStatus() {
+            const newStatus = document.getElementById('new-status').value;
+            const password = document.getElementById('status-password').value;
+            
+            if (!newStatus) {
+                alert('Por favor, selecione o novo status.');
+                return;
+            }
+            
+            if (password !== ADMIN_PASSWORD) {
+                alert('Senha administrativa incorreta!');
+                document.getElementById('status-password').value = '';
+                document.getElementById('status-password').focus();
+                return;
+            }
+            
+            try {
+                await updateInvoiceStatus(currentInvoiceToUpdate, newStatus);
+                alert('Status da nota atualizado com sucesso!');
+                closeStatusModal();
+                loadSavedInvoices();
+                
+                // Se a nota atual está sendo visualizada, atualizar o preview
+                const currentPreview = document.getElementById('invoice-number').textContent;
+                if (currentPreview.includes(currentInvoiceToUpdate)) {
+                    viewInvoice(currentInvoiceToUpdate);
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+                alert('Erro ao atualizar status da nota.');
+            }
+        }
+
+        // =============================================
+        // FUNÇÕES UTILITÁRIAS
+        // =============================================
+        
+        function resetForm() {
+            document.getElementById('invoice-form').reset();
+            document.getElementById('invoice-preview').style.display = 'none';
+            document.getElementById('image-preview-container').style.display = 'none';
+            
+            // Remover todos os serviços exceto o primeiro
+            const servicesContainer = document.getElementById('services-container');
+            while (servicesContainer.children.length > 1) {
+                servicesContainer.removeChild(servicesContainer.lastChild);
+            }
+            
+            // Resetar contador
+            serviceCounter = 1;
+            
+            updateCalculations();
+        }
     </script>
 </body>
 </html>
