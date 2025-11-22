@@ -1,4 +1,4 @@
-f
+1
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -41,12 +41,12 @@ f
             background-color: #f9f9f9;
             color: var(--text);
             line-height: 1.6;
-            min-width: 100%;
+            min-width: 1040px;
             overflow-x: auto;
         }
 
         .container {
-            max-width: 1200px;
+            width: 1040px;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -57,7 +57,6 @@ f
             color: white;
             padding: 20px 0;
             box-shadow: var(--shadow);
-            position: relative;
         }
 
         .header-content {
@@ -340,7 +339,7 @@ f
         }
         
         .invoice-preview-content {
-            max-width: 100%;
+            width: 100%;
             margin: 0 auto;
             background: white;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -867,30 +866,8 @@ f
             color: white;
         }
 
-        /* Remover todas as media queries para mobile */
-        /* Manter apenas as para telas maiores se necessário */
-        
-        @media (min-width: 1200px) {
-            .container {
-                max-width: 1300px;
-            }
-        }
-
-        /* Adicionar uma media query mínima para evitar visualização em telas muito pequenas */
-        @media (max-width: 768px) {
-            body {
-                min-width: 768px;
-                overflow-x: auto;
-            }
-            
-            .container {
-                min-width: 768px;
-            }
-            
-            .invoice-table {
-                min-width: 700px;
-            }
-        }
+        /* Remover todas as media queries para responsividade */
+        /* Layout fixo apenas para desktop */
     </style>
 </head>
 <body>
@@ -1225,7 +1202,7 @@ f
     </div>
 
     <script>
-        // O JavaScript permanece exatamente o mesmo
+        // O JavaScript permanece exatamente o mesmo do código anterior
         // =============================================
         // CONFIGURAÇÃO DO FIREBASE
         // =============================================
