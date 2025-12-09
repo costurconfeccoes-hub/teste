@@ -1,18 +1,45 @@
-1
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Nota de Cobrança - Costur Confecções</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <!-- Firebase Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    
+    <title>Gerador de QR Codes - Confecção</title>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js'
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            query, 
+            where, 
+            updateDoc,
+            doc 
+        } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js'
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAc1iUDZEjyDOtrY9UT_idP5_TGODIsc9E",
+            authDomain: "costur-agendamentos.firebaseapp.com",
+            projectId: "costur-agendamentos",
+            storageBucket: "costur-agendamentos.firebasestorage.app",
+            messagingSenderId: "948222283708",
+            appId: "1:948222283708:web:a82876883f247e51ede5b9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Exportar funções para uso global
+        window.firebase = {
+            db,
+            collection,
+            getDocs,
+            query,
+            where,
+            updateDoc,
+            doc
+        };
+    </script>
     <style>
         * {
             margin: 0;
@@ -20,1885 +47,1057 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #3498db;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-            --text: #333;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --admin-color: #8e44ad;
-            --completed-color: #27ae60;
-            --pix-color: #32BCAD;
-        }
-
+        
         body {
-            background-color: #f9f9f9;
-            color: var(--text);
-            line-height: 1.6;
-            min-width: 1040px;
-            overflow-x: auto;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
         }
-
+        
         .container {
-            width: 1040px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 0 20px;
         }
-
-        /* Header */
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 20px 0;
-            box-shadow: var(--shadow);
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            text-align: center;
+            margin-bottom: 15px;
         }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background-color: var(--light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px solid var(--secondary);
-        }
-
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .logo-text h1 {
-            font-size: 1.8rem;
+        
+        .header h1 {
+            color: #0f172a;
             margin-bottom: 5px;
-            color: white;
-        }
-
-        .logo-text p {
-            font-style: italic;
-            opacity: 0.9;
-            font-size: 1rem;
-            color: white;
-        }
-
-        .header-contact {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #FFF;
-            font-size: 1rem;
-        }
-
-        .contact-item i {
-            color: #FFF;
-            font-size: 0.9rem;
-        }
-
-        .contact-item span {
-            color: #FFF;
-            font-weight: 500;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 80px 0;
-            text-align: center;
-        }
-
-        .hero h2 {
-            font-size: 2.5rem;
-            margin-bottom: 25px;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            max-width: 800px;
-            margin: 0 auto 40px;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--secondary);
-            color: white;
-            padding: 15px 40px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-        }
-
-        /* Sections */
-        section {
-            padding: 70px 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        .section-title h2 {
-            font-size: 2.2rem;
-            color: var(--primary);
-            display: inline-block;
-            padding-bottom: 15px;
-        }
-
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            width: 100px;
-            height: 4px;
-            background-color: var(--secondary);
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        /* Card Styles */
-        .card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease;
+            font-size: 22px;
         }
         
-        .card:hover {
-            transform: translateY(-5px);
+        .header p {
+            color: #64748b;
+            font-size: 13px;
         }
         
-        .card h2 {
-            color: var(--primary);
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-            display: flex;
-            align-items: center;
-            font-size: 1.6rem;
+        .content {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         
-        .card h2 i {
-            margin-right: 15px;
+        .form-container {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 2px solid #cbd5e1;
+            margin-bottom: 15px;
         }
         
         .form-group {
-            margin-bottom: 25px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        
-        input, select, button, textarea {
-            width: 100%;
-            padding: 15px 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-            outline: none;
-        }
-        
-        button {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        }
-        
-        .btn-image {
-            background: var(--success-color);
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            width: auto;
-            margin-top: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-image i {
-            margin-right: 10px;
-        }
-        
-        .btn-pix {
-            background: var(--pix-color);
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            width: auto;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-pix i {
-            margin-right: 10px;
-        }
-        
-        .btn-delete {
-            background: var(--danger-color);
-            padding: 10px 20px;
-            font-size: 1rem;
-            width: auto;
-            margin-left: 15px;
-        }
-        
-        .btn-add-service {
-            background: var(--success-color);
-            padding: 12px 25px;
-            font-size: 1rem;
-            width: auto;
-            margin-top: 15px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-add-service i {
-            margin-right: 10px;
-        }
-        
-        .btn-remove-service {
-            background: var(--danger-color);
-            padding: 10px 15px;
-            font-size: 0.9rem;
-            width: auto;
-        }
-
-        .btn-change-status {
-            background: var(--admin-color);
-            padding: 10px 20px;
-            font-size: 1rem;
-            width: auto;
-            margin-left: 15px;
-        }
-
-        .invoice-preview {
-            border: 2px dashed #ddd;
-            border-radius: 12px;
-            padding: 30px;
-            margin-top: 30px;
-            background: white;
-            display: none;
-        }
-        
-        .invoice-preview-content {
-            width: 100%;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            padding: 25px;
-        }
-        
-        .image-actions {
-            margin-top: 25px;
-            text-align: center;
-            padding-top: 25px;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-        
-        .invoice-header {
-            text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--primary);
-        }
-        
-        .invoice-logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        
-        .invoice-address {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-        
-        .invoice-title {
-            font-size: 1.5rem;
-            color: var(--dark);
-            margin-bottom: 10px;
-        }
-        
-        .invoice-number {
-            font-size: 1.1rem;
-            color: var(--primary);
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .invoice-date {
-            color: #666;
-            font-size: 1rem;
-        }
-        
-        .invoice-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        
-        .client-info, .service-info {
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        
-        .invoice-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 1rem;
-        }
-        
-        .invoice-table th,
-        .invoice-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-        
-        .invoice-table th {
-            background: var(--primary);
-            color: white;
-            text-align: left;
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        
-        .invoice-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        /* Definindo larguras específicas para as colunas */
-        .invoice-table th:nth-child(1),
-        .invoice-table td:nth-child(1) {
-            width: 25%;
-        }
-        
-        .invoice-table th:nth-child(2),
-        .invoice-table td:nth-child(2) {
-            width: 20%;
-        }
-        
-        .invoice-table th:nth-child(3),
-        .invoice-table td:nth-child(3) {
-            width: 15%;
-            text-align: center;
-        }
-        
-        .invoice-table th:nth-child(4),
-        .invoice-table td:nth-child(4) {
-            width: 20%;
-            text-align: right;
-        }
-        
-        .invoice-table th:nth-child(5),
-        .invoice-table td:nth-child(5) {
-            width: 20%;
-            text-align: right;
-        }
-        
-        .invoice-totals {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 1.1rem;
-        }
-        
-        .total-final {
-            font-weight: bold;
-            font-size: 1.3rem;
-            color: var(--primary);
-            border-top: 2px solid var(--primary);
-            margin-top: 10px;
-            padding-top: 10px;
-        }
-        
-        .discount-info {
-            margin-top: 15px;
-            padding: 15px;
-            background: #fff9e6;
-            border-radius: 8px;
-            border-left: 4px solid var(--warning-color);
-            font-size: 1rem;
-        }
-        
-        .calculation-result {
-            background: linear-gradient(135deg, #e8f4fd, #d4e9fa);
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .calculation-result h3 {
             margin-bottom: 12px;
-            color: var(--primary);
-            font-size: 1.2rem;
         }
         
-        .calculation-line {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed #ccc;
-            font-size: 1.1rem;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #334155;
+            font-size: 13px;
         }
         
-        .calculation-final {
-            font-weight: bold;
-            font-size: 1.3rem;
-            color: var(--primary);
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 2px solid var(--secondary);
-        }
-        
-        .saved-invoices {
-            margin-top: 40px;
-        }
-        
-        .invoice-item {
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
-        .invoice-item-info {
-            flex: 1;
+        .form-group select {
+            cursor: pointer;
         }
         
-        .invoice-item-info h4 {
-            color: var(--primary);
-            margin-bottom: 8px;
-            font-size: 1.2rem;
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #475569;
         }
         
-        .invoice-item-details {
-            font-size: 1rem;
-            color: #666;
+        /* Campo quantidade apenas leitura */
+        .form-group .readonly-input {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+            cursor: not-allowed;
+            user-select: none;
         }
         
-        .invoice-item-actions {
+        .form-row {
             display: flex;
             gap: 12px;
+            flex-wrap: wrap;
         }
         
-        .pix-section {
-            background: linear-gradient(135deg, #e8f6f3, #d4f0eb);
-            padding: 25px;
-            border-radius: 10px;
-            margin-top: 25px;
-            border-left: 4px solid var(--pix-color);
-            text-align: center;
+        .form-column {
+            flex: 1;
+            min-width: 180px;
         }
         
-        .pix-header {
+        .generate-btn {
+            background: #475569;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
-        }
-        
-        .pix-icon {
-            font-size: 1.8rem;
-            margin-right: 12px;
-        }
-        
-        .pix-title {
-            font-size: 1.4rem;
-            color: var(--pix-color);
-            font-weight: bold;
-        }
-        
-        .pix-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            align-items: center;
-        }
-        
-        .pix-details {
-            text-align: center;
-        }
-        
-        .pix-info {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .pix-info h4 {
-            color: var(--pix-color);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .pix-amount {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: var(--pix-color);
-            margin-bottom: 15px;
-        }
-        
-        .pix-receiver-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            text-align: left;
-            font-size: 1rem;
-        }
-        
-        .pix-receiver-info p {
-            margin-bottom: 8px;
-        }
-        
-        .pix-key-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px dashed var(--pix-color);
-            margin-bottom: 20px;
-        }
-        
-        .pix-key-label {
-            font-weight: bold;
-            color: var(--pix-color);
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-        }
-        
-        .pix-key {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 1.1rem;
-            font-weight: bold;
-            word-break: break-all;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+            gap: 8px;
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            transition: all 0.2s;
+            margin-top: 5px;
         }
         
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-            width: 90%;
+        .generate-btn:hover {
+            background: #334155;
         }
         
-        .modal h3 {
-            color: var(--primary);
-            margin-bottom: 20px;
-            font-size: 1.3rem;
+        .generate-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
         }
         
-        .local-info {
-            background: linear-gradient(135deg, #e8f4fd, #d4e9fa);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid var(--secondary);
-            font-size: 1rem;
+        .preview-area {
+            margin-top: 15px;
+            display: none;
         }
         
-        .local-info strong {
-            color: var(--primary);
-        }
-        
-        .service-container {
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: #f9f9f9;
-            position: relative;
-        }
-        
-        .service-header {
+        .preview-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #ddd;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
         }
         
-        .service-title {
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 1.2rem;
+        .preview-header h2 {
+            color: #0f172a;
+            font-size: 16px;
         }
         
-        .service-fields {
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        
+        .print-btn {
+            background: #475569;
+            color: white;
+        }
+        
+        .print-btn:hover {
+            background: #334155;
+        }
+        
+        .new-batch-btn {
+            background: #64748b;
+            color: white;
+        }
+        
+        .new-batch-btn:hover {
+            background: #475569;
+        }
+        
+        /* GRID COM BORDAS CINZA CLARO PARA SEPARAÇÃO */
+        .qr-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, 65px);
+            gap: 0;
+            padding: 0;
+            background: white;
+            border-radius: 0;
+            border: none;
+            justify-content: center;
         }
         
-        .service-other-description {
-            grid-column: 1 / -1;
+        .qr-item {
+            width: 65px;
+            height: 65px;
+            padding: 0;
+            margin: 0;
+            border: 0.5px solid #e5e7eb;
+            background: white;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        .qr-code {
+            width: 64px;
+            height: 64px;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        
+        .data-preview {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            word-break: break-all;
             display: none;
         }
         
-        .image-preview-container {
-            margin-top: 25px;
+        .footer {
             text-align: center;
-            display: none;
-        }
-        
-        .image-preview {
-            max-width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-        
-        .image-download-info {
             margin-top: 15px;
-            font-size: 1rem;
-            color: #666;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 11px;
         }
         
         .loading {
             display: none;
             text-align: center;
-            padding: 30px;
-            color: var(--primary);
+            padding: 15px;
         }
         
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #475569;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-            margin: 0 auto 20px;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
         }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Footer */
-        footer {
-            background-color: var(--primary);
-            color: white;
-            padding: 50px 0 25px;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 50px;
-            margin-bottom: 50px;
-        }
-
-        .footer-column h3 {
-            margin-bottom: 25px;
-            font-size: 1.4rem;
-        }
-
-        .footer-column p, .footer-column a {
-            margin-bottom: 12px;
-            display: block;
-            color: #ddd;
-            text-decoration: none;
-            font-size: 1.1rem;
-        }
-
-        .footer-column a:hover {
-            color: white;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 20px;
-            margin-top: 25px;
-            justify-content: center;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .social-links a:hover {
-            background-color: var(--secondary);
-            transform: translateY(-5px);
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 25px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 1rem;
-            color: #aaa;
+        
+        /* ESTILOS DE IMPRESSÃO COM BORDAS VISÍVEIS */
+        @media print {
+            .header, .form-container, .controls, .footer,
+            .new-batch-btn, .generate-btn, .data-preview {
+                display: none !important;
+            }
+            
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .content {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .preview-area {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* 1.7cm + 0.5mm de borda = 17.5mm total */
+            .qr-grid {
+                display: grid !important;
+                grid-template-columns: repeat(10, 17.5mm) !important;
+                gap: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                page-break-inside: avoid !important;
+            }
+            
+            .qr-item {
+                width: 17.5mm !important;
+                height: 17.5mm !important;
+                min-width: 17.5mm !important;
+                min-height: 17.5mm !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0.3mm solid #e5e7eb !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                box-sizing: border-box !important;
+            }
+            
+            .qr-code {
+                width: 17mm !important;
+                height: 17mm !important;
+                min-width: 17mm !important;
+                min-height: 17mm !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+            }
+            
+            .qr-code canvas, .qr-code img {
+                width: 16.5mm !important;
+                height: 16.5mm !important;
+                min-width: 16.5mm !important;
+                min-height: 16.5mm !important;
+                display: block !important;
+                background: white !important;
+            }
+            
+            /* MARGENS PERSONALIZADAS */
+            @page {
+                size: A4;
+                margin-left: 10mm;   /* 1cm esquerda */
+                margin-right: 10mm;  /* 1cm direita */
+                margin-top: 3mm;     /* superior padrão */
+                margin-bottom: 20mm; /* 2cm inferior */
+            }
         }
         
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-column {
+                min-width: 100%;
+            }
+            
+            .preview-header {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+            
+            .controls {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .qr-grid {
+                grid-template-columns: repeat(auto-fill, 65px);
+            }
+        }
+        
+        /* Estilos adicionais para informações do corte */
+        .corte-info {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 5px;
+            padding: 5px;
+            background: #f1f5f9;
+            border-radius: 3px;
+            border-left: 3px solid #475569;
+        }
+        
+        .success-msg {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 10px;
             border-radius: 5px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-left: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #10b981;
         }
         
-        .status-pendente {
-            background-color: var(--warning-color);
-            color: white;
+        .info-tooltip {
+            position: relative;
+            cursor: help;
         }
         
-        .status-pago {
-            background-color: var(--success-color);
+        .info-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: #334155;
             color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 1000;
         }
         
-        .status-cancelado {
-            background-color: var(--danger-color);
-            color: white;
+        /* Estilo para campo de quantidade de QR codes */
+        .qr-quantity-group {
+            margin-top: 10px;
         }
-
-        /* Remover todas as media queries para responsividade */
-        /* Layout fixo apenas para desktop */
+        
+        .qr-quantity-group label {
+            font-weight: 600;
+            color: #334155;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .qr-quantity-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .qr-quantity-input:focus {
+            outline: none;
+            border-color: #475569;
+        }
     </style>
+    <!-- Biblioteca para gerar QR Codes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container header-content">
-            <div class="logo-container">
-                <div class="logo">
-                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções" id="logo-image">
-                </div>
-                <div class="logo-text">
-                    <h1>Costur Confecções</h1>
-                    <p>Sua marca, nossa costura.</p>
-                </div>
-            </div>
-            <div class="header-contact">
-                <div class="contact-item">
-                    <i class="fas fa-phone"></i>
-                    <span>(81) 9.2140-5569 / (81) 9.9201-4171</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</span>
-                </div>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-qrcode"></i> GERADOR DE QR CODES</h1>
+            <p>Sistema de Rastreabilidade - Confecção</p>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h2>Gerador de Nota de Cobrança</h2>
-            <p>Crie notas de cobrança profissionais de forma rápida e prática.</p>
-            <a href="#gerador" class="btn">Criar Nota de Cobrança</a>
-        </div>
-    </section>
-
-    <!-- Sistema de Agendamento -->
-    <section id="gerador">
-        <div class="container">
-            <div class="section-title">
-                <h2>Gerador de Notas de Cobrança</h2>
-            </div>
-            
-            <div class="card">
-                <h2><i class="fas fa-file-invoice"></i> Dados da Nota de Cobrança</h2>
-                <form id="invoice-form">
-                    <div class="form-group">
-                        <label for="client-name">Nome do Cliente</label>
-                        <select id="client-name" required>
-                            <option value="">Selecione um cliente</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="generated-by">Gerado por</label>
-                        <select id="generated-by" required>
-                            <option value="">Selecione quem gerou a nota</option>
-                            <option value="Wallison Vinicius">Wallison Vinicius</option>
-                            <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="invoice-status">Status da Nota</label>
-                        <select id="invoice-status" required>
-                            <option value="">Selecione o status</option>
-                            <option value="pendente">Pendente</option>
-                            <option value="pago">Pago</option>
-                            <option value="cancelado">Cancelado</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Seção de serviços -->
-                    <div class="form-group">
-                        <h3 style="margin-bottom: 20px; color: var(--primary); font-size: 1.3rem;">Serviços</h3>
-                        <div id="services-container">
-                            <!-- Primeiro serviço (não pode ser removido) -->
-                            <div class="service-container" id="service-0">
-                                <div class="service-header">
-                                    <div class="service-title">Serviço #1</div>
-                                </div>
-                                <div class="service-fields">
-                                    <div>
-                                        <label for="model-0">Modelo</label>
-                                        <input type="text" id="model-0" required placeholder="Digite o modelo da peça" class="service-model">
-                                    </div>
-                                    <div>
-                                        <label for="service-type-0">Tipo de Serviço</label>
-                                        <select id="service-type-0" required class="service-type">
-                                            <option value="">Selecione o tipo de serviço</option>
-                                            <option value="Confecção Completa">Confecção Completa</option>
-                                            <option value="Confecção Parcial">Confecção Parcial</option>
-                                            <option value="Conserto de terceiros">Conserto de terceiros</option>
-                                            <option value="Garantia">Garantia</option>
-                                            <option value="Outros">Outros</option>
-                                        </select>
-                                    </div>
-                                    <div class="service-other-description" id="other-description-0">
-                                        <label for="other-description-text-0">Descrição do serviço (para "Outros")</label>
-                                        <textarea id="other-description-text-0" placeholder="Descreva o serviço realizado"></textarea>
-                                    </div>
-                                    <div>
-                                        <label for="quantity-0">Quantidade de Peças</label>
-                                        <input type="number" id="quantity-0" min="1" value="1" required class="service-quantity">
-                                    </div>
-                                    <div>
-                                        <label for="unit-price-0">Valor Unitário (R$)</label>
-                                        <input type="number" id="unit-price-0" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
-                                    </div>
-                                </div>
+        
+        <div class="content">
+            <div class="form-container">
+                <div class="form-row">
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="selectCorte">
+                                <i class="fas fa-cut"></i> SELECIONE O CORTE EM PRODUÇÃO
+                            </label>
+                            <select id="selectCorte" required>
+                                <option value="">Carregando cortes em produção...</option>
+                            </select>
+                            <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                <i class="fas fa-info-circle"></i> Mostrando apenas documentos com status "in-production"
                             </div>
                         </div>
-                        
-                        <button type="button" class="btn-add-service" id="add-service-btn">
-                            <i class="fas fa-plus"></i> Adicionar Outro Serviço
-                        </button>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="discount">Desconto (R$)</label>
-                        <input type="number" id="discount" min="0" step="0.01" value="0" placeholder="0,00">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="discount-info">Informações sobre o Desconto (Opcional)</label>
-                        <textarea id="discount-info" rows="3" placeholder="Descreva o motivo do desconto, se aplicável"></textarea>
-                    </div>
-                    
-                    <div class="calculation-result">
-                        <h3>Cálculos da Nota</h3>
-                        <div class="calculation-line">
-                            <span>Subtotal dos Serviços:</span>
-                            <span id="subtotal-display">R$ 0,00</span>
-                        </div>
-                        <div class="calculation-line">
-                            <span>Desconto:</span>
-                            <span id="discount-display">R$ 0,00</span>
-                        </div>
-                        <div class="calculation-final">
-                            <span>VALOR TOTAL:</span>
-                            <span id="total-display">R$ 0,00</span>
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="quantidadeCorte">
+                                <i class="fas fa-boxes"></i> QUANTIDADE DO CORTE
+                            </label>
+                            <input type="number" id="quantidadeCorte" 
+                                   class="readonly-input"
+                                   readonly
+                                   disabled
+                                   style="background-color: #f1f5f9; color: #475569; font-weight: bold;">
+                            <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                <i class="fas fa-lock"></i> Quantidade fixa do corte (não editável)
+                            </div>
                         </div>
                     </div>
-                    
-                    <button type="submit" id="generate-btn">Gerar e Salvar</button>
-                </form>
+                </div>
                 
-                <div class="local-info">
-                    <strong><i class="fas fa-info-circle"></i> Sistema em Nuvem:</strong> Esta nota será salva no banco de dados em nuvem (Firebase).
+                <div class="qr-quantity-group">
+                    <label for="quantidadeQR">
+                        <i class="fas fa-qrcode"></i> QUANTIDADE DE QR CODES A GERAR (1-1500)
+                    </label>
+                    <input type="number" id="quantidadeQR" 
+                           class="qr-quantity-input"
+                           min="1" max="1500" 
+                           value="100"
+                           required>
+                    <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                        <i class="fas fa-exclamation-circle"></i> Esta é a quantidade de QR Codes que serão gerados para impressão
+                    </div>
                 </div>
+                
+                <button class="generate-btn" id="generateBtn" disabled>
+                    <i class="fas fa-bolt"></i> GERAR QR CODES
+                </button>
             </div>
             
-            <div class="card">
-                <h2><i class="fas fa-file-alt"></i> Prévia da Nota de Cobrança</h2>
-                <div class="loading" id="image-loading">
-                    <div class="loading-spinner"></div>
-                    <p>Gerando imagem, aguarde...</p>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Carregando dados do Firebase...</p>
+            </div>
+            
+            <div class="preview-area" id="previewArea">
+                <div class="data-preview" id="dataPreview">
+                    <!-- Dados de exemplo serão mostrados aqui -->
                 </div>
-                <div class="invoice-preview" id="invoice-preview">
-                    <div class="invoice-preview-content" id="invoice-preview-content">
-                        <div class="invoice-header">
-                            <div class="invoice-logo">Costur Confecções</div>
-                            <div class="invoice-address">
-                                <div>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</div>
-                                <div>CEP: 55008-230</div>
-                                <div>Telefone: (81)9.2140-5569 / (81)9.9201-4171</div>
-                            </div>
-                            <div class="invoice-title">NOTA DE COBRANÇA</div>
-                            <div class="invoice-number" id="invoice-number">Número: </div>
-                            <div class="invoice-date" id="invoice-date">Data de emissão: </div>
-                        </div>
-                        
-                        <div class="invoice-details">
-                            <div class="client-info">
-                                <h3>Dados do Cliente</h3>
-                                <p><strong>Nome:</strong> <span id="preview-client-name">-</span></p>
-                            </div>
-                            
-                            <div class="service-info">
-                                <h3>Detalhes do Serviço</h3>
-                                <p><strong>Gerado por:</strong> <span id="preview-generated-by">-</span></p>
-                                <p><strong>Status:</strong> <span id="preview-status">-</span></p>
-                                <p><strong>Quantidade de Serviços:</strong> <span id="preview-service-count">-</span></p>
-                            </div>
-                        </div>
-                        
-                        <table class="invoice-table">
-                            <thead>
-                                <tr>
-                                    <th>Descrição</th>
-                                    <th>Modelo</th>
-                                    <th>Quantidade</th>
-                                    <th>Valor Unitário</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody id="preview-services-table">
-                                <!-- Serviços serão inseridos aqui dinamicamente -->
-                            </tbody>
-                        </table>
-                        
-                        <div class="invoice-totals">
-                            <div>
-                                <div class="total-row">
-                                    <span>Subtotal:</span>
-                                    <span id="preview-subtotal-final">R$ 0,00</span>
-                                </div>
-                                <div class="total-row">
-                                    <span>Desconto:</span>
-                                    <span id="preview-discount-final">R$ 0,00</span>
-                                </div>
-                                <div class="total-row total-final">
-                                    <span>VALOR TOTAL:</span>
-                                    <span id="preview-total-final">R$ 0,00</span>
-                                </div>
-                            </div>
-                            
-                            <div id="preview-discount-info-container" class="discount-info" style="display: none;">
-                                <h4>Informações do Desconto</h4>
-                                <p id="preview-discount-info">-</p>
-                            </div>
-                        </div>
-
-                        <!-- Seção PIX (Sem QR Code) -->
-                        <div class="pix-section" id="pix-section">
-                            <div class="pix-header">
-                                <div class="pix-icon"><i class="fas fa-qrcode"></i></div>
-                                <div class="pix-title">PAGAMENTO VIA PIX</div>
-                            </div>
-                            
-                            <div class="pix-content">
-                                <div class="pix-details">
-                                    <div class="pix-info">
-                                        <div class="pix-amount" id="pix-amount">R$ 0,00</div>
-                                        <h4>Valor para pagamento</h4>
-                                        
-                                        <div class="pix-receiver-info">
-                                            <p><strong>Beneficiário:</strong> <span id="pix-receiver">-</span></p>
-                                            <p><strong>Banco:</strong> <span id="pix-bank">PagSeguro</span></p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="pix-key-container">
-                                        <div class="pix-key-label">CHAVE PIX (CPF)</div>
-                                        <div class="pix-key" id="pix-key">-</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="image-preview-container" id="image-preview-container">
-                        <h3>Prévia da Imagem Gerada</h3>
-                        <img id="image-preview" class="image-preview" alt="Prévia da nota fiscal">
-                        <p class="image-download-info">A imagem foi gerada com sucesso! Use o botão abaixo para baixar.</p>
-                    </div>
-                    
-                    <div class="image-actions">
-                        <button class="btn-image" id="generate-image">
-                            <i class="fas fa-image"></i> Gerar Imagem
+                
+                <div class="preview-header">
+                    <h2>QR Codes para Impressão</h2>
+                    <div class="controls">
+                        <button class="control-btn print-btn" id="printBtn">
+                            <i class="fas fa-print"></i> IMPRIMIR
                         </button>
-                        <button class="btn-pix" id="new-invoice">
-                            <i class="fas fa-plus"></i> Nova Nota
+                        <button class="control-btn new-batch-btn" id="newBatchBtn">
+                            <i class="fas fa-redo"></i> NOVO
                         </button>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card saved-invoices">
-                <h2><i class="fas fa-list"></i> Notas Salvas <small>(Banco de dados em nuvem)</small></h2>
-                <div id="saved-invoices-list">
-                    <!-- Notas salvas serão listadas aqui -->
+                
+                <div class="qr-grid" id="qrGrid">
+                    <!-- QR Codes serão gerados aqui -->
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>Costur Confecções</h3>
-                    <p>Sua marca, nossa costura. Oferecemos serviços de confecção com qualidade e agilidade.</p>
-                    <div class="social-links">
-                        <a href="https://www.instagram.com/costurconfeccoes"><i class="fab fa-instagram"></i></a>
-                    </div>
+                
+                <div class="footer">
+                    <p><i class="fas fa-industry"></i> Sistema de produção têxtil com rastreabilidade individual</p>
                 </div>
-                <div class="footer-column">
-                    <h3>Contato</h3>
-                    <p><i class="fas fa-phone"></i> (81) 9.2140-5569</p>
-                    <p><i class="fas fa-phone"></i> (81) 9.9201-4171</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Rua professor ferrucio, 436, São Francisco - Caruaru/PE</p>
-                </div>
-                <div class="footer-column">
-                    <h3>Horário de Funcionamento</h3>
-                    <p>Segunda a Sexta: 08:00 às 12:00 - 14:00 às 18:00</p>
-                    <p>Sábado: 08:00 às 14:00</p>
-                    <p>Domingo: Fechado</p>
-                </div>
-            </div>
-            
-            <div class="copyright">
-                &copy; 2023 Costur Confecções. Todos os direitos reservados.
-            </div>
-        </div>
-    </footer>
-
-    <!-- Modal de Mudança de Status -->
-    <div class="modal" id="status-modal">
-        <div class="modal-content">
-            <h3>Alterar Status da Nota</h3>
-            <div class="form-group">
-                <label for="new-status">Novo Status:</label>
-                <select id="new-status" required>
-                    <option value="">Selecione o novo status</option>
-                    <option value="pendente">Pendente</option>
-                    <option value="pago">Pago</option>
-                    <option value="cancelado">Cancelado</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="status-password">Senha Administrativa:</label>
-                <input type="password" id="status-password" placeholder="Digite a senha administrativa" required>
-            </div>
-            <div style="display: flex; gap: 15px; margin-top: 25px;">
-                <button onclick="changeInvoiceStatus()" style="flex: 1;">Confirmar Alteração</button>
-                <button onclick="closeStatusModal()" style="flex: 1; background: var(--danger-color);">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // O JavaScript permanece exatamente o mesmo do código anterior
-        // =============================================
-        // CONFIGURAÇÃO DO FIREBASE
-        // =============================================
+        // Elementos da página
+        const generateBtn = document.getElementById('generateBtn');
+        const printBtn = document.getElementById('printBtn');
+        const newBatchBtn = document.getElementById('newBatchBtn');
+        const previewArea = document.getElementById('previewArea');
+        const loading = document.getElementById('loading');
+        const qrGrid = document.getElementById('qrGrid');
+        const dataPreview = document.getElementById('dataPreview');
+        const selectCorte = document.getElementById('selectCorte');
+        const quantidadeCorte = document.getElementById('quantidadeCorte'); // Campo imutável
+        const quantidadeQR = document.getElementById('quantidadeQR'); // Campo para quantidade de QR codes
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyChK3nnmmyJ-jxwIgRMkmiJ-toonT6oQCA",
-            authDomain: "gerador-de-notas-e591f.firebaseapp.com",
-            projectId: "gerador-de-notas-e591f",
-            storageBucket: "gerador-de-notas-e591f.firebasestorage.app",
-            messagingSenderId: "700565084876",
-            appId: "1:700565084876:web:f69a2742868da5255f8069"
-        };
-
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Configuração do Firebase para clientes
-        const clientFirebaseConfig = {
-            apiKey: "AIzaSyCyTwlzsMG5-l07vnrb8XIx9J6AIP_Xuvw",
-            authDomain: "cadastro-cliente-6bd66.firebaseapp.com",
-            projectId: "cadastro-cliente-6bd66",
-            storageBucket: "cadastro-cliente-6bd66.firebasestorage.app",
-            messagingSenderId: "492238035100",
-            appId: "1:492238035100:web:cfb93092a71798dd2e7559"
-        };
-
-        // Inicializar segundo app Firebase para clientes
-        const clientApp = firebase.initializeApp(clientFirebaseConfig, "clientApp");
-        const clientDb = firebase.app("clientApp").firestore();
-
-        // Senha administrativa
-        const ADMIN_PASSWORD = "CostuADM2023";
-        let currentInvoiceToUpdate = null;
-
-        // Dados PIX por gerador
-        const PIX_DATA = {
-            "Eduarda Emmanoelly": {
-                cpf: "70923137408",
-                nome: "Eduarda Emmanoelly Torres do Nascimento",
-                banco: "PagSeguro"
-            },
-            "Wallison Vinicius": {
-                cpf: "10844833436", 
-                nome: "Wallison Vinicius da Silva de Oliveira",
-                banco: "PagSeguro"
-            }
-        };
-
-        // Contador de serviços
-        let serviceCounter = 1;
-
-        // =============================================
-        // FUNÇÕES UTILITÁRIAS
-        // =============================================
+        // Variáveis
+        let cortesEmProducao = [];
+        let documentoSelecionadoId = ''; // Para armazenar o ID do documento Firestore
         
-        function generateInvoiceId() {
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const numbers = '0123456789';
+        // Formato do texto para o QR Code
+        function formatarTextoQR(idCorte, sequencia) {
+            const agora = new Date();
+            const dataGeracao = agora.toISOString().split('T')[0];
+            const horaGeracao = agora.toTimeString().split(' ')[0];
             
-            let result = '';
-            
-            // Gerar 4 letras aleatórias
-            for (let i = 0; i < 4; i++) {
-                result += letters.charAt(Math.floor(Math.random() * letters.length));
-            }
-            
-            // Gerar 8 números aleatórios
-            for (let i = 0; i < 8; i++) {
-                result += numbers.charAt(Math.floor(Math.random() * numbers.length));
-            }
-            
-            return result;
+            return `IDCORTE: ${idCorte}
+SEQUENCIA: ${sequencia}
+DATA: ${dataGeracao}
+GERADO: ${dataGeracao} ${horaGeracao}`;
         }
-
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-            }).format(value);
-        }
-
-        function getStatusBadge(status) {
-            const statusMap = {
-                'pendente': { text: 'PENDENTE', class: 'status-pendente' },
-                'pago': { text: 'PAGO', class: 'status-pago' },
-                'cancelado': { text: 'CANCELADO', class: 'status-cancelado' }
-            };
-            
-            const statusInfo = statusMap[status] || { text: status, class: '' };
-            return `<span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
-        }
-
-        // =============================================
-        // INICIALIZAÇÃO DO SISTEMA
-        // =============================================
         
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeSystem();
-            setupEventListeners();
-            loadSavedInvoices();
-            loadClients();
-        });
-
-        function initializeSystem() {
-            setupCalculations();
-        }
-
-        function setupEventListeners() {
-            // Formulário principal
-            document.getElementById('invoice-form').addEventListener('submit', handleFormSubmit);
-            
-            // Botões de ação
-            document.getElementById('generate-image').addEventListener('click', generateImage);
-            document.getElementById('new-invoice').addEventListener('click', resetForm);
-            
-            // Botão para adicionar serviços
-            document.getElementById('add-service-btn').addEventListener('click', addService);
-            
-            // Campos para cálculos em tempo real
-            document.getElementById('discount').addEventListener('input', updateCalculations);
-            
-            // Event delegation para campos de serviço (que são adicionados dinamicamente)
-            document.getElementById('services-container').addEventListener('input', function(e) {
-                if (e.target.classList.contains('service-quantity') || 
-                    e.target.classList.contains('service-unit-price')) {
-                    updateCalculations();
-                }
-            });
-            
-            // Event delegation para mostrar/ocultar campo de descrição quando "Outros" é selecionado
-            document.getElementById('services-container').addEventListener('change', function(e) {
-                if (e.target.classList.contains('service-type')) {
-                    const serviceId = e.target.id.split('-')[2];
-                    toggleOtherDescription(serviceId);
-                }
-            });
-        }
-
-        function setupCalculations() {
-            updateCalculations();
-        }
-
-        // =============================================
-        // FUNÇÕES DE CARREGAMENTO DE CLIENTES
-        // =============================================
-        
-        async function loadClients() {
+        // Carregar cortes em produção do Firebase (da coleção appointments)
+        async function carregarCortesEmProducao() {
             try {
-                const snapshot = await clientDb.collection('clientes').get();
-                const clientSelect = document.getElementById('client-name');
+                loading.style.display = 'block';
+                selectCorte.innerHTML = '<option value="">Carregando cortes em produção...</option>';
+                generateBtn.disabled = true;
                 
-                snapshot.forEach(doc => {
-                    const client = doc.data();
-                    // Verificar se o cliente está ativo (statusCadastro === "Ativo")
-                    // E se tem uma marca definida
-                    if (client.statusCadastro === "Ativo" && client.marca) {
-                        const option = document.createElement('option');
-                        option.value = client.marca;
-                        option.textContent = client.marca;
-                        clientSelect.appendChild(option);
-                    }
-                });
-
-                // Se não encontrou nenhum cliente ativo, mostrar mensagem
-                if (clientSelect.children.length === 1) { // Apenas a opção padrão "Selecione um cliente"
-                    console.log('Nenhum cliente ativo encontrado no banco de dados');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar clientes:', error);
-                // Fallback para input caso haja erro
-                const clientSelect = document.getElementById('client-name');
-                clientSelect.outerHTML = '<input type="text" id="client-name" required placeholder="Digite o nome completo do cliente">';
-            }
-        }
-
-        // =============================================
-        // FUNÇÕES DE SERVIÇOS
-        // =============================================
-        
-        function addService() {
-            const servicesContainer = document.getElementById('services-container');
-            const serviceId = serviceCounter++;
-            
-            const serviceHTML = `
-                <div class="service-container" id="service-${serviceId}">
-                    <div class="service-header">
-                        <div class="service-title">Serviço #${serviceId + 1}</div>
-                        <button type="button" class="btn-remove-service" onclick="removeService(${serviceId})">
-                            <i class="fas fa-trash"></i> Remover
-                        </button>
-                    </div>
-                    <div class="service-fields">
-                        <div>
-                            <label for="model-${serviceId}">Modelo</label>
-                            <input type="text" id="model-${serviceId}" required placeholder="Digite o modelo da peça" class="service-model">
-                        </div>
-                        <div>
-                            <label for="service-type-${serviceId}">Tipo de Serviço</label>
-                            <select id="service-type-${serviceId}" required class="service-type">
-                                <option value="">Selecione o tipo de serviço</option>
-                                <option value="Confecção Completa">Confecção Completa</option>
-                                <option value="Confecção Parcial">Confecção Parcial</option>
-                                <option value="Conserto de terceiros">Conserto de terceiros</option>
-                                <option value="Garantia">Garantia</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        <div class="service-other-description" id="other-description-${serviceId}">
-                            <label for="other-description-text-${serviceId}">Descrição do serviço (para "Outros")</label>
-                            <textarea id="other-description-text-${serviceId}" placeholder="Descreva o serviço realizado"></textarea>
-                        </div>
-                        <div>
-                            <label for="quantity-${serviceId}">Quantidade de Peças</label>
-                            <input type="number" id="quantity-${serviceId}" min="1" value="1" required class="service-quantity">
-                        </div>
-                        <div>
-                            <label for="unit-price-${serviceId}">Valor Unitário (R$)</label>
-                            <input type="number" id="unit-price-${serviceId}" min="0" step="0.01" required placeholder="0,00" class="service-unit-price">
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            servicesContainer.insertAdjacentHTML('beforeend', serviceHTML);
-            updateCalculations();
-        }
-
-        function removeService(serviceId) {
-            const serviceElement = document.getElementById(`service-${serviceId}`);
-            if (serviceElement) {
-                serviceElement.remove();
-                updateCalculations();
-            }
-        }
-
-        function toggleOtherDescription(serviceId) {
-            const serviceType = document.getElementById(`service-type-${serviceId}`).value;
-            const otherDescription = document.getElementById(`other-description-${serviceId}`);
-            
-            if (serviceType === 'Outros') {
-                otherDescription.style.display = 'block';
-            } else {
-                otherDescription.style.display = 'none';
-            }
-        }
-
-        function getAllServices() {
-            const services = [];
-            const serviceElements = document.querySelectorAll('.service-container');
-            
-            serviceElements.forEach((element, index) => {
-                const serviceId = element.id.split('-')[1];
-                const model = document.getElementById(`model-${serviceId}`).value;
-                const serviceType = document.getElementById(`service-type-${serviceId}`).value;
-                const quantity = parseInt(document.getElementById(`quantity-${serviceId}`).value) || 0;
-                const unitPrice = parseFloat(document.getElementById(`unit-price-${serviceId}`).value) || 0;
-                const otherDescription = document.getElementById(`other-description-text-${serviceId}`).value;
+                const db = window.firebase.db;
+                const queryRef = window.firebase.query;
+                const collectionRef = window.firebase.collection;
+                const getDocs = window.firebase.getDocs;
+                const where = window.firebase.where;
                 
-                // Se for "Outros", usar a descrição personalizada
-                const description = serviceType === 'Outros' && otherDescription ? otherDescription : serviceType;
+                // Buscar documentos com status "in-production" na coleção appointments
+                const q = queryRef(
+                    collectionRef(db, "appointments"),
+                    where("status", "==", "in-production")
+                );
                 
-                if (model && serviceType && quantity > 0 && unitPrice > 0) {
-                    services.push({
-                        id: serviceId,
-                        model,
-                        serviceType,
-                        description,
-                        quantity,
-                        unitPrice,
-                        subtotal: quantity * unitPrice
+                const querySnapshot = await getDocs(q);
+                
+                cortesEmProducao = [];
+                selectCorte.innerHTML = '<option value="">Selecione um corte em produção</option>';
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    cortesEmProducao.push({
+                        id: doc.id, // ID do documento Firestore
+                        documentNumber: data.documentNumber || "SEM-NÚMERO",
+                        clientName: data.clientName || "Cliente não informado",
+                        serviceType: data.serviceType || "Serviço não especificado",
+                        quantity: data.quantity || 0, // Quantidade do corte
+                        serviceDate: data.serviceDate || "Sem data",
+                        estimatedDays: data.estimatedDays || 0
                     });
+                    
+                    // Adicionar ao select
+                    const option = document.createElement('option');
+                    option.value = data.documentNumber || doc.id;
+                    option.dataset.docId = doc.id; // Armazenar ID do documento
+                    option.dataset.quantity = data.quantity || 0; // Armazenar quantidade
+                    option.textContent = `${data.documentNumber || "DOC-" + doc.id.substring(0,8)} - ${data.clientName || "Sem cliente"} (${data.serviceType || "serviço"})`;
+                    selectCorte.appendChild(option);
+                });
+                
+                if (cortesEmProducao.length === 0) {
+                    selectCorte.innerHTML = '<option value="">Nenhum corte em produção encontrado</option>';
+                    const optionInfo = document.createElement('option');
+                    optionInfo.value = '';
+                    optionInfo.textContent = '⚠️ Verifique se há documentos com status "in-production"';
+                    selectCorte.appendChild(optionInfo);
+                } else {
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<i class="fas fa-bolt"></i> GERAR QR CODES';
                 }
-            });
-            
-            return services;
+                
+                loading.style.display = 'none';
+                console.log('Cortes carregados:', cortesEmProducao);
+                
+            } catch (error) {
+                console.error("Erro ao carregar cortes:", error);
+                selectCorte.innerHTML = '<option value="">Erro ao carregar dados do Firebase</option>';
+                const optionError = document.createElement('option');
+                optionError.value = '';
+                optionError.textContent = '❌ Erro: ' + error.message.substring(0, 50);
+                selectCorte.appendChild(optionError);
+                loading.style.display = 'none';
+            }
         }
-
-        // =============================================
-        // FUNÇÕES DE CÁLCULO
-        // =============================================
         
-        function updateCalculations() {
-            const services = getAllServices();
-            const discount = parseFloat(document.getElementById('discount').value) || 0;
-            
-            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
-            const total = subtotal - discount;
-            
-            // Atualizar display dos cálculos
-            document.getElementById('subtotal-display').textContent = formatCurrency(subtotal);
-            document.getElementById('discount-display').textContent = formatCurrency(discount);
-            document.getElementById('total-display').textContent = formatCurrency(total);
-            
-            // Atualizar preview se visível
-            if (document.getElementById('invoice-preview').style.display === 'block') {
-                updatePreview();
-            }
-        }
-
-        // =============================================
-        // FUNÇÕES DO FORMULÁRIO
-        // =============================================
-        
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            // Validar campos obrigatórios
-            if (!validateForm()) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            // Gerar nota
-            generateInvoice();
-        }
-
-        function validateForm() {
-            const requiredFields = [
-                'client-name', 'generated-by', 'invoice-status'
-            ];
-            
-            for (const fieldId of requiredFields) {
-                const field = document.getElementById(fieldId);
-                if (!field.value.trim()) {
-                    field.focus();
-                    return false;
-                }
-            }
-            
-            // Validar serviços
-            const services = getAllServices();
-            if (services.length === 0) {
-                alert('Por favor, adicione pelo menos um serviço válido.');
+        // Atualizar quantidade no Firestore
+        async function atualizarQuantidadeNoFirestore(docId, quantidade) {
+            try {
+                const db = window.firebase.db;
+                const updateDoc = window.firebase.updateDoc;
+                const docRef = window.firebase.doc;
+                
+                const documentoRef = docRef(db, "appointments", docId);
+                
+                await updateDoc(documentoRef, {
+                    quantity: quantidade,
+                    updatedAt: new Date().toISOString(),
+                    qrGenerated: true,
+                    qrGeneratedAt: new Date().toISOString()
+                });
+                
+                console.log(`Quantidade ${quantidade} salva no documento ${docId}`);
+                return true;
+                
+            } catch (error) {
+                console.error("Erro ao atualizar quantidade:", error);
                 return false;
             }
-            
-            // Validar descrição para serviços do tipo "Outros"
-            for (const service of services) {
-                if (service.serviceType === 'Outros' && !service.description) {
-                    alert('Por favor, preencha a descrição para serviços do tipo "Outros".');
-                    return false;
-                }
-            }
-            
-            return true;
         }
-
-        async function generateInvoice() {
-            // Gerar ID único
-            const invoiceId = generateInvoiceId();
-            
-            // Coletar dados do formulário
-            const invoiceData = {
-                id: invoiceId,
-                clientName: document.getElementById('client-name').value,
-                services: getAllServices(),
-                discount: parseFloat(document.getElementById('discount').value) || 0,
-                discountInfo: document.getElementById('discount-info').value,
-                generatedBy: document.getElementById('generated-by').value,
-                status: document.getElementById('invoice-status').value,
-                date: new Date().toISOString()
-            };
-            
-            // Calcular totais
-            invoiceData.subtotal = invoiceData.services.reduce((sum, service) => sum + service.subtotal, 0);
-            invoiceData.total = invoiceData.subtotal - invoiceData.discount;
-            
-            // Salvar nota no Firebase
-            try {
-                await saveInvoiceToFirebase(invoiceData);
-                alert('Nota salva com sucesso no banco de dados! ID: ' + invoiceId);
-                
-                // Mostrar preview
-                showInvoicePreview(invoiceData);
-                
-                // Recarregar lista
-                loadSavedInvoices();
-            } catch (error) {
-                console.error('Erro ao salvar nota:', error);
-                alert('Erro ao salvar nota. Tente novamente.');
-            }
-        }
-
-        // =============================================
-        // FUNÇÕES DO FIREBASE
-        // =============================================
         
-        async function saveInvoiceToFirebase(invoiceData) {
-            try {
-                await db.collection('invoices').doc(invoiceData.id).set(invoiceData);
-                return true;
-            } catch (error) {
-                console.error('Erro ao salvar no Firebase:', error);
-                throw error;
-            }
-        }
-
-        async function updateInvoiceStatus(invoiceId, newStatus) {
-            try {
-                await db.collection('invoices').doc(invoiceId).update({
-                    status: newStatus
-                });
-                return true;
-            } catch (error) {
-                console.error('Erro ao atualizar status:', error);
-                throw error;
-            }
-        }
-
-        async function loadInvoicesFromFirebase() {
-            try {
-                const snapshot = await db.collection('invoices').orderBy('date', 'desc').get();
-                const invoices = [];
-                snapshot.forEach(doc => {
-                    invoices.push(doc.data());
-                });
-                return invoices;
-            } catch (error) {
-                console.error('Erro ao carregar do Firebase:', error);
-                return [];
-            }
-        }
-
-        // =============================================
-        // FUNÇÕES DE PREVIEW
-        // =============================================
-        
-        function showInvoicePreview(invoiceData) {
-            // Atualizar dados no preview
-            document.getElementById('invoice-number').textContent = `Número: ${invoiceData.id}`;
-            document.getElementById('invoice-date').textContent = `Data de emissão: ${new Date(invoiceData.date).toLocaleDateString('pt-BR')}`;
+        // Gerar QR Codes
+        generateBtn.addEventListener('click', async function() {
+            const documentNumber = selectCorte.value;
+            const quantidade = parseInt(quantidadeQR.value); // Usar a quantidade de QR codes
+            const selectedOption = selectCorte.options[selectCorte.selectedIndex];
+            const docId = selectedOption.dataset.docId;
             
-            document.getElementById('preview-client-name').textContent = invoiceData.clientName;
-            document.getElementById('preview-generated-by').textContent = invoiceData.generatedBy;
-            document.getElementById('preview-status').innerHTML = getStatusBadge(invoiceData.status);
-            document.getElementById('preview-service-count').textContent = invoiceData.services.length;
-            
-            // Atualizar tabela de serviços
-            const servicesTable = document.getElementById('preview-services-table');
-            servicesTable.innerHTML = '';
-            
-            invoiceData.services.forEach(service => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${service.description}</td>
-                    <td>${service.model}</td>
-                    <td style="text-align: center;">${service.quantity}</td>
-                    <td style="text-align: right;">${formatCurrency(service.unitPrice)}</td>
-                    <td style="text-align: right;">${formatCurrency(service.subtotal)}</td>
-                `;
-                servicesTable.appendChild(row);
-            });
-            
-            document.getElementById('preview-subtotal-final').textContent = formatCurrency(invoiceData.subtotal);
-            document.getElementById('preview-discount-final').textContent = formatCurrency(invoiceData.discount);
-            document.getElementById('preview-total-final').textContent = formatCurrency(invoiceData.total);
-            
-            // Informações de desconto
-            if (invoiceData.discountInfo) {
-                document.getElementById('preview-discount-info-container').style.display = 'block';
-                document.getElementById('preview-discount-info').textContent = invoiceData.discountInfo;
-            } else {
-                document.getElementById('preview-discount-info-container').style.display = 'none';
+            // Validações
+            if (!documentNumber || !docId) {
+                alert("Selecione um corte válido em produção!");
+                selectCorte.focus();
+                return;
             }
             
-            // Configurar PIX
-            setupPixSection(invoiceData);
-            
-            // Mostrar preview
-            document.getElementById('invoice-preview').style.display = 'block';
-            
-            // Esconder prévia de imagem se existir
-            document.getElementById('image-preview-container').style.display = 'none';
-            
-            // Scroll para o preview
-            document.getElementById('invoice-preview').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function updatePreview() {
-            const services = getAllServices();
-            const discount = parseFloat(document.getElementById('discount').value) || 0;
-            const subtotal = services.reduce((sum, service) => sum + service.subtotal, 0);
-            const total = subtotal - discount;
-            
-            document.getElementById('preview-subtotal-final').textContent = formatCurrency(subtotal);
-            document.getElementById('preview-discount-final').textContent = formatCurrency(discount);
-            document.getElementById('preview-total-final').textContent = formatCurrency(total);
-            
-            // Atualizar PIX
-            const generatedBy = document.getElementById('generated-by').value;
-            if (generatedBy && PIX_DATA[generatedBy]) {
-                document.getElementById('pix-amount').textContent = formatCurrency(total);
+            if (quantidade < 1 || quantidade > 1500) {
+                alert("Quantidade de QR Codes deve ser entre 1 e 1500!");
+                quantidadeQR.focus();
+                return;
             }
-        }
-
-        function setupPixSection(invoiceData) {
-            const pixData = PIX_DATA[invoiceData.generatedBy];
             
-            if (pixData) {
-                document.getElementById('pix-amount').textContent = formatCurrency(invoiceData.total);
-                document.getElementById('pix-receiver').textContent = pixData.nome;
-                document.getElementById('pix-bank').textContent = pixData.banco;
-                document.getElementById('pix-key').textContent = pixData.cpf;
-            }
-        }
-
-        // =============================================
-        // FUNÇÕES DE GERAÇÃO DE IMAGEM
-        // =============================================
-        
-        async function generateImage() {
-            const element = document.getElementById('invoice-preview-content');
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            const imagePreview = document.getElementById('image-preview');
-            const generateBtn = document.getElementById('generate-image');
-            const loadingElement = document.getElementById('image-loading');
+            // Armazenar ID do documento selecionado
+            documentoSelecionadoId = docId;
             
             // Mostrar loading
-            const originalText = generateBtn.innerHTML;
-            generateBtn.innerHTML = '<i class="fas fa-spinner"></i> Gerando Imagem...';
+            loading.style.display = 'block';
+            previewArea.style.display = 'none';
             generateBtn.disabled = true;
-            loadingElement.style.display = 'block';
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GERANDO...';
+            
+            // Limpar grid anterior
+            qrGrid.innerHTML = '';
             
             try {
-                // Configurações otimizadas para html2canvas
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: false,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    width: element.scrollWidth,
-                    height: element.scrollHeight
-                });
+                // 1. Primeiro, atualizar a quantidade do CORTE no Firestore (se necessário)
+                const quantidadeDoCorte = parseInt(quantidadeCorte.value) || 0;
+                const atualizado = await atualizarQuantidadeNoFirestore(docId, quantidadeDoCorte);
                 
-                // Converter para URL de dados
-                const imageData = canvas.toDataURL('image/png', 1.0);
-                
-                // Mostrar prévia
-                imagePreview.src = imageData;
-                imagePreviewContainer.style.display = 'block';
-                
-                // Criar link de download
-                const downloadLink = document.createElement('a');
-                downloadLink.href = imageData;
-                downloadLink.download = `Nota_Cobrança_${new Date().toISOString().slice(0, 10)}.png`;
-                
-                // Disparar download automaticamente
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-                
-                // Scroll para a imagem
-                imagePreviewContainer.scrollIntoView({ behavior: 'smooth' });
-                
-            } catch (error) {
-                console.error('Erro ao gerar imagem:', error);
-                alert('Erro ao gerar imagem. Tente novamente ou use a função de impressão do navegador.');
-            } finally {
-                // Restaurar botão
-                generateBtn.innerHTML = originalText;
-                generateBtn.disabled = false;
-                loadingElement.style.display = 'none';
-            }
-        }
-
-        // =============================================
-        // FUNÇÕES DA LISTA DE NOTAS SALVAS
-        // =============================================
-        
-        async function loadSavedInvoices() {
-            try {
-                const invoices = await loadInvoicesFromFirebase();
-                displaySavedInvoices(invoices);
-            } catch (error) {
-                console.error('Erro ao carregar notas:', error);
-                alert('Erro ao carregar notas salvas.');
-            }
-        }
-
-        function displaySavedInvoices(invoices) {
-            const container = document.getElementById('saved-invoices-list');
-            
-            if (invoices.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 30px;">Nenhuma nota salva ainda.</p>';
-                return;
-            }
-            
-            container.innerHTML = invoices.map(invoice => `
-                <div class="invoice-item">
-                    <div class="invoice-item-info">
-                        <h4>${invoice.clientName} ${getStatusBadge(invoice.status)}</h4>
-                        <div class="invoice-item-details">
-                            <strong>ID:</strong> ${invoice.id} | 
-                            <strong>Serviços:</strong> ${invoice.services.length} | 
-                            <strong>Valor:</strong> ${formatCurrency(invoice.total)} | 
-                            <strong>Data:</strong> ${new Date(invoice.date).toLocaleDateString('pt-BR')} |
-                            <strong>Gerado por:</strong> ${invoice.generatedBy}
-                        </div>
-                    </div>
-                    <div class="invoice-item-actions">
-                        <button class="btn-image" onclick="viewInvoice('${invoice.id}')">Ver</button>
-                        <button class="btn-change-status" onclick="openStatusModal('${invoice.id}')">
-                            <i class="fas fa-edit"></i> Alterar Status
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function viewInvoice(invoiceId) {
-            try {
-                const doc = await db.collection('invoices').doc(invoiceId).get();
-                if (doc.exists) {
-                    const invoice = doc.data();
-                    showInvoicePreview(invoice);
+                if (!atualizado) {
+                    alert("Atenção: Não foi possível atualizar o banco de dados, mas os QR Codes serão gerados.");
                 } else {
-                    alert('Nota não encontrada.');
+                    // Atualizar visualmente no select
+                    const corteIndex = cortesEmProducao.findIndex(c => c.id === docId);
+                    if (corteIndex !== -1) {
+                        cortesEmProducao[corteIndex].quantity = quantidadeDoCorte;
+                        selectedOption.dataset.quantity = quantidadeDoCorte;
+                    }
                 }
-            } catch (error) {
-                console.error('Erro ao carregar nota:', error);
-                alert('Erro ao carregar nota.');
-            }
-        }
-
-        // =============================================
-        // FUNÇÕES DE MUDANÇA DE STATUS
-        // =============================================
-        
-        function openStatusModal(invoiceId) {
-            currentInvoiceToUpdate = invoiceId;
-            document.getElementById('status-modal').style.display = 'flex';
-            document.getElementById('new-status').focus();
-        }
-
-        function closeStatusModal() {
-            document.getElementById('status-modal').style.display = 'none';
-            document.getElementById('new-status').value = '';
-            document.getElementById('status-password').value = '';
-            currentInvoiceToUpdate = null;
-        }
-
-        async function changeInvoiceStatus() {
-            const newStatus = document.getElementById('new-status').value;
-            const password = document.getElementById('status-password').value;
-            
-            if (!newStatus) {
-                alert('Por favor, selecione o novo status.');
-                return;
-            }
-            
-            if (password !== ADMIN_PASSWORD) {
-                alert('Senha administrativa incorreta!');
-                document.getElementById('status-password').value = '';
-                document.getElementById('status-password').focus();
-                return;
-            }
-            
-            try {
-                await updateInvoiceStatus(currentInvoiceToUpdate, newStatus);
-                alert('Status da nota atualizado com sucesso!');
-                closeStatusModal();
-                loadSavedInvoices();
                 
-                // Se a nota atual está sendo visualizada, atualizar o preview
-                const currentPreview = document.getElementById('invoice-number').textContent;
-                if (currentPreview.includes(currentInvoiceToUpdate)) {
-                    viewInvoice(currentInvoiceToUpdate);
-                }
+                // 2. Mostrar exemplo dos dados
+                const exemploTexto = formatarTextoQR(documentNumber, 1);
+                dataPreview.textContent = `DADOS DO CORTE:\n• Documento: ${documentNumber}\n• Quantidade do corte: ${quantidadeDoCorte}\n• QR Codes a gerar: ${quantidade}\n• Atualizado em: ${new Date().toLocaleString()}\n\nEXEMPLO DE QR CODE:\n${exemploTexto}`;
+                dataPreview.style.display = 'block';
+                
+                // 3. Gerar os QR Codes
+                await generateQRCodes(documentNumber, quantidade);
+                
+                // Esconder loading e mostrar preview
+                loading.style.display = 'none';
+                previewArea.style.display = 'block';
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-bolt"></i> GERAR QR CODES';
+                
+                // Mostrar mensagem de sucesso
+                const successMsg = document.createElement('div');
+                successMsg.className = 'success-msg';
+                successMsg.innerHTML = `<i class="fas fa-check-circle"></i> <strong>Sucesso!</strong> ${quantidade} QR Codes gerados para o corte ${documentNumber}.`;
+                dataPreview.parentNode.insertBefore(successMsg, dataPreview.nextSibling);
+                
+                // Foco no botão de impressão
+                printBtn.focus();
+                
             } catch (error) {
-                console.error('Erro ao atualizar status:', error);
-                alert('Erro ao atualizar status da nota.');
+                alert("Erro ao gerar QR Codes: " + error.message);
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-bolt"></i> GERAR QR CODES';
             }
-        }
-
-        // =============================================
-        // FUNÇÕES UTILITÁRIAS
-        // =============================================
+        });
         
-        function resetForm() {
-            document.getElementById('invoice-form').reset();
-            document.getElementById('invoice-preview').style.display = 'none';
-            document.getElementById('image-preview-container').style.display = 'none';
+        // Função para gerar QR Codes
+        async function generateQRCodes(idCorte, quantidade) {
+            const batchSize = 100;
+            let generated = 0;
             
-            // Remover todos os serviços exceto o primeiro
-            const servicesContainer = document.getElementById('services-container');
-            while (servicesContainer.children.length > 1) {
-                servicesContainer.removeChild(servicesContainer.lastChild);
+            // Tamanho ajustado para 64px (1.7cm) com borda de 1px
+            const qrSize = 64;
+            
+            for (let i = 1; i <= quantidade; i += batchSize) {
+                const end = Math.min(i + batchSize - 1, quantidade);
+                
+                for (let j = i; j <= end; j++) {
+                    // Criar texto para o QR Code
+                    const textoQR = formatarTextoQR(idCorte, j);
+                    
+                    // Criar container do QR Code COM BORDA
+                    const qrItem = document.createElement('div');
+                    qrItem.className = 'qr-item';
+                    qrItem.id = `qr-${idCorte}-${j}`;
+                    qrItem.title = `ID: ${idCorte}-${j}`;
+                    qrItem.style.border = '0.5px solid #e5e7eb';
+                    
+                    // Div para o QR Code
+                    const qrDiv = document.createElement('div');
+                    qrDiv.className = 'qr-code';
+                    qrDiv.style.width = `${qrSize}px`;
+                    qrDiv.style.height = `${qrSize}px`;
+                    
+                    // Adicionar ao item
+                    qrItem.appendChild(qrDiv);
+                    
+                    // Adicionar ao grid
+                    qrGrid.appendChild(qrItem);
+                    
+                    // Gerar QR Code
+                    new QRCode(qrDiv, {
+                        text: textoQR,
+                        width: qrSize - 2,
+                        height: qrSize - 2,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.Q
+                    });
+                    
+                    generated++;
+                }
+                
+                // Pequena pausa para não travar a interface
+                await new Promise(resolve => setTimeout(resolve, 30));
+            }
+        }
+        
+        // Imprimir com bordas visíveis e margens personalizadas
+        printBtn.addEventListener('click', function() {
+            // Preparar para impressão
+            const printWindow = window.open('', '_blank');
+            
+            // Configuração para 1.7cm + borda
+            const qrSizeMM = 17;
+            const borderMM = 0.5;
+            const totalSizeMM = qrSizeMM + borderMM;
+            
+            // MARGENS PERSONALIZADAS (1cm esquerda/direita, 2cm inferior)
+            const marginLeftMM = 10;   // 1cm
+            const marginRightMM = 10;  // 1cm
+            const marginTopMM = 3;     // 3mm superior
+            const marginBottomMM = 20; // 2cm inferior
+            
+            const paperWidthMM = 210;
+            const paperHeightMM = 297;
+            
+            // Largura disponível após margens
+            const availableWidthMM = paperWidthMM - marginLeftMM - marginRightMM;
+            
+            // Calcular quantos cabem por linha considerando bordas
+            const qrPerRow = Math.floor(availableWidthMM / totalSizeMM);
+            const availableHeightMM = paperHeightMM - marginTopMM - marginBottomMM;
+            const qrPerCol = Math.floor(availableHeightMM / totalSizeMM);
+            const qrPerPage = qrPerRow * qrPerCol;
+            
+            // Obter dados do lote
+            const idCorte = selectCorte.value;
+            const quantidade = parseInt(quantidadeQR.value);
+            const dataAtual = new Date().toLocaleDateString('pt-BR');
+            
+            // Criar conteúdo otimizado para impressão COM BORDAS
+            const qrItems = document.querySelectorAll('.qr-item');
+            let html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>QR Codes - ${idCorte}</title>
+                    <meta charset="UTF-8">
+                    <style>
+                        /* MARGENS PERSONALIZADAS */
+                        @page {
+                            size: A4;
+                            margin-left: ${marginLeftMM}mm;
+                            margin-right: ${marginRightMM}mm;
+                            margin-top: ${marginTopMM}mm;
+                            margin-bottom: ${marginBottomMM}mm;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            font-family: Arial, sans-serif;
+                            background: white;
+                        }
+                        .page-header {
+                            text-align: center;
+                            margin-bottom: 3mm;
+                            font-size: 9pt;
+                            color: #333;
+                            padding: 2mm;
+                            border-bottom: 0.5px solid #ddd;
+                        }
+                        .page {
+                            width: 100%;
+                            height: 100%;
+                            page-break-after: always;
+                        }
+                        .qr-grid {
+                            display: grid;
+                            grid-template-columns: repeat(${qrPerRow}, ${totalSizeMM}mm);
+                            grid-auto-rows: ${totalSizeMM}mm;
+                            gap: 0;
+                            width: 100%;
+                            background: white;
+                        }
+                        .qr-item {
+                            width: ${totalSizeMM}mm;
+                            height: ${totalSizeMM}mm;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border: ${borderMM}mm solid #e5e7eb;
+                            box-sizing: border-box;
+                            background: white;
+                            page-break-inside: avoid;
+                            break-inside: avoid;
+                        }
+                        .qr-code {
+                            width: ${qrSizeMM}mm;
+                            height: ${qrSizeMM}mm;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            overflow: hidden;
+                            background: white;
+                        }
+                        .qr-code img {
+                            width: ${qrSizeMM - 0.5}mm;
+                            height: ${qrSizeMM - 0.5}mm;
+                            max-width: ${qrSizeMM - 0.5}mm;
+                            max-height: ${qrSizeMM - 0.5}mm;
+                            image-rendering: crisp-edges;
+                            background: white;
+                        }
+                        .page-footer {
+                            position: absolute;
+                            bottom: ${marginBottomMM - 15}mm;
+                            left: ${marginLeftMM}mm;
+                            width: calc(100% - ${marginLeftMM + marginRightMM}mm);
+                            text-align: center;
+                            font-size: 7pt;
+                            color: #666;
+                        }
+                    </style>
+                </head>
+                <body>
+            `;
+            
+            let currentPage = 1;
+            let qrCount = 0;
+            const totalPages = Math.ceil(quantidade / qrPerPage);
+            
+            // Organizar por páginas
+            while (qrCount < qrItems.length) {
+                html += `<div class="page">`;
+                html += `<div class="page-header">
+                    <strong>${idCorte}</strong> | ${quantidade} QR Codes | Página ${currentPage}/${totalPages} | ${dataAtual}
+                </div>`;
+                
+                html += `<div class="qr-grid">`;
+                
+                for (let i = 0; i < qrPerPage && qrCount < qrItems.length; i++) {
+                    const qrItem = qrItems[qrCount];
+                    const qrImg = qrItem.querySelector('img') || qrItem.querySelector('canvas');
+                    
+                    if (qrImg) {
+                        const imgSrc = qrImg.tagName === 'CANVAS' ? qrImg.toDataURL('image/png') : qrImg.src;
+                        html += `
+                            <div class="qr-item">
+                                <div class="qr-code">
+                                    <img src="${imgSrc}" alt="QR Code ${idCorte}-${qrCount + 1}">
+                                </div>
+                            </div>
+                        `;
+                    }
+                    qrCount++;
+                }
+                
+                html += `</div>`;
+                html += `<div class="page-footer">
+                    Gerado em: ${new Date().toLocaleString('pt-BR')}
+                </div>`;
+                html += `</div>`;
+                currentPage++;
             }
             
-            // Resetar contador
-            serviceCounter = 1;
+            html += `</body></html>`;
             
-            updateCalculations();
-        }
+            // Abrir janela de impressão
+            printWindow.document.write(html);
+            printWindow.document.close();
+            
+            // Esperar carregar e imprimir
+            printWindow.onload = function() {
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                }, 250);
+            };
+        });
+        
+        // Novo lote
+        newBatchBtn.addEventListener('click', function() {
+            previewArea.style.display = 'none';
+            qrGrid.innerHTML = '';
+            dataPreview.style.display = 'none';
+            
+            // Remover mensagens de sucesso
+            const successMsgs = document.querySelectorAll('.success-msg');
+            successMsgs.forEach(msg => msg.remove());
+            
+            selectCorte.selectedIndex = 0;
+            quantidadeCorte.value = '';
+            quantidadeQR.value = '100';
+            documentoSelecionadoId = '';
+            selectCorte.focus();
+        });
+        
+        // Atalhos de teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateBtn.click();
+            }
+            if (e.ctrlKey && e.key === 'p' && previewArea.style.display !== 'none') {
+                e.preventDefault();
+                printBtn.click();
+            }
+        });
+        
+        // Quando selecionar um corte, mostrar informações
+        selectCorte.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const docId = selectedOption.dataset.docId;
+            const quantidadeDoCorte = selectedOption.dataset.quantity || 0;
+            
+            if (docId) {
+                // Atualizar campo de quantidade do corte (imutável)
+                quantidadeCorte.value = quantidadeDoCorte;
+                
+                // Definir valor inicial para quantidade de QR codes (mas o usuário pode alterar)
+                quantidadeQR.value = Math.min(quantidadeDoCorte || 100, 1500);
+                
+                const corte = cortesEmProducao.find(c => c.id === docId);
+                if (corte) {
+                    // Adicionar tooltip ou info
+                    const infoDiv = document.getElementById('corteInfo');
+                    if (!infoDiv) {
+                        const newInfoDiv = document.createElement('div');
+                        newInfoDiv.id = 'corteInfo';
+                        newInfoDiv.className = 'corte-info';
+                        newInfoDiv.innerHTML = `
+                            <i class="fas fa-info-circle"></i> 
+                            Cliente: ${corte.clientName} | 
+                            Serviço: ${corte.serviceType} | 
+                            Data: ${corte.serviceDate || "Não informada"}
+                        `;
+                        this.parentNode.appendChild(newInfoDiv);
+                    } else {
+                        infoDiv.innerHTML = `
+                            <i class="fas fa-info-circle"></i> 
+                            Cliente: ${corte.clientName} | 
+                            Serviço: ${corte.serviceType} | 
+                            Data: ${corte.serviceDate || "Não informada"}
+                        `;
+                    }
+                }
+            } else {
+                // Limpar campos se nenhum corte selecionado
+                quantidadeCorte.value = '';
+                quantidadeQR.value = '100';
+                
+                // Remover info se existir
+                const infoDiv = document.getElementById('corteInfo');
+                if (infoDiv) {
+                    infoDiv.remove();
+                }
+            }
+        });
+        
+        // Focar no select ao carregar
+        window.onload = async function() {
+            // Carregar cortes em produção do Firebase
+            await carregarCortesEmProducao();
+            
+            if (selectCorte.options.length > 1) {
+                selectCorte.focus();
+            }
+        };
     </script>
 </body>
 </html>
