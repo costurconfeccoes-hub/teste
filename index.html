@@ -1,22 +1,1229 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de QR Codes - Confecção</title>
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js'
-        import { 
-            getFirestore, 
-            collection, 
-            getDocs, 
-            query, 
-            where, 
-            updateDoc,
-            doc 
-        } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js'
+    <title>Costur Confecções - Sistema de Agendamento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        /* Estilos otimizados para tela de computador */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --admin-color: #8e44ad;
+            --completed-color: #27ae60;
+            --in-production-color: #3498db;
+            --past-day-color: #95a5a6;
+            --holiday-color: #e74c3c;
+            --carnival-color: #f39c12;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            margin-bottom: 2px;
+            color: white;
+        }
+
+        .logo-text p {
+            font-style: italic;
+            opacity: 0.9;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .header-contact {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #FFF;
+            font-size: 0.9rem;
+        }
+
+        .contact-item i {
+            color: #FFF;
+            font-size: 0.8rem;
+        }
+
+        .contact-item span {
+            color: #FFF;
+            font-weight: 500;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        /* Sections */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 3px;
+            background-color: var(--secondary);
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Card Styles for Scheduling System */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
         
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h2 i {
+            margin-right: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-cancel {
+            background: var(--danger-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+        
+        .btn-edit {
+            background: var(--warning-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .btn-delete {
+            background: var(--danger-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .btn-correct {
+            background: var(--warning-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .btn-save {
+            background: var(--success-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .btn-download {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-download:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-complete {
+            background: var(--completed-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .btn-update {
+            background: var(--in-production-color);
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .calendar-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        
+        .calendar {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .calendar-body {
+            padding: 15px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            padding: 10px 5px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .calendar-day.header {
+            font-weight: bold;
+            background-color: #f0f0f0;
+            color: var(--dark);
+        }
+        
+        .calendar-day.available {
+            background-color: var(--success-color);
+            color: white;
+            cursor: pointer;
+        }
+        
+        .calendar-day.available:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+        
+        .calendar-day.unavailable {
+            background-color: #eee;
+            color: #999;
+        }
+        
+        .calendar-day.booked {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .calendar-day.today {
+            border: 2px solid var(--secondary);
+            font-weight: bold;
+            background-color: #fff9e6;
+        }
+        
+        .calendar-day.past {
+            background-color: var(--past-day-color);
+            color: white;
+            cursor: not-allowed;
+        }
+        
+        .calendar-day.holiday {
+            background-color: var(--holiday-color);
+            color: white;
+            cursor: not-allowed;
+        }
+        
+        .calendar-day.carnival {
+            background-color: var(--carnival-color);
+            color: white;
+            cursor: pointer;
+        }
+        
+        .appointments-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        
+        .appointment-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .appointment-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .appointment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .appointment-details {
+            flex-grow: 1;
+        }
+        
+        .appointment-dates {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .appointment-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .status-booked {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .status-in-production {
+            background-color: var(--in-production-color);
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: var(--completed-color);
+            color: white;
+        }
+        
+        .status-cancelled {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .calculation-result {
+            background: linear-gradient(135deg, #e8f4fd, #d4e9fa);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .calculation-result h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .time-slot {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .time-slot.selected {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .time-slot.disabled {
+            background-color: #eee;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .time-slot.available:hover {
+            background-color: #e6f0ff;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .schedule-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .schedule-info h4 {
+            color: var(--warning-color);
+            margin-bottom: 8px;
+        }
+        
+        .document-number {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .adjustment-info {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        /* Footer */
+        
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 25px 0;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .footer-column p, .footer-column a {
+            margin-bottom: 10px;
+            display: block;
+            color: #ddd;
+            text-decoration: none;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            font-size: 1rem;
+            color: #aaa;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+        }
+
+        .modal-header h2 i {
+            margin-right: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            width: auto;
+            padding: 0;
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            width: auto;
+            padding: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 100%;
+                padding: 0 15px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .calendar-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header-contact {
+                margin-top: 15px;
+                align-items: flex-start;
+            }
+            
+            .hero {
+                padding: 70px 0;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            section {
+                padding: 60px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .logo-container {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .header-contact {
+                width: 100%;
+                align-items: flex-start;
+            }
+            
+            .contact-item span {
+                font-size: 0.85rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .appointment-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .appointment-actions {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .time-slots {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title h2 {
+                font-size: 1.8rem;
+            }
+            
+            .card h2 {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+            }
+            
+            .calendar-day {
+                padding: 8px 3px;
+                font-size: 0.85rem;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .hero {
+                padding: 50px 0;
+            }
+            
+            .hero h2 {
+                font-size: 1.6rem;
+            }
+            
+            section {
+                padding: 40px 0;
+            }
+            
+            .section-title {
+                margin-bottom: 30px;
+            }
+            
+            .section-title h2 {
+                font-size: 1.6rem;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.3rem;
+            }
+            
+            .logo-text p {
+                font-size: 0.8rem;
+            }
+            
+            .logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .appointment-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .btn-download, .btn-update {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções" id="logo-image">
+                </div>
+                <div class="logo-text">
+                    <h1>Costur Confecções</h1>
+                    <p>Sua marca, nossa costura.</p>
+                </div>
+            </div>
+            <div class="header-contact">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>(81) 9.2140-5569 / (81) 9.9201-4171</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2>Sistema de Agendamento</h2>
+            <p>Agende seus serviços de costura de forma rápida e prática.</p>
+            <a href="#agendamento" class="btn">Fazer Agendamento</a>
+        </div>
+    </section>
+
+    <!-- Sistema de Agendamento -->
+    <section id="agendamento">
+        <div class="container">
+            <div class="section-title">
+                <h2>Agendamento de Serviços</h2>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-calendar-plus"></i> Novo Agendamento</h2>
+                <form id="appointment-form">
+                    <div class="form-group">
+                        <label for="client-name">Cliente</label>
+                        <select id="client-name" required>
+                            <option value="">Selecione um cliente</option>
+                            <!-- Clientes serão carregados do banco de dados -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="scheduled-by">Agendado por</label>
+                        <select id="scheduled-by" required>
+                            <option value="">Selecione quem está agendando</option>
+                            <option value="Wallison Vinicius">Wallison Vinicius</option>
+                            <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="entry-date">Data de Entrada</label>
+                        <input type="date" id="entry-date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service-date">Data de Início do Serviço</label>
+                        <input type="date" id="service-date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quantity">Quantidade de Peças</label>
+                        <input type="number" id="quantity" min="1" value="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service-type">Tipo de Serviço</label>
+                        <select id="service-type" required>
+                            <option value="">Selecione o tipo de serviço</option>
+                            <option value="confecção completa">Confecção completa</option>
+                            <option value="Confecção parcial">Confecção parcial</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointment-status">Status do Agendamento</label>
+                        <select id="appointment-status" required>
+                            <option value="Agendado">Agendado</option>
+                            <option value="Em produção">Em produção</option>
+                            <option value="Realizado">Realizado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Horário de Início</label>
+                        <div class="time-slots" id="time-slots">
+                            <!-- Horários serão gerados via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="schedule-info">
+                        <h4><i class="fas fa-info-circle"></i> Informações do Agendamento</h4>
+                        <p><strong>Data e Hora de Entrada:</strong> <span id="entry-datetime">-</span></p>
+                        <p><strong>Data Estipulada para Término:</strong> <span id="completion-datetime">-</span></p>
+                        <div class="document-number" id="document-number">
+                            Nº do Documento: Aguardando dados...
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-result" id="calculation-result">
+                        <h3>Detalhes do Serviço</h3>
+                        <p><strong>Dias estimados para conclusão:</strong> <span id="estimated-days">0</span> dias</p>
+                    </div>
+                    
+                    <button type="submit" id="submit-btn">Agendar Serviço</button>
+                </form>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-appointments">0</div>
+                    <div class="stat-label">Agendamentos Ativos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-pieces">0</div>
+                    <div class="stat-label">Peças em Produção</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-calendar-alt"></i> Calendário de Disponibilidade</h2>
+                <div class="calendar-container">
+                    <div class="calendar">
+                        <div class="calendar-header" id="current-month">Carregando...</div>
+                        <div class="calendar-body">
+                            <div class="calendar-grid" id="calendar-days">
+                                <!-- Dias serão gerados via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>Legenda</h3>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--success-color);"></div>
+                                <span>Disponível para agendamento</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--secondary);"></div>
+                                <span>Período ocupado</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="border: 2px solid var(--secondary); background-color: #fff9e6;"></div>
+                                <span>Dia atual</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--past-day-color);"></div>
+                                <span>Dia passado</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--holiday-color);"></div>
+                                <span>Feriado - Indisponível</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--carnival-color);"></div>
+                                <span>Ponto facultativo - Consulte disponibilidade</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button id="prev-month">Mês Anterior</button>
+                            <button id="next-month" style="margin-top: 10px;">Próximo Mês</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-list"></i> Histórico de Agendamentos</h2>
+                
+                <div class="appointments-list" id="appointments-list">
+                    <!-- Todos os agendamentos serão listados aqui -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal para Edição -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Editar Agendamento</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="edit-form">
+                <div class="form-group">
+                    <label for="edit-client-name">Cliente</label>
+                    <select id="edit-client-name" required>
+                        <!-- Clientes serão carregados do banco de dados -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-scheduled-by">Agendado por</label>
+                    <select id="edit-scheduled-by" required>
+                        <option value="Wallison Vinicius">Wallison Vinicius</option>
+                        <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-entry-date">Data de Entrada</label>
+                    <input type="date" id="edit-entry-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-service-date">Data de Início</label>
+                    <input type="date" id="edit-service-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-quantity">Quantidade de Peças</label>
+                    <input type="number" id="edit-quantity" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-service-type">Tipo de Serviço</label>
+                    <select id="edit-service-type" required>
+                        <option value="confecção completa">Confecção completa</option>
+                        <option value="Confecção parcial">Confecção parcial</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-status">Status do Agendamento</label>
+                    <select id="edit-status" required>
+                        <option value="active">Agendado</option>
+                        <option value="in-production">Em produção</option>
+                        <option value="completed">Realizado</option>
+                        <option value="cancelled">Cancelado</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Horário de Início</label>
+                    <div class="time-slots" id="edit-time-slots">
+                        <!-- Horários serão gerados via JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-password">Senha de Acesso</label>
+                    <div class="password-group">
+                        <input type="password" id="edit-password" required placeholder="Digite a senha para editar">
+                        <button type="button" class="toggle-password" id="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" id="cancel-edit">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+   <!-- Footer -->
+
+    <footer>
+    <div class="container">
+        <div class="copyright">
+            Costur Confecções © 2023 - Todos os direitos reservados
+        </div>
+    </div>
+    </footer>
+
+    <script>
+        // CONFIGURAÇÃO EXTREMA - SINCRONIZAÇÃO GARANTIDA
         const firebaseConfig = {
             apiKey: "AIzaSyAc1iUDZEjyDOtrY9UT_idP5_TGODIsc9E",
             authDomain: "costur-agendamentos.firebaseapp.com",
@@ -26,1078 +1233,823 @@
             appId: "1:948222283708:web:a82876883f247e51ede5b9"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        
-        // Exportar funções para uso global
-        window.firebase = {
-            db,
-            collection,
-            getDocs,
-            query,
-            where,
-            updateDoc,
-            doc
+        // CONFIGURAÇÃO DO BANCO DE DADOS DE CLIENTES
+        const firebaseConfigClientes = {
+            apiKey: "AIzaSyCyTwlzsMG5-l07vnrb8XIx9J6AIP_Xuvw",
+            authDomain: "cadastro-cliente-6bd66.firebaseapp.com",
+            projectId: "cadastro-cliente-6bd66",
+            storageBucket: "cadastro-cliente-6bd66.firebasestorage.app",
+            messagingSenderId: "492238035100",
+            appId: "1:492238035100:web:cfb93092a71798dd2e7559"
         };
-    </script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh;
-            padding: 15px;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .header h1 {
-            color: #0f172a;
-            margin-bottom: 5px;
-            font-size: 22px;
-        }
-        
-        .header p {
-            color: #64748b;
-            font-size: 13px;
-        }
-        
-        .content {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        
-        .form-container {
-            background: #f1f5f9;
-            padding: 15px;
-            border-radius: 6px;
-            border: 2px solid #cbd5e1;
-            margin-bottom: 15px;
-        }
-        
-        .form-group {
-            margin-bottom: 12px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #334155;
-            font-size: 13px;
-        }
-        
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 8px 10px;
-            border: 2px solid #cbd5e0;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: all 0.2s;
-            background: white;
-        }
-        
-        .form-group select {
-            cursor: pointer;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #475569;
-        }
-        
-        /* Campo quantidade apenas leitura */
-        .form-group .readonly-input {
-            background-color: #f8fafc;
-            border-color: #cbd5e1;
-            color: #475569;
-            cursor: not-allowed;
-            user-select: none;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .form-column {
-            flex: 1;
-            min-width: 180px;
-        }
-        
-        .generate-btn {
-            background: #475569;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            transition: all 0.2s;
-            margin-top: 5px;
-        }
-        
-        .generate-btn:hover {
-            background: #334155;
-        }
-        
-        .generate-btn:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-        }
-        
-        .preview-area {
-            margin-top: 15px;
-            display: none;
-        }
-        
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .preview-header h2 {
-            color: #0f172a;
-            font-size: 16px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .control-btn {
-            padding: 6px 12px;
-            border-radius: 4px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s;
-            font-size: 13px;
-        }
-        
-        .print-btn {
-            background: #475569;
-            color: white;
-        }
-        
-        .print-btn:hover {
-            background: #334155;
-        }
-        
-        .new-batch-btn {
-            background: #64748b;
-            color: white;
-        }
-        
-        .new-batch-btn:hover {
-            background: #475569;
-        }
-        
-        /* GRID COM BORDAS CINZA CLARO PARA SEPARAÇÃO */
-        .qr-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, 65px);
-            gap: 0;
-            padding: 0;
-            background: white;
-            border-radius: 0;
-            border: none;
-            justify-content: center;
-        }
-        
-        .qr-item {
-            width: 65px;
-            height: 65px;
-            padding: 0;
-            margin: 0;
-            border: 0.5px solid #e5e7eb;
-            background: white;
-            position: relative;
-            box-sizing: border-box;
-        }
-        
-        .qr-code {
-            width: 64px;
-            height: 64px;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-        }
-        
-        .data-preview {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 11px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            display: none;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #e2e8f0;
-            color: #64748b;
-            font-size: 11px;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 15px;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #475569;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 8px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* ESTILOS DE IMPRESSÃO COM BORDAS VISÍVEIS */
-        @media print {
-            .header, .form-container, .controls, .footer,
-            .new-batch-btn, .generate-btn, .data-preview {
-                display: none !important;
-            }
-            
-            body {
-                background: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            
-            .container {
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            .content {
-                box-shadow: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            
-            .preview-area {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            /* 1.7cm + 0.5mm de borda = 17.5mm total */
-            .qr-grid {
-                display: grid !important;
-                grid-template-columns: repeat(10, 17.5mm) !important;
-                gap: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 100% !important;
-                page-break-inside: avoid !important;
-            }
-            
-            .qr-item {
-                width: 17.5mm !important;
-                height: 17.5mm !important;
-                min-width: 17.5mm !important;
-                min-height: 17.5mm !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                border: 0.3mm solid #e5e7eb !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-                box-sizing: border-box !important;
-            }
-            
-            .qr-code {
-                width: 17mm !important;
-                height: 17mm !important;
-                min-width: 17mm !important;
-                min-height: 17mm !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                background: white !important;
-            }
-            
-            .qr-code canvas, .qr-code img {
-                width: 16.5mm !important;
-                height: 16.5mm !important;
-                min-width: 16.5mm !important;
-                min-height: 16.5mm !important;
-                display: block !important;
-                background: white !important;
-            }
-            
-            /* MARGENS PERSONALIZADAS */
-            @page {
-                size: A4;
-                margin-left: 10mm;   /* 1cm esquerda */
-                margin-right: 10mm;  /* 1cm direita */
-                margin-top: 3mm;     /* superior padrão */
-                margin-bottom: 20mm; /* 2cm inferior */
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-            }
-            
-            .form-column {
-                min-width: 100%;
-            }
-            
-            .preview-header {
-                flex-direction: column;
-                gap: 8px;
-                align-items: flex-start;
-            }
-            
-            .controls {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .qr-grid {
-                grid-template-columns: repeat(auto-fill, 65px);
-            }
-        }
-        
-        /* Estilos adicionais para informações do corte */
-        .corte-info {
-            font-size: 12px;
-            color: #475569;
-            margin-top: 5px;
-            padding: 5px;
-            background: #f1f5f9;
-            border-radius: 3px;
-            border-left: 3px solid #475569;
-        }
-        
-        .success-msg {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border-left: 4px solid #10b981;
-        }
-        
-        .info-tooltip {
-            position: relative;
-            cursor: help;
-        }
-        
-        .info-tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            background: #334155;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 11px;
-            white-space: nowrap;
-            z-index: 1000;
-        }
-        
-        /* Estilo para campo de quantidade de QR codes */
-        .qr-quantity-group {
-            margin-top: 10px;
-        }
-        
-        .qr-quantity-group label {
-            font-weight: 600;
-            color: #334155;
-            font-size: 13px;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .qr-quantity-input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 2px solid #cbd5e0;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: all 0.2s;
-            background: white;
-        }
-        
-        .qr-quantity-input:focus {
-            outline: none;
-            border-color: #475569;
-        }
-    </style>
-    <!-- Biblioteca para gerar QR Codes -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-qrcode"></i> GERADOR DE QR CODES</h1>
-            <p>Sistema de Rastreabilidade - Confecção</p>
-        </div>
-        
-        <div class="content">
-            <div class="form-container">
-                <div class="form-row">
-                    <div class="form-column">
-                        <div class="form-group">
-                            <label for="selectCorte">
-                                <i class="fas fa-cut"></i> SELECIONE O CORTE EM PRODUÇÃO
-                            </label>
-                            <select id="selectCorte" required>
-                                <option value="">Carregando cortes em produção...</option>
-                            </select>
-                            <div style="font-size: 11px; color: #666; margin-top: 4px;">
-                                <i class="fas fa-info-circle"></i> Mostrando apenas documentos com status "in-production"
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-column">
-                        <div class="form-group">
-                            <label for="quantidadeCorte">
-                                <i class="fas fa-boxes"></i> QUANTIDADE DO CORTE
-                            </label>
-                            <input type="number" id="quantidadeCorte" 
-                                   class="readonly-input"
-                                   readonly
-                                   disabled
-                                   style="background-color: #f1f5f9; color: #475569; font-weight: bold;">
-                            <div style="font-size: 11px; color: #666; margin-top: 4px;">
-                                <i class="fas fa-lock"></i> Quantidade fixa do corte (não editável)
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="qr-quantity-group">
-                    <label for="quantidadeQR">
-                        <i class="fas fa-qrcode"></i> QUANTIDADE DE QR CODES A GERAR (1-1500)
-                    </label>
-                    <input type="number" id="quantidadeQR" 
-                           class="qr-quantity-input"
-                           min="1" max="1500" 
-                           value="100"
-                           required>
-                    <div style="font-size: 11px; color: #666; margin-top: 4px;">
-                        <i class="fas fa-exclamation-circle"></i> Esta é a quantidade de QR Codes que serão gerados para impressão
-                    </div>
-                </div>
-                
-                <button class="generate-btn" id="generateBtn" disabled>
-                    <i class="fas fa-bolt"></i> GERAR QR CODES
-                </button>
-            </div>
-            
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Carregando dados do Firebase...</p>
-            </div>
-            
-            <div class="preview-area" id="previewArea">
-                <div class="data-preview" id="dataPreview">
-                    <!-- Dados de exemplo serão mostrados aqui -->
-                </div>
-                
-                <div class="preview-header">
-                    <h2>QR Codes para Impressão</h2>
-                    <div class="controls">
-                        <button class="control-btn print-btn" id="printBtn">
-                            <i class="fas fa-print"></i> IMPRIMIR
-                        </button>
-                        <button class="control-btn new-batch-btn" id="newBatchBtn">
-                            <i class="fas fa-redo"></i> NOVO
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="qr-grid" id="qrGrid">
-                    <!-- QR Codes serão gerados aqui -->
-                </div>
-                
-                <div class="footer">
-                    <p><i class="fas fa-industry"></i> Sistema de produção têxtil com rastreabilidade individual</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        // Elementos da página
-        const generateBtn = document.getElementById('generateBtn');
-        const printBtn = document.getElementById('printBtn');
-        const newBatchBtn = document.getElementById('newBatchBtn');
-        const previewArea = document.getElementById('previewArea');
-        const loading = document.getElementById('loading');
-        const qrGrid = document.getElementById('qrGrid');
-        const dataPreview = document.getElementById('dataPreview');
-        const selectCorte = document.getElementById('selectCorte');
-        const quantidadeCorte = document.getElementById('quantidadeCorte'); // Campo imutável
-        const quantidadeQR = document.getElementById('quantidadeQR'); // Campo para quantidade de QR codes
-        
-        // Variáveis
-        let cortesEmProducao = [];
-        let documentoSelecionadoId = ''; // Para armazenar o ID do documento Firestore
-        
-        // Formato do texto para o QR Code
-        function formatarTextoQR(idCorte, sequencia) {
-            const agora = new Date();
-            const dataGeracao = agora.toISOString().split('T')[0];
-            const horaGeracao = agora.toTimeString().split(' ')[0];
-            
-            return `IDCORTE: ${idCorte}
-SEQUENCIA: ${sequencia}
-DATA: ${dataGeracao}
-GERADO: ${dataGeracao} ${horaGeracao}`;
+        // INICIALIZAÇÃO EXTREMA DO FIREBASE
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
+        const db = firebase.firestore();
+
+        // INICIALIZAÇÃO DO FIREBASE PARA CLIENTES
+        let appClientes;
+        let dbClientes;
         
-        // Carregar cortes em produção do Firebase (da coleção appointments)
-        async function carregarCortesEmProducao() {
+        try {
+            appClientes = firebase.initializeApp(firebaseConfigClientes, "clientes");
+            dbClientes = firebase.firestore(appClientes);
+        } catch (error) {
+            // Se já estiver inicializado, usa a instância existente
+            appClientes = firebase.app("clientes");
+            dbClientes = firebase.firestore(appClientes);
+        }
+
+        // VARIÁVEIS GLOBAIS COM VERIFICAÇÃO EXTREMA
+        let appointments = [];
+        let clients = [];
+        let bookedDates = {};
+        let currentEditingIndex = null;
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        const EDIT_PASSWORD = "CosturADM2023";
+        let isInitialLoadComplete = false;
+
+        // LISTA DE FERIADOS 2026
+        const holidays2026 = [
+            "2026-01-01", // Ano Novo
+            "2026-03-06", // Dia de Pernambuco
+            "2026-04-03", // Sexta-Feira Santa
+            "2026-04-21", // Dia de Tiradentes
+            "2026-05-01", // Dia do Trabalhador
+            "2026-05-18", // Aniversário de Caruaru
+            "2026-06-04", // Corpus Christi
+            "2026-06-24", // Dia de São João
+            "2026-06-29", // Dia de São Pedro
+            "2026-09-07", // Independência do Brasil
+            "2026-09-15", // Nossa Senhora das Dores
+            "2026-10-12", // Dia de Nossa Senhora Aparecida
+            "2026-11-02", // Dia de Finados
+            "2026-11-15", // Proclamação da República
+            "2026-11-20", // Dia da Consciência Negra
+            "2026-12-25"  // Natal
+        ];
+
+        // DIAS DE CARNAVAL 2026 (Ponto facultativo)
+        const carnivalDays2026 = [
+            "2026-02-16", // Segunda de Carnaval
+            "2026-02-17", // Terça de Carnaval
+            "2026-02-18"  // Quarta-feira de Cinzas
+        ];
+
+        // FUNÇÃO PARA VERIFICAR SE É FERIADO
+        function isHoliday(dateString) {
+            return holidays2026.includes(dateString);
+        }
+
+        // FUNÇÃO PARA VERIFICAR SE É PONTO FACULTATIVO
+        function isCarnivalDay(dateString) {
+            return carnivalDays2026.includes(dateString);
+        }
+
+        // FUNÇÃO PARA VERIFICAR SE É DIA PASSADO
+        function isPastDay(dateString) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const checkDate = new Date(dateString);
+            return checkDate < today;
+        }
+
+        // FUNÇÃO EXTREMA PARA CARREGAR CLIENTES ATIVOS
+        async function loadActiveClientsExtreme() {
+            console.log("🔥 CARREGANDO CLIENTES ATIVOS DO FIREBASE - EXTREME MODE");
             try {
-                loading.style.display = 'block';
-                selectCorte.innerHTML = '<option value="">Carregando cortes em produção...</option>';
-                generateBtn.disabled = true;
+                const snapshot = await dbClientes.collection('clientes').get();
                 
-                const db = window.firebase.db;
-                const queryRef = window.firebase.query;
-                const collectionRef = window.firebase.collection;
-                const getDocs = window.firebase.getDocs;
-                const where = window.firebase.where;
-                
-                // Buscar documentos com status "in-production" na coleção appointments
-                const q = queryRef(
-                    collectionRef(db, "appointments"),
-                    where("status", "==", "in-production")
-                );
-                
-                const querySnapshot = await getDocs(q);
-                
-                cortesEmProducao = [];
-                selectCorte.innerHTML = '<option value="">Selecione um corte em produção</option>';
-                
-                querySnapshot.forEach((doc) => {
+                clients = [];
+                snapshot.forEach(doc => {
                     const data = doc.data();
-                    cortesEmProducao.push({
-                        id: doc.id, // ID do documento Firestore
-                        documentNumber: data.documentNumber || "SEM-NÚMERO",
-                        clientName: data.clientName || "Cliente não informado",
-                        serviceType: data.serviceType || "Serviço não especificado",
-                        quantity: data.quantity || 0, // Quantidade do corte
-                        serviceDate: data.serviceDate || "Sem data",
-                        estimatedDays: data.estimatedDays || 0
+                    console.log("Cliente encontrado:", data);
+                    
+                    // Verificar se o cliente está ativo
+                    if (data.statusCadastro === "Ativo") {
+                        clients.push({ 
+                            id: doc.id, 
+                            ...data
+                        });
+                    }
+                });
+                
+                console.log(`📊 ${clients.length} CLIENTES ATIVOS CARREGADOS`);
+                
+                // Atualizar os menus de seleção de clientes
+                updateClientSelectMenus();
+                
+                return true;
+            } catch (error) {
+                console.error("❌ ERRO CRÍTICO AO CARREGAR CLIENTES:", error);
+                // Tentar carregar sem filtro de status
+                try {
+                    const snapshot = await dbClientes.collection('clientes').get();
+                    clients = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        clients.push({ 
+                            id: doc.id, 
+                            ...data
+                        });
                     });
                     
-                    // Adicionar ao select
-                    const option = document.createElement('option');
-                    option.value = data.documentNumber || doc.id;
-                    option.dataset.docId = doc.id; // Armazenar ID do documento
-                    option.dataset.quantity = data.quantity || 0; // Armazenar quantidade
-                    option.textContent = `${data.documentNumber || "DOC-" + doc.id.substring(0,8)} - ${data.clientName || "Sem cliente"} (${data.serviceType || "serviço"})`;
-                    selectCorte.appendChild(option);
-                });
-                
-                if (cortesEmProducao.length === 0) {
-                    selectCorte.innerHTML = '<option value="">Nenhum corte em produção encontrado</option>';
-                    const optionInfo = document.createElement('option');
-                    optionInfo.value = '';
-                    optionInfo.textContent = '⚠️ Verifique se há documentos com status "in-production"';
-                    selectCorte.appendChild(optionInfo);
-                } else {
-                    generateBtn.disabled = false;
-                    generateBtn.innerHTML = '<i class="fas fa-bolt"></i> GERAR QR CODES';
+                    console.log(`📊 ${clients.length} CLIENTES CARREGADOS (SEM FILTRO)`);
+                    updateClientSelectMenus();
+                    return true;
+                } catch (error2) {
+                    console.error("❌ ERRO TOTAL AO CARREGAR CLIENTES:", error2);
+                    return false;
                 }
-                
-                loading.style.display = 'none';
-                console.log('Cortes carregados:', cortesEmProducao);
-                
-            } catch (error) {
-                console.error("Erro ao carregar cortes:", error);
-                selectCorte.innerHTML = '<option value="">Erro ao carregar dados do Firebase</option>';
-                const optionError = document.createElement('option');
-                optionError.value = '';
-                optionError.textContent = '❌ Erro: ' + error.message.substring(0, 50);
-                selectCorte.appendChild(optionError);
-                loading.style.display = 'none';
             }
         }
-        
-        // Atualizar quantidade no Firestore
-        async function atualizarQuantidadeNoFirestore(docId, quantidade) {
+
+        // FUNÇÃO PARA ATUALIZAR OS MENUS DE SELEÇÃO DE CLIENTES
+        function updateClientSelectMenus() {
+            const clientSelect = document.getElementById('client-name');
+            const editClientSelect = document.getElementById('edit-client-name');
+            
+            // Limpar opções existentes
+            clientSelect.innerHTML = '<option value="">Selecione um cliente</option>';
+            editClientSelect.innerHTML = '<option value="">Selecione um cliente</option>';
+            
+            // Adicionar clientes ativos
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.marca || client.nome || `Cliente ${client.id}`;
+                option.textContent = client.marca || client.nome || `Cliente ${client.id}`;
+                option.setAttribute('data-client-id', client.id);
+                
+                const editOption = option.cloneNode(true);
+                
+                clientSelect.appendChild(option);
+                editClientSelect.appendChild(editOption);
+            });
+            
+            console.log("✅ MENUS DE CLIENTES ATUALIZADOS");
+        }
+
+        // FUNÇÃO EXTREMA PARA ATUALIZAR DATAS OCUPADAS
+        function updateBookedDatesExtreme() {
+            console.log("🔄 ATUALIZANDO DATAS OCUPADAS - EXTREME MODE");
+            bookedDates = {};
+            
+            appointments.forEach((appointment, index) => {
+                if (appointment.status === 'active' || appointment.status === 'in-production') {
+                    const start = new Date(appointment.serviceDate);
+                    const estimatedDays = appointment.estimatedDays > 0 ? appointment.estimatedDays : calculateEstimatedDays(appointment.serviceDate, appointment.quantity);
+                    
+                    console.log(`📅 Agendamento ${index + 1}: ${appointment.clientName}, Dias: ${estimatedDays}`);
+                    
+                    for (let i = 0; i < estimatedDays; i++) {
+                        const currentDate = new Date(start);
+                        currentDate.setDate(start.getDate() + i);
+                        const dateKey = currentDate.toISOString().split('T')[0];
+                        bookedDates[dateKey] = true;
+                        console.log(`   📌 Ocupado: ${dateKey}`);
+                    }
+                }
+            });
+            
+            console.log(`✅ TOTAL DATAS OCUPADAS: ${Object.keys(bookedDates).length}`);
+            
+            // FORÇAR ATUALIZAÇÃO IMEDIATA DO CALENDÁRIO
+            if (isInitialLoadComplete) {
+                generateCalendar(currentMonth, currentYear);
+            }
+        }
+
+        // FUNÇÃO EXTREMA PARA CARREGAR AGENDAMENTOS
+        async function loadAppointmentsFromFirestoreExtreme() {
+            console.log("🔥 CARREGANDO AGENDAMENTOS DO FIREBASE - EXTREME MODE");
             try {
-                const db = window.firebase.db;
-                const updateDoc = window.firebase.updateDoc;
-                const docRef = window.firebase.doc;
-                
-                const documentoRef = docRef(db, "appointments", docId);
-                
-                await updateDoc(documentoRef, {
-                    quantity: quantidade,
-                    updatedAt: new Date().toISOString(),
-                    qrGenerated: true,
-                    qrGeneratedAt: new Date().toISOString()
+                const snapshot = await db.collection('appointments').orderBy('createdAt', 'desc').get();
+                appointments = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    appointments.push({ 
+                        id: doc.id, 
+                        ...data,
+                        estimatedDays: data.estimatedDays || calculateEstimatedDays(data.serviceDate, data.quantity)
+                    });
                 });
                 
-                console.log(`Quantidade ${quantidade} salva no documento ${docId}`);
-                return true;
+                console.log(`📊 ${appointments.length} AGENDAMENTOS CARREGADOS`);
                 
+                // ATUALIZAÇÃO EM CASCATA EXTREMA
+                loadAppointmentsList();
+                updateStats();
+                updateBookedDatesExtreme();
+                
+                isInitialLoadComplete = true;
+                
+                return true;
             } catch (error) {
-                console.error("Erro ao atualizar quantidade:", error);
+                console.error("❌ ERRO CRÍTICO AO CARREGAR AGENDAMENTOS:", error);
                 return false;
             }
         }
-        
-        // Gerar QR Codes
-        generateBtn.addEventListener('click', async function() {
-            const documentNumber = selectCorte.value;
-            const quantidade = parseInt(quantidadeQR.value); // Usar a quantidade de QR codes
-            const selectedOption = selectCorte.options[selectCorte.selectedIndex];
-            const docId = selectedOption.dataset.docId;
+
+        // FUNÇÃO EXTREMA PARA SALVAR AGENDAMENTO
+        async function saveAppointmentToFirestoreExtreme(appointment) {
+            try {
+                // VALIDAÇÃO EXTREMA DOS DADOS
+                if (!appointment.clientName || !appointment.serviceDate || !appointment.quantity) {
+                    throw new Error("Dados do agendamento inválidos");
+                }
+                
+                const docRef = await db.collection('appointments').add(appointment);
+                console.log("✅ AGENDAMENTO SALVO NO FIREBASE:", docRef.id);
+                return docRef.id;
+            } catch (error) {
+                console.error("❌ ERRO AO SALVAR AGENDAMENTO:", error);
+                throw error;
+            }
+        }
+
+        // FUNÇÃO EXTREMA PARA ATUALIZAR AGENDAMENTO
+        async function updateAppointmentInFirestoreExtreme(id, updates) {
+            try {
+                await db.collection('appointments').doc(id).update({
+                    ...updates,
+                    updatedAt: new Date().toISOString()
+                });
+                console.log("✅ AGENDAMENTO ATUALIZADO NO FIREBASE:", id);
+            } catch (error) {
+                console.error("❌ ERRO AO ATUALIZAR AGendamento:", error);
+                throw error;
+            }
+        }
+
+        // FUNÇÃO EXTREMA PARA MARCAR DIAS COMO OCUPADOS
+        function markDaysAsBookedExtreme(startDate, estimatedDays) {
+            console.log("📍 MARCANDO DIAS COMO OCUPADOS - EXTREME MODE");
+            const start = new Date(startDate);
             
-            // Validações
-            if (!documentNumber || !docId) {
-                alert("Selecione um corte válido em produção!");
-                selectCorte.focus();
+            for (let i = 0; i < estimatedDays; i++) {
+                const currentDate = new Date(start);
+                currentDate.setDate(start.getDate() + i);
+                const dateKey = currentDate.toISOString().split('T')[0];
+                bookedDates[dateKey] = true;
+                console.log(`   📌 Novo dia ocupado: ${dateKey}`);
+            }
+            
+            // ATUALIZAÇÃO IMEDIATA E FORÇADA
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        // FUNÇÕES ORIGINAIS (MANTIDAS)
+        function calculateEstimatedDays(startDate, quantity) {
+            let baseDays = (quantity / 45) + 1;
+            let totalDays = Math.ceil(baseDays);
+            
+            let currentDate = new Date(startDate);
+            let weekendDays = 0;
+            
+            for (let i = 0; i < totalDays; i++) {
+                let checkDate = new Date(currentDate);
+                checkDate.setDate(currentDate.getDate() + i);
+                let dayOfWeek = checkDate.getDay();
+                
+                if (dayOfWeek === 6) weekendDays += 0.25;
+                else if (dayOfWeek === 0) weekendDays += 1;
+            }
+            
+            totalDays += weekendDays;
+            return Math.ceil(totalDays);
+        }
+
+        function calculateCompletionDate(startDate, estimatedDays) {
+            let completionDate = new Date(startDate);
+            completionDate.setDate(completionDate.getDate() + estimatedDays);
+            return completionDate;
+        }
+
+        function generateAppointmentPNG(appointment) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 650;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, canvas.width, 80);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Costur Confecções', canvas.width / 2, 35);
+            ctx.font = '16px Arial';
+            ctx.fillText('Comprovante de Agendamento', canvas.width / 2, 60);
+            
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 18px Arial';
+            ctx.fillText('Informações do Agendamento', 50, 120);
+            
+            ctx.font = '14px Arial';
+            let yPosition = 160;
+            const info = [
+                `Cliente: ${appointment.clientName}`,
+                `Agendado por: ${appointment.scheduledBy}`,
+                `Data de Entrada: ${appointment.entryDate || appointment.serviceDate}`,
+                `Data de Início: ${appointment.serviceDate}`,
+                `Horário: ${appointment.serviceTime}`,
+                `Quantidade de Peças: ${appointment.quantity}`,
+                `Tipo de Serviço: ${appointment.serviceType}`,
+                `Status: ${appointment.status === 'active' ? 'Agendado' : appointment.status === 'in-production' ? 'Em produção' : appointment.status === 'completed' ? 'Realizado' : 'Cancelado'}`,
+                `Dias Estimados: ${appointment.estimatedDays} dias`,
+                `Data de Término: ${calculateCompletionDate(appointment.serviceDate, appointment.estimatedDays).toLocaleDateString('pt-BR')}`
+            ];
+            
+            info.forEach(text => {
+                ctx.fillText(text, 50, yPosition);
+                yPosition += 30;
+            });
+            
+            yPosition += 10;
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(`Nº do Documento: ${appointment.documentNumber || 'DOC-' + appointment.id.toString().slice(-6)}`, 50, yPosition);
+            
+            yPosition += 40;
+            ctx.font = '12px Arial';
+            ctx.fillText('Observações:', 50, yPosition);
+            yPosition += 20;
+            ctx.fillText('1. Em caso de feriados, o prazo poderá ser estendido.', 50, yPosition);
+            
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Costur Confecções - Sua marca, nossa costura', canvas.width / 2, 620);
+            ctx.fillText('Rua professor ferrucio, 436, São Francisco - Caruaru/PE', canvas.width / 2, 640);
+            
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `${appointment.clientName} - ${appointment.serviceDate.split('-').reverse().join('-')}.png`;
+            link.href = dataURL;
+            link.click();
+        }
+
+        // FUNÇÃO PARA BAIXAR FORMULÁRIO DE AGENDAMENTO
+        function downloadAppointmentPDF(index) {
+            const appointment = appointments[index];
+            generateAppointmentPNG(appointment);
+        }
+
+        function showEditModal(index) {
+            currentEditingIndex = index;
+            const appointment = appointments[index];
+            
+            document.getElementById('edit-client-name').value = appointment.clientName;
+            document.getElementById('edit-scheduled-by').value = appointment.scheduledBy;
+            document.getElementById('edit-entry-date').value = appointment.entryDate || appointment.serviceDate;
+            document.getElementById('edit-service-date').value = appointment.serviceDate;
+            document.getElementById('edit-quantity').value = appointment.quantity;
+            document.getElementById('edit-service-type').value = appointment.serviceType;
+            document.getElementById('edit-status').value = appointment.status;
+            
+            generateTimeSlotsForEdit(appointment.serviceTime);
+            document.getElementById('edit-password').value = '';
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function generateTimeSlotsForEdit(selectedTime) {
+            const timeSlotsContainer = document.getElementById('edit-time-slots');
+            const timeSlots = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+            
+            let timeSlotsHTML = '';
+            timeSlots.forEach(time => {
+                const isSelected = time === selectedTime ? 'selected' : '';
+                timeSlotsHTML += `<div class="time-slot available ${isSelected}" data-time="${time}">${time}</div>`;
+            });
+            
+            timeSlotsContainer.innerHTML = timeSlotsHTML;
+            
+            document.querySelectorAll('#edit-time-slots .time-slot').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    document.querySelectorAll('#edit-time-slots .time-slot.selected').forEach(s => {
+                        s.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
+            });
+        }
+
+        async function saveEdit() {
+            const appointment = appointments[currentEditingIndex];
+            const password = document.getElementById('edit-password').value;
+            
+            if (password !== EDIT_PASSWORD) {
+                alert('Senha incorreta. A edição não foi autorizada.');
                 return;
             }
             
-            if (quantidade < 1 || quantidade > 1500) {
-                alert("Quantidade de QR Codes deve ser entre 1 e 1500!");
-                quantidadeQR.focus();
+            const clientName = document.getElementById('edit-client-name').value;
+            const scheduledBy = document.getElementById('edit-scheduled-by').value;
+            const entryDate = document.getElementById('edit-entry-date').value;
+            const serviceDate = document.getElementById('edit-service-date').value;
+            const quantity = document.getElementById('edit-quantity').value;
+            const serviceType = document.getElementById('edit-service-type').value;
+            const status = document.getElementById('edit-status').value;
+            const selectedTimeElement = document.querySelector('#edit-time-slots .time-slot.selected');
+            
+            if (!selectedTimeElement) {
+                alert('Por favor, selecione um horário.');
                 return;
             }
             
-            // Armazenar ID do documento selecionado
-            documentoSelecionadoId = docId;
+            const serviceTime = selectedTimeElement.getAttribute('data-time');
+            const estimatedDays = calculateEstimatedDays(serviceDate, parseInt(quantity));
             
-            // Mostrar loading
-            loading.style.display = 'block';
-            previewArea.style.display = 'none';
-            generateBtn.disabled = true;
-            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GERANDO...';
-            
-            // Limpar grid anterior
-            qrGrid.innerHTML = '';
+            const updates = {
+                clientName: clientName,
+                scheduledBy: scheduledBy,
+                entryDate: entryDate,
+                serviceDate: serviceDate,
+                quantity: parseInt(quantity),
+                serviceType: serviceType,
+                serviceTime: serviceTime,
+                status: status,
+                estimatedDays: estimatedDays,
+                updatedAt: new Date().toISOString()
+            };
             
             try {
-                // 1. Primeiro, atualizar a quantidade do CORTE no Firestore (se necessário)
-                const quantidadeDoCorte = parseInt(quantidadeCorte.value) || 0;
-                const atualizado = await atualizarQuantidadeNoFirestore(docId, quantidadeDoCorte);
-                
-                if (!atualizado) {
-                    alert("Atenção: Não foi possível atualizar o banco de dados, mas os QR Codes serão gerados.");
-                } else {
-                    // Atualizar visualmente no select
-                    const corteIndex = cortesEmProducao.findIndex(c => c.id === docId);
-                    if (corteIndex !== -1) {
-                        cortesEmProducao[corteIndex].quantity = quantidadeDoCorte;
-                        selectedOption.dataset.quantity = quantidadeDoCorte;
-                    }
-                }
-                
-                // 2. Mostrar exemplo dos dados
-                const exemploTexto = formatarTextoQR(documentNumber, 1);
-                dataPreview.textContent = `DADOS DO CORTE:\n• Documento: ${documentNumber}\n• Quantidade do corte: ${quantidadeDoCorte}\n• QR Codes a gerar: ${quantidade}\n• Atualizado em: ${new Date().toLocaleString()}\n\nEXEMPLO DE QR CODE:\n${exemploTexto}`;
-                dataPreview.style.display = 'block';
-                
-                // 3. Gerar os QR Codes
-                await generateQRCodes(documentNumber, quantidade);
-                
-                // Esconder loading e mostrar preview
-                loading.style.display = 'none';
-                previewArea.style.display = 'block';
-                generateBtn.disabled = false;
-                generateBtn.innerHTML = '<i class="fas fa-bolt"></i> GERAR QR CODES';
-                
-                // Mostrar mensagem de sucesso
-                const successMsg = document.createElement('div');
-                successMsg.className = 'success-msg';
-                successMsg.innerHTML = `<i class="fas fa-check-circle"></i> <strong>Sucesso!</strong> ${quantidade} QR Codes gerados para o corte ${documentNumber}.`;
-                dataPreview.parentNode.insertBefore(successMsg, dataPreview.nextSibling);
-                
-                // Foco no botão de impressão
-                printBtn.focus();
-                
+                await updateAppointmentInFirestoreExtreme(appointment.id, updates);
+                Object.assign(appointment, updates);
+                updateBookedDatesExtreme();
+                loadAppointmentsList();
+                updateStats();
+                closeEditModal();
+                alert('Agendamento atualizado com sucesso!');
             } catch (error) {
-                alert("Erro ao gerar QR Codes: " + error.message);
-                loading.style.display = 'none';
-                generateBtn.disabled = false;
-                generateBtn.innerHTML = '<i class="fas fa-bolt"></i> GERAR QR CODES';
+                console.error('Erro ao salvar edição:', error);
+                alert('Erro ao salvar edição. Tente novamente.');
             }
-        });
-        
-        // Função para gerar QR Codes
-        async function generateQRCodes(idCorte, quantidade) {
-            const batchSize = 100;
-            let generated = 0;
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+            currentEditingIndex = null;
+        }
+
+        function loadAppointmentsList() {
+            const appointmentsContainer = document.getElementById('appointments-list');
             
-            // Tamanho ajustado para 64px (1.7cm) com borda de 1px
-            const qrSize = 64;
+            if (appointments.length === 0) {
+                appointmentsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Nenhum agendamento encontrado.</p>';
+                return;
+            }
             
-            for (let i = 1; i <= quantidade; i += batchSize) {
-                const end = Math.min(i + batchSize - 1, quantidade);
+            let appointmentsHTML = '';
+            appointments.forEach((appointment, index) => {
+                let statusClass = 'status-booked';
+                let statusText = 'Agendado';
                 
-                for (let j = i; j <= end; j++) {
-                    // Criar texto para o QR Code
-                    const textoQR = formatarTextoQR(idCorte, j);
-                    
-                    // Criar container do QR Code COM BORDA
-                    const qrItem = document.createElement('div');
-                    qrItem.className = 'qr-item';
-                    qrItem.id = `qr-${idCorte}-${j}`;
-                    qrItem.title = `ID: ${idCorte}-${j}`;
-                    qrItem.style.border = '0.5px solid #e5e7eb';
-                    
-                    // Div para o QR Code
-                    const qrDiv = document.createElement('div');
-                    qrDiv.className = 'qr-code';
-                    qrDiv.style.width = `${qrSize}px`;
-                    qrDiv.style.height = `${qrSize}px`;
-                    
-                    // Adicionar ao item
-                    qrItem.appendChild(qrDiv);
-                    
-                    // Adicionar ao grid
-                    qrGrid.appendChild(qrItem);
-                    
-                    // Gerar QR Code
-                    new QRCode(qrDiv, {
-                        text: textoQR,
-                        width: qrSize - 2,
-                        height: qrSize - 2,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.Q
-                    });
-                    
-                    generated++;
+                if (appointment.status === 'cancelled') {
+                    statusClass = 'status-cancelled';
+                    statusText = 'Cancelado';
+                } else if (appointment.status === 'completed') {
+                    statusClass = 'status-completed';
+                    statusText = 'Realizado';
+                } else if (appointment.status === 'in-production') {
+                    statusClass = 'status-in-production';
+                    statusText = 'Em produção';
                 }
                 
-                // Pequena pausa para não travar a interface
-                await new Promise(resolve => setTimeout(resolve, 30));
+                appointmentsHTML += `
+                    <div class="appointment-item" data-appointment-id="${appointment.id}">
+                        <div class="appointment-details">
+                            <h4>${appointment.clientName}</h4>
+                            <p><strong>Agendado por:</strong> ${appointment.scheduledBy}</p>
+                            <p><strong>Data de Entrada:</strong> ${appointment.entryDate || appointment.serviceDate}</p>
+                            <p><strong>Data de Início:</strong> ${appointment.serviceDate} às ${appointment.serviceTime}</p>
+                            <p><strong>Peças:</strong> ${appointment.quantity} | <strong>Tipo:</strong> ${appointment.serviceType}</p>
+                            <p><strong>Previsão de Término:</strong> ${calculateCompletionDate(appointment.serviceDate, appointment.estimatedDays).toLocaleDateString('pt-BR')}</p>
+                            <div class="appointment-status ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="appointment-actions">
+                            <button class="btn-update" onclick="showEditModal(${index})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-download" onclick="downloadAppointmentPDF(${index})">
+                                <i class="fas fa-download"></i> Baixar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            appointmentsContainer.innerHTML = appointmentsHTML;
+        }
+        
+        function generateCalendar(month, year) {
+            try {
+                const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+                document.getElementById('current-month').textContent = `${monthNames[month]} ${year}`;
+                
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const today = new Date();
+                const currentDay = today.getDate();
+                const currentMonthToday = today.getMonth();
+                const currentYearToday = today.getFullYear();
+                
+                const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+                let calendarHTML = '';
+                
+                dayNames.forEach(day => {
+                    calendarHTML += `<div class="calendar-day header">${day}</div>`;
+                });
+                
+                for (let i = 0; i < firstDay; i++) {
+                    calendarHTML += `<div class="calendar-day unavailable"></div>`;
+                }
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateKey = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    let dayClass = "calendar-day";
+                    
+                    // Verificar tipo de dia
+                    if (isPastDay(dateKey)) {
+                        dayClass += " past";
+                    } else if (isHoliday(dateKey)) {
+                        dayClass += " holiday";
+                    } else if (isCarnivalDay(dateKey)) {
+                        dayClass += " carnival";
+                    } else if (bookedDates[dateKey]) {
+                        dayClass += " booked";
+                    } else {
+                        dayClass += " available";
+                    }
+                    
+                    if (day === currentDay && month === currentMonthToday && year === currentYearToday) {
+                        dayClass += " today";
+                    }
+                    
+                    calendarHTML += `<div class="${dayClass}" data-day="${day}" data-month="${month}" data-year="${year}" title="${getDayTooltip(dateKey)}">${day}</div>`;
+                }
+                
+                document.getElementById('calendar-days').innerHTML = calendarHTML;
+                
+                document.querySelectorAll('.calendar-day.available, .calendar-day.carnival').forEach(day => {
+                    day.addEventListener('click', function() {
+                        const selectedDay = this.getAttribute('data-day');
+                        const selectedMonth = parseInt(this.getAttribute('data-month')) + 1;
+                        const selectedYear = this.getAttribute('data-year');
+                        const formattedDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDay.padStart(2, '0')}`;
+                        document.getElementById('service-date').value = formattedDate;
+                        updateTimeSlots();
+                    });
+                });
+                
+                console.log("📅 CALENDÁRIO ATUALIZADO COM SUCESSO");
+            } catch (error) {
+                console.error("❌ ERRO AO GERAR CALENDÁRIO:", error);
             }
         }
         
-        // Imprimir com bordas visíveis e margens personalizadas
-        printBtn.addEventListener('click', function() {
-            // Preparar para impressão
-            const printWindow = window.open('', '_blank');
-            
-            // Configuração para 1.7cm + borda
-            const qrSizeMM = 17;
-            const borderMM = 0.5;
-            const totalSizeMM = qrSizeMM + borderMM;
-            
-            // MARGENS PERSONALIZADAS (1cm esquerda/direita, 2cm inferior)
-            const marginLeftMM = 10;   // 1cm
-            const marginRightMM = 10;  // 1cm
-            const marginTopMM = 3;     // 3mm superior
-            const marginBottomMM = 20; // 2cm inferior
-            
-            const paperWidthMM = 210;
-            const paperHeightMM = 297;
-            
-            // Largura disponível após margens
-            const availableWidthMM = paperWidthMM - marginLeftMM - marginRightMM;
-            
-            // Calcular quantos cabem por linha considerando bordas
-            const qrPerRow = Math.floor(availableWidthMM / totalSizeMM);
-            const availableHeightMM = paperHeightMM - marginTopMM - marginBottomMM;
-            const qrPerCol = Math.floor(availableHeightMM / totalSizeMM);
-            const qrPerPage = qrPerRow * qrPerCol;
-            
-            // Obter dados do lote
-            const idCorte = selectCorte.value;
-            const quantidade = parseInt(quantidadeQR.value);
-            const dataAtual = new Date().toLocaleDateString('pt-BR');
-            
-            // Criar conteúdo otimizado para impressão COM BORDAS
-            const qrItems = document.querySelectorAll('.qr-item');
-            let html = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>QR Codes - ${idCorte}</title>
-                    <meta charset="UTF-8">
-                    <style>
-                        /* MARGENS PERSONALIZADAS */
-                        @page {
-                            size: A4;
-                            margin-left: ${marginLeftMM}mm;
-                            margin-right: ${marginRightMM}mm;
-                            margin-top: ${marginTopMM}mm;
-                            margin-bottom: ${marginBottomMM}mm;
-                        }
-                        body {
-                            margin: 0;
-                            padding: 0;
-                            font-family: Arial, sans-serif;
-                            background: white;
-                        }
-                        .page-header {
-                            text-align: center;
-                            margin-bottom: 3mm;
-                            font-size: 9pt;
-                            color: #333;
-                            padding: 2mm;
-                            border-bottom: 0.5px solid #ddd;
-                        }
-                        .page {
-                            width: 100%;
-                            height: 100%;
-                            page-break-after: always;
-                        }
-                        .qr-grid {
-                            display: grid;
-                            grid-template-columns: repeat(${qrPerRow}, ${totalSizeMM}mm);
-                            grid-auto-rows: ${totalSizeMM}mm;
-                            gap: 0;
-                            width: 100%;
-                            background: white;
-                        }
-                        .qr-item {
-                            width: ${totalSizeMM}mm;
-                            height: ${totalSizeMM}mm;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            border: ${borderMM}mm solid #e5e7eb;
-                            box-sizing: border-box;
-                            background: white;
-                            page-break-inside: avoid;
-                            break-inside: avoid;
-                        }
-                        .qr-code {
-                            width: ${qrSizeMM}mm;
-                            height: ${qrSizeMM}mm;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            overflow: hidden;
-                            background: white;
-                        }
-                        .qr-code img {
-                            width: ${qrSizeMM - 0.5}mm;
-                            height: ${qrSizeMM - 0.5}mm;
-                            max-width: ${qrSizeMM - 0.5}mm;
-                            max-height: ${qrSizeMM - 0.5}mm;
-                            image-rendering: crisp-edges;
-                            background: white;
-                        }
-                        .page-footer {
-                            position: absolute;
-                            bottom: ${marginBottomMM - 15}mm;
-                            left: ${marginLeftMM}mm;
-                            width: calc(100% - ${marginLeftMM + marginRightMM}mm);
-                            text-align: center;
-                            font-size: 7pt;
-                            color: #666;
-                        }
-                    </style>
-                </head>
-                <body>
-            `;
-            
-            let currentPage = 1;
-            let qrCount = 0;
-            const totalPages = Math.ceil(quantidade / qrPerPage);
-            
-            // Organizar por páginas
-            while (qrCount < qrItems.length) {
-                html += `<div class="page">`;
-                html += `<div class="page-header">
-                    <strong>${idCorte}</strong> | ${quantidade} QR Codes | Página ${currentPage}/${totalPages} | ${dataAtual}
-                </div>`;
-                
-                html += `<div class="qr-grid">`;
-                
-                for (let i = 0; i < qrPerPage && qrCount < qrItems.length; i++) {
-                    const qrItem = qrItems[qrCount];
-                    const qrImg = qrItem.querySelector('img') || qrItem.querySelector('canvas');
-                    
-                    if (qrImg) {
-                        const imgSrc = qrImg.tagName === 'CANVAS' ? qrImg.toDataURL('image/png') : qrImg.src;
-                        html += `
-                            <div class="qr-item">
-                                <div class="qr-code">
-                                    <img src="${imgSrc}" alt="QR Code ${idCorte}-${qrCount + 1}">
-                                </div>
-                            </div>
-                        `;
-                    }
-                    qrCount++;
-                }
-                
-                html += `</div>`;
-                html += `<div class="page-footer">
-                    Gerado em: ${new Date().toLocaleString('pt-BR')}
-                </div>`;
-                html += `</div>`;
-                currentPage++;
-            }
-            
-            html += `</body></html>`;
-            
-            // Abrir janela de impressão
-            printWindow.document.write(html);
-            printWindow.document.close();
-            
-            // Esperar carregar e imprimir
-            printWindow.onload = function() {
-                setTimeout(() => {
-                    printWindow.print();
-                    printWindow.onafterprint = function() {
-                        printWindow.close();
-                    };
-                }, 250);
-            };
-        });
-        
-        // Novo lote
-        newBatchBtn.addEventListener('click', function() {
-            previewArea.style.display = 'none';
-            qrGrid.innerHTML = '';
-            dataPreview.style.display = 'none';
-            
-            // Remover mensagens de sucesso
-            const successMsgs = document.querySelectorAll('.success-msg');
-            successMsgs.forEach(msg => msg.remove());
-            
-            selectCorte.selectedIndex = 0;
-            quantidadeCorte.value = '';
-            quantidadeQR.value = '100';
-            documentoSelecionadoId = '';
-            selectCorte.focus();
-        });
-        
-        // Atalhos de teclado
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                generateBtn.click();
-            }
-            if (e.ctrlKey && e.key === 'p' && previewArea.style.display !== 'none') {
-                e.preventDefault();
-                printBtn.click();
-            }
-        });
-        
-        // Quando selecionar um corte, mostrar informações
-        selectCorte.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const docId = selectedOption.dataset.docId;
-            const quantidadeDoCorte = selectedOption.dataset.quantity || 0;
-            
-            if (docId) {
-                // Atualizar campo de quantidade do corte (imutável)
-                quantidadeCorte.value = quantidadeDoCorte;
-                
-                // Definir valor inicial para quantidade de QR codes (mas o usuário pode alterar)
-                quantidadeQR.value = Math.min(quantidadeDoCorte || 100, 1500);
-                
-                const corte = cortesEmProducao.find(c => c.id === docId);
-                if (corte) {
-                    // Adicionar tooltip ou info
-                    const infoDiv = document.getElementById('corteInfo');
-                    if (!infoDiv) {
-                        const newInfoDiv = document.createElement('div');
-                        newInfoDiv.id = 'corteInfo';
-                        newInfoDiv.className = 'corte-info';
-                        newInfoDiv.innerHTML = `
-                            <i class="fas fa-info-circle"></i> 
-                            Cliente: ${corte.clientName} | 
-                            Serviço: ${corte.serviceType} | 
-                            Data: ${corte.serviceDate || "Não informada"}
-                        `;
-                        this.parentNode.appendChild(newInfoDiv);
-                    } else {
-                        infoDiv.innerHTML = `
-                            <i class="fas fa-info-circle"></i> 
-                            Cliente: ${corte.clientName} | 
-                            Serviço: ${corte.serviceType} | 
-                            Data: ${corte.serviceDate || "Não informada"}
-                        `;
-                    }
-                }
+        function getDayTooltip(dateString) {
+            if (isHoliday(dateString)) {
+                return "Feriado - Indisponível";
+            } else if (isCarnivalDay(dateString)) {
+                return "Ponto facultativo - Consulte disponibilidade";
+            } else if (isPastDay(dateString)) {
+                return "Dia passado";
+            } else if (bookedDates[dateString]) {
+                return "Período ocupado";
             } else {
-                // Limpar campos se nenhum corte selecionado
-                quantidadeCorte.value = '';
-                quantidadeQR.value = '100';
-                
-                // Remover info se existir
-                const infoDiv = document.getElementById('corteInfo');
-                if (infoDiv) {
-                    infoDiv.remove();
-                }
+                return "Disponível para agendamento";
             }
-        });
+        }
         
-        // Focar no select ao carregar
-        window.onload = async function() {
-            // Carregar cortes em produção do Firebase
-            await carregarCortesEmProducao();
+        function updateTimeSlots() {
+            const timeSlotsContainer = document.getElementById('time-slots');
+            const timeSlots = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
             
-            if (selectCorte.options.length > 1) {
-                selectCorte.focus();
+            let timeSlotsHTML = '';
+            timeSlots.forEach(time => {
+                timeSlotsHTML += `<div class="time-slot available" data-time="${time}">${time}</div>`;
+            });
+            
+            timeSlotsContainer.innerHTML = timeSlotsHTML;
+            
+            document.querySelectorAll('.time-slot.available').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    document.querySelectorAll('.time-slot.selected').forEach(s => {
+                        s.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    updateScheduleInfo();
+                });
+            });
+        }
+        
+        function updateScheduleInfo() {
+            const entryDate = document.getElementById('entry-date').value;
+            const serviceDate = document.getElementById('service-date').value;
+            const selectedTime = document.querySelector('.time-slot.selected')?.getAttribute('data-time');
+            const quantity = document.getElementById('quantity').value;
+            
+            if (serviceDate && selectedTime && quantity) {
+                const entryDateTime = entryDate ? `${entryDate.split('-').reverse().join('/')}` : 'Não informada';
+                document.getElementById('entry-datetime').textContent = entryDateTime;
+                
+                const estimatedDays = calculateEstimatedDays(serviceDate, parseInt(quantity));
+                document.getElementById('estimated-days').textContent = estimatedDays;
+                
+                const completionDate = calculateCompletionDate(serviceDate, estimatedDays);
+                const formattedCompletionDate = completionDate.toLocaleDateString('pt-BR');
+                document.getElementById('completion-datetime').textContent = formattedCompletionDate;
+                
+                const docNumber = `DOC-${Date.now().toString().slice(-6)}`;
+                document.getElementById('document-number').textContent = `Nº do Documento: ${docNumber}`;
             }
-        };
+        }
+        
+        function updateStats() {
+            const activeAppointments = appointments.filter(a => a.status === 'active' || a.status === 'in-production').length;
+            const totalPieces = appointments.reduce((sum, appointment) => {
+                if (appointment.status === 'active' || appointment.status === 'in-production') {
+                    return sum + parseInt(appointment.quantity);
+                }
+                return sum;
+            }, 0);
+            
+            document.getElementById('total-appointments').textContent = activeAppointments;
+            document.getElementById('total-pieces').textContent = totalPieces;
+        }
+        
+        // INICIALIZAÇÃO EXTREMA DO SISTEMA
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("🚀 INICIANDO SISTEMA - EXTREME MODE");
+            
+            // CARREGAMENTO EM SEQUÊNCIA EXTREMA
+            loadActiveClientsExtreme().then(() => {
+                return loadAppointmentsFromFirestoreExtreme();
+            }).then(() => {
+                generateCalendar(currentMonth, currentYear);
+                console.log("✅ SISTEMA INICIALIZADO COM SUCESSO");
+            }).catch(error => {
+                console.error("❌ FALHA CRÍTICA NA INICIALIZAÇÃO:", error);
+            });
+            
+            // Configurar data mínima para os campos de data
+            const today = new Date();
+            const minDate = today.toISOString().split('T')[0];
+            document.getElementById('entry-date').min = minDate;
+            document.getElementById('service-date').min = minDate;
+            document.getElementById('edit-entry-date').min = minDate;
+            document.getElementById('edit-service-date').min = minDate;
+            
+            // Configurar data de entrada como hoje por padrão
+            document.getElementById('entry-date').value = minDate;
+            
+            // Event listeners para navegação do calendário
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                generateCalendar(currentMonth, currentYear);
+            });
+            
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                generateCalendar(currentMonth, currentYear);
+            });
+            
+            // Event listeners para atualização de informações
+            document.getElementById('entry-date').addEventListener('change', updateScheduleInfo);
+            document.getElementById('service-date').addEventListener('change', updateTimeSlots);
+            document.getElementById('quantity').addEventListener('change', updateScheduleInfo);
+            
+            // Event listener para o formulário de agendamento
+            document.getElementById('appointment-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const clientName = document.getElementById('client-name').value;
+                const scheduledBy = document.getElementById('scheduled-by').value;
+                const entryDate = document.getElementById('entry-date').value;
+                const serviceDate = document.getElementById('service-date').value;
+                const quantity = document.getElementById('quantity').value;
+                const serviceType = document.getElementById('service-type').value;
+                const status = document.getElementById('appointment-status').value;
+                const selectedTime = document.querySelector('.time-slot.selected')?.getAttribute('data-time');
+                
+                if (!selectedTime) {
+                    alert('Por favor, selecione um horário.');
+                    return;
+                }
+                
+                if (!clientName) {
+                    alert('Por favor, selecione um cliente.');
+                    return;
+                }
+                
+                if (!entryDate) {
+                    alert('Por favor, informe a data de entrada.');
+                    return;
+                }
+                
+                const estimatedDays = calculateEstimatedDays(serviceDate, parseInt(quantity));
+                const documentNumber = `DOC-${Date.now().toString().slice(-6)}`;
+                
+                const newAppointment = {
+                    clientName,
+                    scheduledBy,
+                    entryDate,
+                    serviceDate,
+                    serviceTime: selectedTime,
+                    quantity: parseInt(quantity),
+                    serviceType,
+                    status: status === 'Agendado' ? 'active' : 
+                           status === 'Em produção' ? 'in-production' :
+                           status === 'Realizado' ? 'completed' : 'cancelled',
+                    estimatedDays,
+                    documentNumber,
+                    createdAt: new Date().toISOString()
+                };
+                
+                try {
+                    const id = await saveAppointmentToFirestoreExtreme(newAppointment);
+                    newAppointment.id = id;
+                    appointments.push(newAppointment);
+                    markDaysAsBookedExtreme(serviceDate, estimatedDays);
+                    generateAppointmentPNG(newAppointment);
+                    loadAppointmentsList();
+                    updateStats();
+                    
+                    alert('Agendamento realizado com sucesso! O comprovante foi baixado automaticamente.');
+                    
+                    document.getElementById('appointment-form').reset();
+                    document.getElementById('entry-date').value = minDate; // Reset para data atual
+                    document.getElementById('time-slots').innerHTML = '';
+                    document.getElementById('entry-datetime').textContent = '-';
+                    document.getElementById('completion-datetime').textContent = '-';
+                    document.getElementById('document-number').textContent = 'Nº do Documento: Aguardando dados...';
+                    document.getElementById('estimated-days').textContent = '0';
+                } catch (error) {
+                    alert('Erro ao realizar agendamento. Tente novamente.');
+                }
+            });
+            
+            // Configuração do modal de edição
+            const editModal = document.getElementById('edit-modal');
+            const closeModalBtn = document.querySelector('.close-modal');
+            const cancelEditBtn = document.getElementById('cancel-edit');
+            const editForm = document.getElementById('edit-form');
+            const togglePasswordBtn = document.getElementById('toggle-password');
+            const editPasswordField = document.getElementById('edit-password');
+            
+            closeModalBtn.addEventListener('click', closeEditModal);
+            cancelEditBtn.addEventListener('click', closeEditModal);
+            
+            editModal.addEventListener('click', function(e) {
+                if (e.target === editModal) {
+                    closeEditModal();
+                }
+            });
+            
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveEdit();
+            });
+            
+            togglePasswordBtn.addEventListener('click', function() {
+                const type = editPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                editPasswordField.setAttribute('type', type);
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        });
+
+        // LISTENER EXTREMO PARA ATUALIZAÇÕES EM TEMPO REAL
+        db.collection('appointments')
+            .orderBy('createdAt', 'desc')
+            .onSnapshot((snapshot) => {
+                if (!isInitialLoadComplete) return;
+                
+                console.log("🔄 ATUALIZAÇÃO EM TEMPO REAL DETECTADA");
+                loadAppointmentsFromFirestoreExtreme().then(() => {
+                    console.log("✅ SISTEMA SINCRONIZADO EM TEMPO REAL");
+                });
+            }, (error) => {
+                console.error("❌ ERRO NO LISTENER EM TEMPO REAL:", error);
+            });
+
     </script>
 </body>
 </html>
