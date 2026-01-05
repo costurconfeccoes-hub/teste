@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Costur Confecções - Sistema de Agendamento</title>
+    <title>Costur Confecções - Bem Querida</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <!-- Firebase Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
     <style>
-        /* Estilos otimizados para tela de computador */
         * {
             margin: 0;
             padding: 0;
@@ -29,30 +21,25 @@
             --dark: #2c3e50;
             --text: #333;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --admin-color: #8e44ad;
-            --completed-color: #27ae60;
-            --in-production-color: #3498db;
-            --past-day-color: #95a5a6;
-            --holiday-color: #e74c3c;
-            --carnival-color: #f39c12;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
         }
 
         body {
             background-color: #f9f9f9;
             color: var(--text);
             line-height: 1.6;
-            overflow-x: hidden;
+            min-height: 100vh;
+            padding-bottom: 100px;
         }
-
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
-
+        
         /* Header */
         header {
             background-color: var(--primary);
@@ -60,6 +47,7 @@
             padding: 15px 0;
             box-shadow: var(--shadow);
             position: relative;
+            margin-bottom: 30px;
         }
 
         .header-content {
@@ -67,6 +55,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 20px;
         }
 
         .logo-container {
@@ -74,7 +63,6 @@
             align-items: center;
             gap: 15px;
             flex: 1;
-            min-width: 300px;
         }
 
         .logo {
@@ -107,99 +95,1009 @@
             font-size: 0.9rem;
             color: white;
         }
-
-        .header-contact {
+        
+        /* Panel Sections */
+        .panel-section {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .section-title {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .panel-content {
+            padding: 20px;
+        }
+        
+        /* NOTA DE COBRANÇA */
+        .download-area {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
+            gap: 15px;
         }
-
-        .contact-item {
+        
+        .download-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8fbff;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .download-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+            background-color: #e3f2fd;
+        }
+        
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .file-date {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .download-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #FFF;
-            font-size: 0.9rem;
-        }
-
-        .contact-item i {
-            color: #FFF;
-            font-size: 0.8rem;
-        }
-
-        .contact-item span {
-            color: #FFF;
-            font-weight: 500;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 100px 0;
-            text-align: center;
-        }
-
-        .hero h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 30px;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--secondary);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 5px;
             text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
         }
-
-        .btn:hover {
+        
+        .download-btn:hover {
             background-color: #2980b9;
             transform: translateY(-3px);
         }
-
-        /* Sections */
-        section {
-            padding: 80px 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
-            position: relative;
-        }
-
-        .section-title h2 {
-            font-size: 2.2rem;
-            color: var(--primary);
-            display: inline-block;
-            padding-bottom: 10px;
-        }
-
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            width: 80px;
-            height: 3px;
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
             background-color: var(--secondary);
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .floating-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.1);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #546e7a;
+            font-size: 0.9rem;
         }
 
-        /* Card Styles for Scheduling System */
+        /* Estilos para as notas do Firebase - VERSÃO COMPACTA */
+        .nota-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .nota-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nota-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .nota-info-compact {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nota-id {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .nota-status {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .status-pendente {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-pago {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-cancelado {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .nota-details-compact {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .nota-valor {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .nota-data {
+            color: #666;
+        }
+
+        .nota-toggle {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nota-toggle.rotated {
+            transform: rotate(180deg);
+        }
+
+        .nota-details-expanded {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: none;
+        }
+
+        .nota-details-expanded.show {
+            display: block;
+        }
+
+        .nota-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .valor-total {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .services-list {
+            margin-top: 10px;
+        }
+
+        .service-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .service-model {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .service-quantity {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .service-price {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .service-subtotal {
+            color: #e67e22;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .nota-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-download {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .btn-download:hover {
+            background-color: #219653;
+            transform: translateY(-2px);
+        }
+
+        /* Container para gerar PNG sem o botão */
+        .nota-print {
+            display: none;
+        }
+
+        .nota-print-content {
+            padding: 20px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 20px;
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .print-header h2 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .print-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .print-service-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        /* ESTILOS DO PAINEL DE ACOMPANHAMENTO (NOVOS) */
+        .quick-view-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .quick-view-item {
+            background-color: white;
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.2s ease;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .quick-view-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .quick-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .quick-view-cliente {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .quick-view-status {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .status-aguardando {
+            background-color: var(--warning);
+        }
+
+        .status-producao {
+            background-color: var(--secondary);
+        }
+
+        .status-realizado {
+            background-color: var(--success);
+        }
+
+        .status-parado {
+            background-color: var(--danger);
+        }
+
+        .quick-view-details-compact {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            font-size: 0.65rem;
+        }
+
+        .detail-compact {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label-compact {
+            font-size: 0.6rem;
+            color: #666;
+            margin-bottom: 1px;
+        }
+
+        .detail-value-compact {
+            font-weight: 500;
+            font-size: 0.65rem;
+        }
+
+        .quick-view-actions {
+            display: flex;
+            gap: 4px;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .view-btn {
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        .view-btn:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* Modal de visualização completa */
+        .modal-visualizacao {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+        }
+        
+        .modal-visualizacao-content {
+            position: relative;
+            width: 95%;
+            max-width: 600px;
+            margin: 5% auto;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            padding: 15px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 2001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-title {
+            margin-bottom: 12px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--secondary);
+            padding-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* Informações de visualização */
+        .info-section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-section h4 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--secondary);
+            padding-bottom: 4px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 120px;
+        }
+        
+        .info-value {
+            color: var(--text);
+            flex: 1;
+        }
+        
+        .info-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        /* Lista de etapas na visualização */
+        .etapas-lista-visualizacao {
+            margin-top: 10px;
+        }
+        
+        .etapa-item-visualizacao {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            margin-bottom: 6px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #ddd;
+        }
+        
+        .etapa-item-visualizacao.aguardando {
+            border-left-color: var(--warning);
+        }
+        
+        .etapa-item-visualizacao.producao {
+            border-left-color: var(--secondary);
+        }
+        
+        .etapa-item-visualizacao.realizado {
+            border-left-color: var(--success);
+        }
+        
+        .etapa-item-visualizacao.parado {
+            border-left-color: var(--danger);
+        }
+        
+        .etapa-numero-visualizacao {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.7rem;
+            min-width: 25px;
+            text-align: center;
+        }
+        
+        .etapa-nome-visualizacao {
+            flex: 1;
+            font-size: 0.75rem;
+            color: var(--text);
+        }
+        
+        .etapa-status-visualizacao {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: white;
+            min-width: 100px;
+            text-align: center;
+        }
+        
+        .status-aguardando-bg {
+            background-color: var(--warning);
+        }
+        
+        .status-producao-bg {
+            background-color: var(--secondary);
+        }
+        
+        .status-realizado-bg {
+            background-color: var(--success);
+        }
+        
+        .status-parado-bg {
+            background-color: var(--danger);
+        }
+        
+        /* Barra de progresso */
+        .progress-container {
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.7rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--success);
+            transition: width 0.3s ease;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary);
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #78909c;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #b0bec5;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .subtext {
+            font-size: 0.9rem;
+            color: #90a4ae;
+        }
+
+        /* =========================================== */
+        /* ESTILOS PARA A SEÇÃO DE BÔNUS (ADICIONADOS) */
+        /* =========================================== */
+        
+        .bonus-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .bonus-summary-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--secondary);
+        }
+        
+        .bonus-summary-card h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .bonus-summary-card .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .bonus-summary-card .subtext {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status-bonus-pendente {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .status-bonus-deferido {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .status-bonus-indeferido {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .status-bonus-pago {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .bonus-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .bonus-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .bonus-cliente {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        
+        .bonus-details {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .bonus-info-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 5px;
+        }
+        
+        .bonus-info-label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.75rem;
+        }
+        
+        .bonus-info-value {
+            color: var(--text);
+            font-size: 0.75rem;
+        }
+        
+        .bonus-filters-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .bonus-filters-row select {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .bonus-filters-row button {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            height: auto;
+        }
+        
+        .bonus-warning {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            border-left: 3px solid var(--warning);
+            color: #856404;
+            font-size: 0.8rem;
+        }
+        
+        .bonus-info-box {
+            background: #e8f4fd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 3px solid var(--secondary);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .logo-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo-text h1 {
+                font-size: 1.3rem;
+            }
+            
+            .logo-text p {
+                font-size: 0.8rem;
+            }
+            
+            .quick-view-details-compact {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .download-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .download-btn {
+                align-self: flex-end;
+            }
+
+            .nota-info-compact {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .nota-details-compact {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .nota-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nota-actions {
+                justify-content: flex-start;
+            }
+            
+            .modal-visualizacao-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                margin-bottom: 8px;
+            }
+            
+            .info-label {
+                min-width: auto;
+                margin-bottom: 2px;
+            }
+            
+            /* Responsividade para seção de bônus */
+            .bonus-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .bonus-filters-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-view-details-compact {
+                grid-template-columns: 1fr;
+            }
+            
+            .etapa-item-visualizacao {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .etapa-status-visualizacao {
+                align-self: flex-start;
+            }
+            
+            .bonus-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções">
+                </div>
+                <div class="logo-text">
+                    <h1>Costur Confecções - Bem Querida</h1>
+                    <p>Sua marca, nossa costura.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+
+    <title>Calendário e Histórico de Agendamentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --admin-color: #8e44ad;
+            --completed-color: #27ae60;
+            --in-production-color: #3498db;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
         .card {
             background-color: white;
             border-radius: 10px;
@@ -223,125 +1121,6 @@
         }
         
         .card h2 i {
-            margin-right: 10px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        input, select, button {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        
-        input:focus, select:focus {
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-            outline: none;
-        }
-        
-        button {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .btn-cancel {
-            background: var(--danger-color);
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            width: auto;
-        }
-        
-        .btn-edit {
-            background: var(--warning-color);
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            width: auto;
-            margin-right: 10px;
-        }
-        
-        .btn-delete {
-            background: var(--danger-color);
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            width: auto;
-        }
-
-        .btn-correct {
-            background: var(--warning-color);
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            width: auto;
-            margin-right: 10px;
-        }
-
-        .btn-save {
-            background: var(--success-color);
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            width: auto;
-            margin-right: 10px;
-        }
-
-        .btn-download {
-            background: var(--secondary);
-            color: white;
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s;
-        }
-
-        .btn-download:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn-complete {
-            background: var(--completed-color);
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            width: auto;
-            margin-right: 10px;
-        }
-
-        .btn-update {
-            background: var(--in-production-color);
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            width: auto;
             margin-right: 10px;
         }
         
@@ -382,6 +1161,7 @@
             border-radius: 6px;
             font-weight: 500;
             transition: all 0.2s;
+            color: #000;
         }
         
         .calendar-day.header {
@@ -406,6 +1186,17 @@
             color: #999;
         }
         
+        .calendar-day.past-day {
+            background-color: #ccc;
+            color: #666;
+            cursor: default;
+        }
+        
+        .calendar-day.past-day.booked {
+            background-color: #3498db;
+            color: white;
+        }
+        
         .calendar-day.booked {
             background-color: var(--secondary);
             color: white;
@@ -415,28 +1206,11 @@
             border: 2px solid var(--secondary);
             font-weight: bold;
             background-color: #fff9e6;
-        }
-        
-        .calendar-day.past {
-            background-color: var(--past-day-color);
-            color: white;
-            cursor: not-allowed;
-        }
-        
-        .calendar-day.holiday {
-            background-color: var(--holiday-color);
-            color: white;
-            cursor: not-allowed;
-        }
-        
-        .calendar-day.carnival {
-            background-color: var(--carnival-color);
-            color: white;
-            cursor: pointer;
+            color: #000;
         }
         
         .appointments-list {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
             border: 1px solid #eee;
             border-radius: 8px;
@@ -471,7 +1245,6 @@
         .appointment-actions {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
         }
         
         .appointment-status {
@@ -479,8 +1252,6 @@
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: bold;
-            margin-top: 5px;
-            display: inline-block;
         }
         
         .status-booked {
@@ -503,19 +1274,6 @@
             color: white;
         }
         
-        .calculation-result {
-            background: linear-gradient(135deg, #e8f4fd, #d4e9fa);
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .calculation-result h3 {
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        
         .legend {
             display: flex;
             flex-direction: column;
@@ -535,302 +1293,43 @@
             margin-right: 10px;
         }
         
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .time-slots {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .time-slot {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .time-slot.selected {
-            background-color: var(--secondary);
-            color: white;
-        }
-        
-        .time-slot.disabled {
-            background-color: #eee;
-            color: #999;
-            cursor: not-allowed;
-        }
-        
-        .time-slot.available:hover {
-            background-color: #e6f0ff;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .schedule-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            border-left: 4px solid var(--warning-color);
-        }
-        
-        .schedule-info h4 {
-            color: var(--warning-color);
-            margin-bottom: 8px;
-        }
-        
-        .document-number {
-            background: #e8f4fd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-weight: bold;
-            text-align: center;
-        }
-        
-        .adjustment-info {
-            background: #fff3cd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            border-left: 4px solid var(--warning-color);
-        }
-        
-        /* Footer */
-        
-        footer {
-            background-color: var(--primary);
-            color: white;
-            padding: 25px 0;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .footer-column h3 {
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-        }
-
-        .footer-column p, .footer-column a {
-            margin-bottom: 10px;
-            display: block;
-            color: #ddd;
-            text-decoration: none;
-        }
-
-        .footer-column a:hover {
-            color: white;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .social-links a:hover {
-            background-color: var(--secondary);
-            transform: translateY(-5px);
-        }
-
-        .copyright {
-            text-align: center;
-            font-size: 1rem;
-            color: #aaa;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+            font-weight: 600;
+            transition: all 0.3s;
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .modal-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .modal-header h2 {
-            color: var(--primary);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            font-size: 1.3rem;
-        }
-
-        .modal-header h2 i {
-            margin-right: 10px;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #999;
-            width: auto;
-            padding: 0;
-        }
-
-        .close-modal:hover {
-            color: var(--danger-color);
-        }
-
-        .password-group {
-            position: relative;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
+        .loading {
+            padding: 30px;
+            text-align: center;
             color: #666;
-            width: auto;
-            padding: 0;
         }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        /* Media Queries para Responsividade */
-        @media (max-width: 1200px) {
-            .container {
-                max-width: 100%;
-                padding: 0 15px;
-            }
+        
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--secondary);
         }
 
         @media (max-width: 992px) {
             .calendar-container {
                 grid-template-columns: 1fr;
             }
-            
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .header-contact {
-                margin-top: 15px;
-                align-items: flex-start;
-            }
-            
-            .hero {
-                padding: 70px 0;
-            }
-            
-            .hero h2 {
-                font-size: 2rem;
-            }
-            
-            section {
-                padding: 60px 0;
-            }
         }
 
         @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .logo-container {
-                width: 100%;
-                margin-bottom: 15px;
-            }
-            
-            .header-contact {
-                width: 100%;
-                align-items: flex-start;
-            }
-            
-            .contact-item span {
-                font-size: 0.85rem;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-            
             .appointment-item {
                 flex-direction: column;
                 align-items: flex-start;
@@ -841,38 +1340,9 @@
                 width: 100%;
                 justify-content: flex-end;
             }
-            
-            .time-slots {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-content {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
-            .hero h2 {
-                font-size: 1.8rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .section-title h2 {
-                font-size: 1.8rem;
-            }
-            
-            .card h2 {
-                font-size: 1.4rem;
-            }
         }
 
         @media (max-width: 576px) {
-            .container {
-                padding: 0 10px;
-            }
-            
             .card {
                 padding: 15px;
             }
@@ -886,344 +1356,68 @@
                 padding: 8px 3px;
                 font-size: 0.85rem;
             }
-            
-            .modal-content {
-                padding: 20px;
-            }
-            
-            .hero {
-                padding: 50px 0;
-            }
-            
-            .hero h2 {
-                font-size: 1.6rem;
-            }
-            
-            section {
-                padding: 40px 0;
-            }
-            
-            .section-title {
-                margin-bottom: 30px;
-            }
-            
-            .section-title h2 {
-                font-size: 1.6rem;
-            }
-            
-            .logo-text h1 {
-                font-size: 1.3rem;
-            }
-            
-            .logo-text p {
-                font-size: 0.8rem;
-            }
-            
-            .logo {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .appointment-actions {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .btn-download, .btn-update {
-                width: 100%;
-                margin-right: 0;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container header-content">
-            <div class="logo-container">
-                <div class="logo">
-                    <img src="https://i.pinimg.com/1200x/40/a8/e9/40a8e9533769e963fd52ccc646efc7c6.jpg" alt="Costur Confecções" id="logo-image">
-                </div>
-                <div class="logo-text">
-                    <h1>Costur Confecções</h1>
-                    <p>Sua marca, nossa costura.</p>
-                </div>
-            </div>
-            <div class="header-contact">
-                <div class="contact-item">
-                    <i class="fas fa-phone"></i>
-                    <span>(81) 9.2140-5569 / (81) 9.9201-4171</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>Rua professor ferrucio, 436, São Francisco - Caruaru/PE</span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h2>Sistema de Agendamento</h2>
-            <p>Agende seus serviços de costura de forma rápida e prática.</p>
-            <a href="#agendamento" class="btn">Fazer Agendamento</a>
-        </div>
-    </section>
-
-    <!-- Sistema de Agendamento -->
-    <section id="agendamento">
-        <div class="container">
-            <div class="section-title">
-                <h2>Agendamento de Serviços</h2>
-            </div>
-            
-            <div class="card">
-                <h2><i class="fas fa-calendar-plus"></i> Novo Agendamento</h2>
-                <form id="appointment-form">
-                    <div class="form-group">
-                        <label for="client-name">Cliente</label>
-                        <select id="client-name" required>
-                            <option value="">Selecione um cliente</option>
-                            <!-- Clientes serão carregados do banco de dados -->
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="scheduled-by">Agendado por</label>
-                        <select id="scheduled-by" required>
-                            <option value="">Selecione quem está agendando</option>
-                            <option value="Wallison Vinicius">Wallison Vinicius</option>
-                            <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="entry-date">Data de Entrada</label>
-                        <input type="date" id="entry-date" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="service-date">Data de Início do Serviço</label>
-                        <input type="date" id="service-date" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="quantity">Quantidade de Peças</label>
-                        <input type="number" id="quantity" min="1" value="1" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="service-type">Tipo de Serviço</label>
-                        <select id="service-type" required>
-                            <option value="">Selecione o tipo de serviço</option>
-                            <option value="confecção completa">Confecção completa</option>
-                            <option value="Confecção parcial">Confecção parcial</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="appointment-status">Status do Agendamento</label>
-                        <select id="appointment-status" required>
-                            <option value="Agendado">Agendado</option>
-                            <option value="Em produção">Em produção</option>
-                            <option value="Realizado">Realizado</option>
-                            <option value="Cancelado">Cancelado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Horário de Início</label>
-                        <div class="time-slots" id="time-slots">
-                            <!-- Horários serão gerados via JavaScript -->
-                        </div>
-                    </div>
-                    
-                    <div class="schedule-info">
-                        <h4><i class="fas fa-info-circle"></i> Informações do Agendamento</h4>
-                        <p><strong>Data e Hora de Entrada:</strong> <span id="entry-datetime">-</span></p>
-                        <p><strong>Data Estipulada para Término:</strong> <span id="completion-datetime">-</span></p>
-                        <div class="document-number" id="document-number">
-                            Nº do Documento: Aguardando dados...
-                        </div>
-                    </div>
-                    
-                    <div class="calculation-result" id="calculation-result">
-                        <h3>Detalhes do Serviço</h3>
-                        <p><strong>Dias estimados para conclusão:</strong> <span id="estimated-days">0</span> dias</p>
-                    </div>
-                    
-                    <button type="submit" id="submit-btn">Agendar Serviço</button>
-                </form>
-            </div>
-            
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-value" id="total-appointments">0</div>
-                    <div class="stat-label">Agendamentos Ativos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="total-pieces">0</div>
-                    <div class="stat-label">Peças em Produção</div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2><i class="fas fa-calendar-alt"></i> Calendário de Disponibilidade</h2>
-                <div class="calendar-container">
-                    <div class="calendar">
-                        <div class="calendar-header" id="current-month">Carregando...</div>
-                        <div class="calendar-body">
-                            <div class="calendar-grid" id="calendar-days">
-                                <!-- Dias serão gerados via JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h3>Legenda</h3>
-                        <div class="legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: var(--success-color);"></div>
-                                <span>Disponível para agendamento</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: var(--secondary);"></div>
-                                <span>Período ocupado</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="border: 2px solid var(--secondary); background-color: #fff9e6;"></div>
-                                <span>Dia atual</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: var(--past-day-color);"></div>
-                                <span>Dia passado</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: var(--holiday-color);"></div>
-                                <span>Feriado - Indisponível</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: var(--carnival-color);"></div>
-                                <span>Ponto facultativo - Consulte disponibilidade</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 20px;">
-                            <button id="prev-month">Mês Anterior</button>
-                            <button id="next-month" style="margin-top: 10px;">Próximo Mês</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2><i class="fas fa-list"></i> Histórico de Agendamentos</h2>
-                
-                <div class="appointments-list" id="appointments-list">
-                    <!-- Todos os agendamentos serão listados aqui -->
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Modal para Edição -->
-    <div class="modal" id="edit-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-edit"></i> Editar Agendamento</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="edit-form">
-                <div class="form-group">
-                    <label for="edit-client-name">Cliente</label>
-                    <select id="edit-client-name" required>
-                        <!-- Clientes serão carregados do banco de dados -->
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-scheduled-by">Agendado por</label>
-                    <select id="edit-scheduled-by" required>
-                        <option value="Wallison Vinicius">Wallison Vinicius</option>
-                        <option value="Eduarda Emmanoelly">Eduarda Emmanoelly</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-entry-date">Data de Entrada</label>
-                    <input type="date" id="edit-entry-date" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-service-date">Data de Início</label>
-                    <input type="date" id="edit-service-date" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-quantity">Quantidade de Peças</label>
-                    <input type="number" id="edit-quantity" min="1" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-service-type">Tipo de Serviço</label>
-                    <select id="edit-service-type" required>
-                        <option value="confecção completa">Confecção completa</option>
-                        <option value="Confecção parcial">Confecção parcial</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-status">Status do Agendamento</label>
-                    <select id="edit-status" required>
-                        <option value="active">Agendado</option>
-                        <option value="in-production">Em produção</option>
-                        <option value="completed">Realizado</option>
-                        <option value="cancelled">Cancelado</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Horário de Início</label>
-                    <div class="time-slots" id="edit-time-slots">
-                        <!-- Horários serão gerados via JavaScript -->
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-password">Senha de Acesso</label>
-                    <div class="password-group">
-                        <input type="password" id="edit-password" required placeholder="Digite a senha para editar">
-                        <button type="button" class="toggle-password" id="toggle-password">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" id="cancel-edit">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i> Salvar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-   <!-- Footer -->
-
-    <footer>
     <div class="container">
-        <div class="copyright">
-            Costur Confecções © 2023 - Todos os direitos reservados
+        <div class="card">
+            <h2><i class="fas fa-calendar-alt"></i> Calendário de Disponibilidade</h2>
+            <div class="calendar-container">
+                <div class="calendar">
+                    <div class="calendar-header" id="current-month">Carregando...</div>
+                    <div class="calendar-body">
+                        <div class="calendar-grid" id="calendar-days">
+                            <!-- Dias serão gerados via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Legenda</h3>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--success-color);"></div>
+                            <span>Disponível para agendamento</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--secondary);"></div>
+                            <span>Período ocupado (BEM QUERIDA)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #ccc;"></div>
+                            <span>Dia que já passou</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="border: 2px solid var(--secondary); background-color: #fff9e6;"></div>
+                            <span>Dia atual</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button id="prev-month">Mês Anterior</button>
+                        <button id="next-month" style="margin-top: 10px;">Próximo Mês</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2><i class="fas fa-list"></i> Histórico de Agendamentos</h2>
+            
+            <div class="appointments-list" id="appointments-list">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Carregando agendamentos da BEM QUERIDA...</p>
+                </div>
+            </div>
         </div>
     </div>
-    </footer>
 
     <script>
-        // CONFIGURAÇÃO EXTREMA - SINCRONIZAÇÃO GARANTIDA
+        // ============================
+        // CONFIGURAÇÃO DO FIREBASE
+        // ============================
         const firebaseConfig = {
             apiKey: "AIzaSyAc1iUDZEjyDOtrY9UT_idP5_TGODIsc9E",
             authDomain: "costur-agendamentos.firebaseapp.com",
@@ -1233,522 +1427,161 @@
             appId: "1:948222283708:web:a82876883f247e51ede5b9"
         };
 
-        // CONFIGURAÇÃO DO BANCO DE DADOS DE CLIENTES
-        const firebaseConfigClientes = {
-            apiKey: "AIzaSyCyTwlzsMG5-l07vnrb8XIx9J6AIP_Xuvw",
-            authDomain: "cadastro-cliente-6bd66.firebaseapp.com",
-            projectId: "cadastro-cliente-6bd66",
-            storageBucket: "cadastro-cliente-6bd66.firebasestorage.app",
-            messagingSenderId: "492238035100",
-            appId: "1:492238035100:web:cfb93092a71798dd2e7559"
-        };
-
-        // INICIALIZAÇÃO EXTREMA DO FIREBASE
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
-
-        // INICIALIZAÇÃO DO FIREBASE PARA CLIENTES
-        let appClientes;
-        let dbClientes;
-        
+        // Inicializar Firebase
+        let db;
         try {
-            appClientes = firebase.initializeApp(firebaseConfigClientes, "clientes");
-            dbClientes = firebase.firestore(appClientes);
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            console.log("✅ Firebase inicializado com sucesso!");
         } catch (error) {
-            // Se já estiver inicializado, usa a instância existente
-            appClientes = firebase.app("clientes");
-            dbClientes = firebase.firestore(appClientes);
+            console.error("❌ Erro ao inicializar Firebase:", error);
         }
 
-        // VARIÁVEIS GLOBAIS COM VERIFICAÇÃO EXTREMA
+        // ============================
+        // CONFIGURAÇÕES BÁSICAS
+        // ============================
         let appointments = [];
-        let clients = [];
         let bookedDates = {};
-        let currentEditingIndex = null;
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
-        const EDIT_PASSWORD = "CosturADM2023";
-        let isInitialLoadComplete = false;
+        const CLIENTE_FILTRO = "BEM QUERIDA";
 
-        // LISTA DE FERIADOS 2026
-        const holidays2026 = [
-            "2026-01-01", // Ano Novo
-            "2026-03-06", // Dia de Pernambuco
-            "2026-04-03", // Sexta-Feira Santa
-            "2026-04-21", // Dia de Tiradentes
-            "2026-05-01", // Dia do Trabalhador
-            "2026-05-18", // Aniversário de Caruaru
-            "2026-06-04", // Corpus Christi
-            "2026-06-24", // Dia de São João
-            "2026-06-29", // Dia de São Pedro
-            "2026-09-07", // Independência do Brasil
-            "2026-09-15", // Nossa Senhora das Dores
-            "2026-10-12", // Dia de Nossa Senhora Aparecida
-            "2026-11-02", // Dia de Finados
-            "2026-11-15", // Proclamação da República
-            "2026-11-20", // Dia da Consciência Negra
-            "2026-12-25"  // Natal
-        ];
+        // ============================
+        // FUNÇÕES AUXILIARES CORRIGIDAS
+        // ============================
 
-        // DIAS DE CARNAVAL 2026 (Ponto facultativo)
-        const carnivalDays2026 = [
-            "2026-02-16", // Segunda de Carnaval
-            "2026-02-17", // Terça de Carnaval
-            "2026-02-18"  // Quarta-feira de Cinzas
-        ];
-
-        // FUNÇÃO PARA VERIFICAR SE É FERIADO
-        function isHoliday(dateString) {
-            return holidays2026.includes(dateString);
-        }
-
-        // FUNÇÃO PARA VERIFICAR SE É PONTO FACULTATIVO
-        function isCarnivalDay(dateString) {
-            return carnivalDays2026.includes(dateString);
-        }
-
-        // FUNÇÃO PARA VERIFICAR SE É DIA PASSADO
-        function isPastDay(dateString) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const checkDate = new Date(dateString);
-            return checkDate < today;
-        }
-
-        // FUNÇÃO EXTREMA PARA CARREGAR CLIENTES ATIVOS
-        async function loadActiveClientsExtreme() {
-            console.log("🔥 CARREGANDO CLIENTES ATIVOS DO FIREBASE - EXTREME MODE");
+        // ✅ CORREÇÃO: Converter data do Firebase corretamente (resolvendo problema de fuso horário)
+        function parseFirebaseDate(dateString) {
+            if (!dateString) return null;
+            
             try {
-                const snapshot = await dbClientes.collection('clientes').get();
+                // Se a data já for um objeto Date
+                if (dateString instanceof Date) {
+                    return new Date(dateString);
+                }
                 
-                clients = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    console.log("Cliente encontrado:", data);
-                    
-                    // Verificar se o cliente está ativo
-                    if (data.statusCadastro === "Ativo") {
-                        clients.push({ 
-                            id: doc.id, 
-                            ...data
-                        });
+                // Se for uma string no formato YYYY-MM-DD (do Firebase)
+                if (typeof dateString === 'string') {
+                    // Verificar se tem o formato YYYY-MM-DD
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+                        // Adicionar horário no meio-dia UTC para evitar problemas de fuso horário
+                        return new Date(dateString + 'T12:00:00Z');
                     }
-                });
+                    
+                    // Se for timestamp ou outro formato
+                    const date = new Date(dateString);
+                    if (!isNaN(date.getTime())) {
+                        return date;
+                    }
+                }
                 
-                console.log(`📊 ${clients.length} CLIENTES ATIVOS CARREGADOS`);
+                // Se for timestamp do Firestore
+                if (dateString && dateString.toDate) {
+                    return dateString.toDate();
+                }
                 
-                // Atualizar os menus de seleção de clientes
-                updateClientSelectMenus();
-                
-                return true;
+                console.warn("Formato de data não reconhecido:", dateString);
+                return null;
             } catch (error) {
-                console.error("❌ ERRO CRÍTICO AO CARREGAR CLIENTES:", error);
-                // Tentar carregar sem filtro de status
-                try {
-                    const snapshot = await dbClientes.collection('clientes').get();
-                    clients = [];
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        clients.push({ 
-                            id: doc.id, 
-                            ...data
-                        });
-                    });
-                    
-                    console.log(`📊 ${clients.length} CLIENTES CARREGADOS (SEM FILTRO)`);
-                    updateClientSelectMenus();
-                    return true;
-                } catch (error2) {
-                    console.error("❌ ERRO TOTAL AO CARREGAR CLIENTES:", error2);
-                    return false;
-                }
+                console.error("Erro ao converter data:", error, dateString);
+                return null;
             }
         }
 
-        // FUNÇÃO PARA ATUALIZAR OS MENUS DE SELEÇÃO DE CLIENTES
-        function updateClientSelectMenus() {
-            const clientSelect = document.getElementById('client-name');
-            const editClientSelect = document.getElementById('edit-client-name');
+        // ✅ CORREÇÃO: Função para formatar data corretamente
+        function formatDate(date) {
+            if (!date) return '-';
             
-            // Limpar opções existentes
-            clientSelect.innerHTML = '<option value="">Selecione um cliente</option>';
-            editClientSelect.innerHTML = '<option value="">Selecione um cliente</option>';
-            
-            // Adicionar clientes ativos
-            clients.forEach(client => {
-                const option = document.createElement('option');
-                option.value = client.marca || client.nome || `Cliente ${client.id}`;
-                option.textContent = client.marca || client.nome || `Cliente ${client.id}`;
-                option.setAttribute('data-client-id', client.id);
-                
-                const editOption = option.cloneNode(true);
-                
-                clientSelect.appendChild(option);
-                editClientSelect.appendChild(editOption);
-            });
-            
-            console.log("✅ MENUS DE CLIENTES ATUALIZADOS");
-        }
-
-        // FUNÇÃO EXTREMA PARA ATUALIZAR DATAS OCUPADAS
-        function updateBookedDatesExtreme() {
-            console.log("🔄 ATUALIZANDO DATAS OCUPADAS - EXTREME MODE");
-            bookedDates = {};
-            
-            appointments.forEach((appointment, index) => {
-                if (appointment.status === 'active' || appointment.status === 'in-production') {
-                    const start = new Date(appointment.serviceDate);
-                    const estimatedDays = appointment.estimatedDays > 0 ? appointment.estimatedDays : calculateEstimatedDays(appointment.serviceDate, appointment.quantity);
-                    
-                    console.log(`📅 Agendamento ${index + 1}: ${appointment.clientName}, Dias: ${estimatedDays}`);
-                    
-                    for (let i = 0; i < estimatedDays; i++) {
-                        const currentDate = new Date(start);
-                        currentDate.setDate(start.getDate() + i);
-                        const dateKey = currentDate.toISOString().split('T')[0];
-                        bookedDates[dateKey] = true;
-                        console.log(`   📌 Ocupado: ${dateKey}`);
-                    }
-                }
-            });
-            
-            console.log(`✅ TOTAL DATAS OCUPADAS: ${Object.keys(bookedDates).length}`);
-            
-            // FORÇAR ATUALIZAÇÃO IMEDIATA DO CALENDÁRIO
-            if (isInitialLoadComplete) {
-                generateCalendar(currentMonth, currentYear);
-            }
-        }
-
-        // FUNÇÃO EXTREMA PARA CARREGAR AGENDAMENTOS
-        async function loadAppointmentsFromFirestoreExtreme() {
-            console.log("🔥 CARREGANDO AGENDAMENTOS DO FIREBASE - EXTREME MODE");
             try {
-                const snapshot = await db.collection('appointments').orderBy('createdAt', 'desc').get();
+                const d = parseFirebaseDate(date);
+                if (!d || isNaN(d.getTime())) return '-';
+                
+                // Formatar como DD/MM/YYYY
+                const day = d.getDate().toString().padStart(2, '0');
+                const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                const year = d.getFullYear();
+                
+                return `${day}/${month}/${year}`;
+            } catch (error) {
+                console.error("Erro ao formatar data:", error);
+                return '-';
+            }
+        }
+
+        // ✅ CORREÇÃO: Calcular data de término corretamente
+        function calculateCompletionDate(startDate, estimatedDays) {
+            if (!startDate) return null;
+            
+            try {
+                const start = parseFirebaseDate(startDate);
+                if (!start || isNaN(start.getTime())) return null;
+                
+                const estimated = estimatedDays || 1;
+                
+                // ✅ CORREÇÃO: Criar nova data e adicionar os dias
+                // Se começa no dia 1 e leva 1 dia → termina no dia 1
+                // Se começa no dia 1 e leva 3 dias → termina no dia 3
+                const completionDate = new Date(start);
+                completionDate.setDate(start.getDate() + (estimated - 1));
+                
+                return completionDate;
+            } catch (error) {
+                console.error("Erro ao calcular data de término:", error);
+                return null;
+            }
+        }
+
+        // ============================
+        // FUNÇÕES DO FIREBASE
+        // ============================
+
+        // Função para buscar agendamentos da BEM QUERIDA do Firebase
+        async function loadAppointmentsFromFirebase() {
+            console.log("🔥 Buscando agendamentos da BEM QUERIDA no Firebase...");
+            
+            try {
+                // Buscar todos e filtrar depois
+                const snapshot = await db.collection('appointments').get();
+                
                 appointments = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    appointments.push({ 
-                        id: doc.id, 
-                        ...data,
-                        estimatedDays: data.estimatedDays || calculateEstimatedDays(data.serviceDate, data.quantity)
-                    });
+                    // FILTRAR APENAS BEM QUERIDA LOCALMENTE
+                    if (data.clientName && data.clientName.toUpperCase() === CLIENTE_FILTRO.toUpperCase()) {
+                        appointments.push({ 
+                            id: doc.id, 
+                            ...data,
+                            estimatedDays: data.estimatedDays || 1
+                        });
+                    }
                 });
                 
-                console.log(`📊 ${appointments.length} AGENDAMENTOS CARREGADOS`);
+                // Ordenar por data (mais recente primeiro)
+                appointments.sort((a, b) => {
+                    const dateA = parseFirebaseDate(a.serviceDate) || new Date(0);
+                    const dateB = parseFirebaseDate(b.serviceDate) || new Date(0);
+                    return dateB - dateA;
+                });
                 
-                // ATUALIZAÇÃO EM CASCATA EXTREMA
+                console.log(`✅ ${appointments.length} agendamentos da BEM QUERIDA encontrados`);
+                
+                // Atualizar interface
+                updateBookedDates();
                 loadAppointmentsList();
-                updateStats();
-                updateBookedDatesExtreme();
+                generateCalendar(currentMonth, currentYear);
                 
-                isInitialLoadComplete = true;
-                
-                return true;
             } catch (error) {
-                console.error("❌ ERRO CRÍTICO AO CARREGAR AGENDAMENTOS:", error);
-                return false;
+                console.error("❌ Erro ao carregar agendamentos:", error);
+                showErrorMessage("Erro ao carregar agendamentos: " + error.message);
             }
         }
 
-        // FUNÇÃO EXTREMA PARA SALVAR AGENDAMENTO
-        async function saveAppointmentToFirestoreExtreme(appointment) {
-            try {
-                // VALIDAÇÃO EXTREMA DOS DADOS
-                if (!appointment.clientName || !appointment.serviceDate || !appointment.quantity) {
-                    throw new Error("Dados do agendamento inválidos");
-                }
-                
-                const docRef = await db.collection('appointments').add(appointment);
-                console.log("✅ AGENDAMENTO SALVO NO FIREBASE:", docRef.id);
-                return docRef.id;
-            } catch (error) {
-                console.error("❌ ERRO AO SALVAR AGENDAMENTO:", error);
-                throw error;
-            }
-        }
-
-        // FUNÇÃO EXTREMA PARA ATUALIZAR AGENDAMENTO
-        async function updateAppointmentInFirestoreExtreme(id, updates) {
-            try {
-                await db.collection('appointments').doc(id).update({
-                    ...updates,
-                    updatedAt: new Date().toISOString()
-                });
-                console.log("✅ AGENDAMENTO ATUALIZADO NO FIREBASE:", id);
-            } catch (error) {
-                console.error("❌ ERRO AO ATUALIZAR AGendamento:", error);
-                throw error;
-            }
-        }
-
-        // FUNÇÃO EXTREMA PARA MARCAR DIAS COMO OCUPADOS
-        function markDaysAsBookedExtreme(startDate, estimatedDays) {
-            console.log("📍 MARCANDO DIAS COMO OCUPADOS - EXTREME MODE");
-            const start = new Date(startDate);
-            
-            for (let i = 0; i < estimatedDays; i++) {
-                const currentDate = new Date(start);
-                currentDate.setDate(start.getDate() + i);
-                const dateKey = currentDate.toISOString().split('T')[0];
-                bookedDates[dateKey] = true;
-                console.log(`   📌 Novo dia ocupado: ${dateKey}`);
-            }
-            
-            // ATUALIZAÇÃO IMEDIATA E FORÇADA
-            generateCalendar(currentMonth, currentYear);
-        }
-
-        // FUNÇÕES ORIGINAIS (MANTIDAS)
-        function calculateEstimatedDays(startDate, quantity) {
-            let baseDays = (quantity / 45) + 1;
-            let totalDays = Math.ceil(baseDays);
-            
-            let currentDate = new Date(startDate);
-            let weekendDays = 0;
-            
-            for (let i = 0; i < totalDays; i++) {
-                let checkDate = new Date(currentDate);
-                checkDate.setDate(currentDate.getDate() + i);
-                let dayOfWeek = checkDate.getDay();
-                
-                if (dayOfWeek === 6) weekendDays += 0.25;
-                else if (dayOfWeek === 0) weekendDays += 1;
-            }
-            
-            totalDays += weekendDays;
-            return Math.ceil(totalDays);
-        }
-
-        function calculateCompletionDate(startDate, estimatedDays) {
-            let completionDate = new Date(startDate);
-            completionDate.setDate(completionDate.getDate() + estimatedDays);
-            return completionDate;
-        }
-
-        function generateAppointmentPNG(appointment) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 800;
-            canvas.height = 650;
-            const ctx = canvas.getContext('2d');
-            
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = '#2c3e50';
-            ctx.fillRect(0, 0, canvas.width, 80);
-            
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 24px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Costur Confecções', canvas.width / 2, 35);
-            ctx.font = '16px Arial';
-            ctx.fillText('Comprovante de Agendamento', canvas.width / 2, 60);
-            
-            ctx.fillStyle = '#333';
-            ctx.textAlign = 'left';
-            ctx.font = 'bold 18px Arial';
-            ctx.fillText('Informações do Agendamento', 50, 120);
-            
-            ctx.font = '14px Arial';
-            let yPosition = 160;
-            const info = [
-                `Cliente: ${appointment.clientName}`,
-                `Agendado por: ${appointment.scheduledBy}`,
-                `Data de Entrada: ${appointment.entryDate || appointment.serviceDate}`,
-                `Data de Início: ${appointment.serviceDate}`,
-                `Horário: ${appointment.serviceTime}`,
-                `Quantidade de Peças: ${appointment.quantity}`,
-                `Tipo de Serviço: ${appointment.serviceType}`,
-                `Status: ${appointment.status === 'active' ? 'Agendado' : appointment.status === 'in-production' ? 'Em produção' : appointment.status === 'completed' ? 'Realizado' : 'Cancelado'}`,
-                `Dias Estimados: ${appointment.estimatedDays} dias`,
-                `Data de Término: ${calculateCompletionDate(appointment.serviceDate, appointment.estimatedDays).toLocaleDateString('pt-BR')}`
-            ];
-            
-            info.forEach(text => {
-                ctx.fillText(text, 50, yPosition);
-                yPosition += 30;
-            });
-            
-            yPosition += 10;
-            ctx.font = 'bold 16px Arial';
-            ctx.fillText(`Nº do Documento: ${appointment.documentNumber || 'DOC-' + appointment.id.toString().slice(-6)}`, 50, yPosition);
-            
-            yPosition += 40;
-            ctx.font = '12px Arial';
-            ctx.fillText('Observações:', 50, yPosition);
-            yPosition += 20;
-            ctx.fillText('1. Em caso de feriados, o prazo poderá ser estendido.', 50, yPosition);
-            
-            ctx.fillStyle = '#2c3e50';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Costur Confecções - Sua marca, nossa costura', canvas.width / 2, 620);
-            ctx.fillText('Rua professor ferrucio, 436, São Francisco - Caruaru/PE', canvas.width / 2, 640);
-            
-            const dataURL = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = `${appointment.clientName} - ${appointment.serviceDate.split('-').reverse().join('-')}.png`;
-            link.href = dataURL;
-            link.click();
-        }
-
-        // FUNÇÃO PARA BAIXAR FORMULÁRIO DE AGENDAMENTO
-        function downloadAppointmentPDF(index) {
-            const appointment = appointments[index];
-            generateAppointmentPNG(appointment);
-        }
-
-        function showEditModal(index) {
-            currentEditingIndex = index;
-            const appointment = appointments[index];
-            
-            document.getElementById('edit-client-name').value = appointment.clientName;
-            document.getElementById('edit-scheduled-by').value = appointment.scheduledBy;
-            document.getElementById('edit-entry-date').value = appointment.entryDate || appointment.serviceDate;
-            document.getElementById('edit-service-date').value = appointment.serviceDate;
-            document.getElementById('edit-quantity').value = appointment.quantity;
-            document.getElementById('edit-service-type').value = appointment.serviceType;
-            document.getElementById('edit-status').value = appointment.status;
-            
-            generateTimeSlotsForEdit(appointment.serviceTime);
-            document.getElementById('edit-password').value = '';
-            document.getElementById('edit-modal').style.display = 'flex';
-        }
-
-        function generateTimeSlotsForEdit(selectedTime) {
-            const timeSlotsContainer = document.getElementById('edit-time-slots');
-            const timeSlots = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
-            
-            let timeSlotsHTML = '';
-            timeSlots.forEach(time => {
-                const isSelected = time === selectedTime ? 'selected' : '';
-                timeSlotsHTML += `<div class="time-slot available ${isSelected}" data-time="${time}">${time}</div>`;
-            });
-            
-            timeSlotsContainer.innerHTML = timeSlotsHTML;
-            
-            document.querySelectorAll('#edit-time-slots .time-slot').forEach(slot => {
-                slot.addEventListener('click', function() {
-                    document.querySelectorAll('#edit-time-slots .time-slot.selected').forEach(s => {
-                        s.classList.remove('selected');
-                    });
-                    this.classList.add('selected');
-                });
-            });
-        }
-
-        async function saveEdit() {
-            const appointment = appointments[currentEditingIndex];
-            const password = document.getElementById('edit-password').value;
-            
-            if (password !== EDIT_PASSWORD) {
-                alert('Senha incorreta. A edição não foi autorizada.');
-                return;
-            }
-            
-            const clientName = document.getElementById('edit-client-name').value;
-            const scheduledBy = document.getElementById('edit-scheduled-by').value;
-            const entryDate = document.getElementById('edit-entry-date').value;
-            const serviceDate = document.getElementById('edit-service-date').value;
-            const quantity = document.getElementById('edit-quantity').value;
-            const serviceType = document.getElementById('edit-service-type').value;
-            const status = document.getElementById('edit-status').value;
-            const selectedTimeElement = document.querySelector('#edit-time-slots .time-slot.selected');
-            
-            if (!selectedTimeElement) {
-                alert('Por favor, selecione um horário.');
-                return;
-            }
-            
-            const serviceTime = selectedTimeElement.getAttribute('data-time');
-            const estimatedDays = calculateEstimatedDays(serviceDate, parseInt(quantity));
-            
-            const updates = {
-                clientName: clientName,
-                scheduledBy: scheduledBy,
-                entryDate: entryDate,
-                serviceDate: serviceDate,
-                quantity: parseInt(quantity),
-                serviceType: serviceType,
-                serviceTime: serviceTime,
-                status: status,
-                estimatedDays: estimatedDays,
-                updatedAt: new Date().toISOString()
-            };
-            
-            try {
-                await updateAppointmentInFirestoreExtreme(appointment.id, updates);
-                Object.assign(appointment, updates);
-                updateBookedDatesExtreme();
-                loadAppointmentsList();
-                updateStats();
-                closeEditModal();
-                alert('Agendamento atualizado com sucesso!');
-            } catch (error) {
-                console.error('Erro ao salvar edição:', error);
-                alert('Erro ao salvar edição. Tente novamente.');
-            }
-        }
-
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-            currentEditingIndex = null;
-        }
-
-        function loadAppointmentsList() {
-            const appointmentsContainer = document.getElementById('appointments-list');
-            
-            if (appointments.length === 0) {
-                appointmentsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Nenhum agendamento encontrado.</p>';
-                return;
-            }
-            
-            let appointmentsHTML = '';
-            appointments.forEach((appointment, index) => {
-                let statusClass = 'status-booked';
-                let statusText = 'Agendado';
-                
-                if (appointment.status === 'cancelled') {
-                    statusClass = 'status-cancelled';
-                    statusText = 'Cancelado';
-                } else if (appointment.status === 'completed') {
-                    statusClass = 'status-completed';
-                    statusText = 'Realizado';
-                } else if (appointment.status === 'in-production') {
-                    statusClass = 'status-in-production';
-                    statusText = 'Em produção';
-                }
-                
-                appointmentsHTML += `
-                    <div class="appointment-item" data-appointment-id="${appointment.id}">
-                        <div class="appointment-details">
-                            <h4>${appointment.clientName}</h4>
-                            <p><strong>Agendado por:</strong> ${appointment.scheduledBy}</p>
-                            <p><strong>Data de Entrada:</strong> ${appointment.entryDate || appointment.serviceDate}</p>
-                            <p><strong>Data de Início:</strong> ${appointment.serviceDate} às ${appointment.serviceTime}</p>
-                            <p><strong>Peças:</strong> ${appointment.quantity} | <strong>Tipo:</strong> ${appointment.serviceType}</p>
-                            <p><strong>Previsão de Término:</strong> ${calculateCompletionDate(appointment.serviceDate, appointment.estimatedDays).toLocaleDateString('pt-BR')}</p>
-                            <div class="appointment-status ${statusClass}">${statusText}</div>
-                        </div>
-                        <div class="appointment-actions">
-                            <button class="btn-update" onclick="showEditModal(${index})">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn-download" onclick="downloadAppointmentPDF(${index})">
-                                <i class="fas fa-download"></i> Baixar
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            appointmentsContainer.innerHTML = appointmentsHTML;
-        }
-        
+        // ============================
+        // FUNÇÕES DO CALENDÁRIO
+        // ============================
         function generateCalendar(month, year) {
             try {
                 const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
@@ -1774,144 +1607,159 @@
                 
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dateKey = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                    let dayClass = "calendar-day";
+                    const currentDateObj = new Date(year, month, day);
+                    const todayObj = new Date();
                     
-                    // Verificar tipo de dia
-                    if (isPastDay(dateKey)) {
-                        dayClass += " past";
-                    } else if (isHoliday(dateKey)) {
-                        dayClass += " holiday";
-                    } else if (isCarnivalDay(dateKey)) {
-                        dayClass += " carnival";
-                    } else if (bookedDates[dateKey]) {
-                        dayClass += " booked";
-                    } else {
-                        dayClass += " available";
+                    todayObj.setHours(0, 0, 0, 0);
+                    currentDateObj.setHours(0, 0, 0, 0);
+                    
+                    let dayClass = "calendar-day available";
+                    
+                    if (currentDateObj < todayObj) {
+                        dayClass = "calendar-day past-day";
+                    }
+                    
+                    if (bookedDates[dateKey]) {
+                        if (dayClass.includes("past-day")) {
+                            dayClass = "calendar-day past-day booked";
+                        } else {
+                            dayClass = "calendar-day booked";
+                        }
                     }
                     
                     if (day === currentDay && month === currentMonthToday && year === currentYearToday) {
-                        dayClass += " today";
+                        dayClass = "calendar-day today";
                     }
                     
-                    calendarHTML += `<div class="${dayClass}" data-day="${day}" data-month="${month}" data-year="${year}" title="${getDayTooltip(dateKey)}">${day}</div>`;
+                    calendarHTML += `<div class="${dayClass}" data-day="${day}" data-month="${month}" data-year="${year}">${day}</div>`;
                 }
                 
                 document.getElementById('calendar-days').innerHTML = calendarHTML;
                 
-                document.querySelectorAll('.calendar-day.available, .calendar-day.carnival').forEach(day => {
-                    day.addEventListener('click', function() {
-                        const selectedDay = this.getAttribute('data-day');
-                        const selectedMonth = parseInt(this.getAttribute('data-month')) + 1;
-                        const selectedYear = this.getAttribute('data-year');
-                        const formattedDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDay.padStart(2, '0')}`;
-                        document.getElementById('service-date').value = formattedDate;
-                        updateTimeSlots();
-                    });
-                });
-                
-                console.log("📅 CALENDÁRIO ATUALIZADO COM SUCESSO");
             } catch (error) {
-                console.error("❌ ERRO AO GERAR CALENDÁRIO:", error);
+                console.error("❌ Erro ao gerar calendário:", error);
             }
         }
-        
-        function getDayTooltip(dateString) {
-            if (isHoliday(dateString)) {
-                return "Feriado - Indisponível";
-            } else if (isCarnivalDay(dateString)) {
-                return "Ponto facultativo - Consulte disponibilidade";
-            } else if (isPastDay(dateString)) {
-                return "Dia passado";
-            } else if (bookedDates[dateString]) {
-                return "Período ocupado";
-            } else {
-                return "Disponível para agendamento";
-            }
-        }
-        
-        function updateTimeSlots() {
-            const timeSlotsContainer = document.getElementById('time-slots');
-            const timeSlots = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+
+        function updateBookedDates() {
+            bookedDates = {};
             
-            let timeSlotsHTML = '';
-            timeSlots.forEach(time => {
-                timeSlotsHTML += `<div class="time-slot available" data-time="${time}">${time}</div>`;
-            });
-            
-            timeSlotsContainer.innerHTML = timeSlotsHTML;
-            
-            document.querySelectorAll('.time-slot.available').forEach(slot => {
-                slot.addEventListener('click', function() {
-                    document.querySelectorAll('.time-slot.selected').forEach(s => {
-                        s.classList.remove('selected');
-                    });
-                    this.classList.add('selected');
-                    updateScheduleInfo();
-                });
-            });
-        }
-        
-        function updateScheduleInfo() {
-            const entryDate = document.getElementById('entry-date').value;
-            const serviceDate = document.getElementById('service-date').value;
-            const selectedTime = document.querySelector('.time-slot.selected')?.getAttribute('data-time');
-            const quantity = document.getElementById('quantity').value;
-            
-            if (serviceDate && selectedTime && quantity) {
-                const entryDateTime = entryDate ? `${entryDate.split('-').reverse().join('/')}` : 'Não informada';
-                document.getElementById('entry-datetime').textContent = entryDateTime;
-                
-                const estimatedDays = calculateEstimatedDays(serviceDate, parseInt(quantity));
-                document.getElementById('estimated-days').textContent = estimatedDays;
-                
-                const completionDate = calculateCompletionDate(serviceDate, estimatedDays);
-                const formattedCompletionDate = completionDate.toLocaleDateString('pt-BR');
-                document.getElementById('completion-datetime').textContent = formattedCompletionDate;
-                
-                const docNumber = `DOC-${Date.now().toString().slice(-6)}`;
-                document.getElementById('document-number').textContent = `Nº do Documento: ${docNumber}`;
-            }
-        }
-        
-        function updateStats() {
-            const activeAppointments = appointments.filter(a => a.status === 'active' || a.status === 'in-production').length;
-            const totalPieces = appointments.reduce((sum, appointment) => {
-                if (appointment.status === 'active' || appointment.status === 'in-production') {
-                    return sum + parseInt(appointment.quantity);
+            appointments.forEach((appointment) => {
+                if (appointment.status === 'active' || appointment.status === 'in-production' || 
+                    appointment.status === 'Agendado' || appointment.status === 'Em produção') {
+                    
+                    const start = parseFirebaseDate(appointment.serviceDate);
+                    if (!start) return;
+                    
+                    const estimatedDays = appointment.estimatedDays || 1;
+                    
+                    // ✅ CORREÇÃO: Usar a função parseFirebaseDate para datas consistentes
+                    for (let i = 0; i < estimatedDays; i++) {
+                        const currentDate = new Date(start);
+                        currentDate.setDate(start.getDate() + i);
+                        const dateKey = currentDate.toISOString().split('T')[0];
+                        bookedDates[dateKey] = true;
+                    }
                 }
-                return sum;
-            }, 0);
-            
-            document.getElementById('total-appointments').textContent = activeAppointments;
-            document.getElementById('total-pieces').textContent = totalPieces;
-        }
-        
-        // INICIALIZAÇÃO EXTREMA DO SISTEMA
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("🚀 INICIANDO SISTEMA - EXTREME MODE");
-            
-            // CARREGAMENTO EM SEQUÊNCIA EXTREMA
-            loadActiveClientsExtreme().then(() => {
-                return loadAppointmentsFromFirestoreExtreme();
-            }).then(() => {
-                generateCalendar(currentMonth, currentYear);
-                console.log("✅ SISTEMA INICIALIZADO COM SUCESSO");
-            }).catch(error => {
-                console.error("❌ FALHA CRÍTICA NA INICIALIZAÇÃO:", error);
             });
             
-            // Configurar data mínima para os campos de data
-            const today = new Date();
-            const minDate = today.toISOString().split('T')[0];
-            document.getElementById('entry-date').min = minDate;
-            document.getElementById('service-date').min = minDate;
-            document.getElementById('edit-entry-date').min = minDate;
-            document.getElementById('edit-service-date').min = minDate;
+            console.log(`📌 ${Object.keys(bookedDates).length} datas ocupadas pela BEM QUERIDA`);
+        }
+
+        function showErrorMessage(message) {
+            const container = document.getElementById('appointments-list');
+            container.innerHTML = `
+                <div style="padding: 30px; text-align: center; color: #e74c3c;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <h3>Erro ao carregar dados</h3>
+                    <p>${message}</p>
+                    <button onclick="loadAppointmentsFromFirebase()" style="margin-top: 15px;">
+                        <i class="fas fa-redo"></i> Tentar novamente
+                    </button>
+                </div>
+            `;
+        }
+
+        // ============================
+        // FUNÇÃO PARA CARREGAR LISTA DE AGENDAMENTOS
+        // ============================
+        function loadAppointmentsList() {
+            const appointmentsContainer = document.getElementById('appointments-list');
             
-            // Configurar data de entrada como hoje por padrão
-            document.getElementById('entry-date').value = minDate;
+            if (appointments.length === 0) {
+                appointmentsContainer.innerHTML = `
+                    <div style="padding: 30px; text-align: center; color: #666;">
+                        <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 15px; color: #ddd;"></i>
+                        <h3>Nenhum agendamento encontrado</h3>
+                        <p>Não há agendamentos para ${CLIENTE_FILTRO}.</p>
+                    </div>
+                `;
+                return;
+            }
             
-            // Event listeners para navegação do calendário
+            let appointmentsHTML = '';
+            
+            appointments.forEach((appointment) => {
+                // Converter status para formato consistente
+                let status = appointment.status;
+                let statusClass = 'status-booked';
+                let statusText = 'Agendado';
+                
+                // Mapear status
+                if (status === 'Agendado' || status === 'active') {
+                    statusClass = 'status-booked';
+                    statusText = 'Agendado';
+                } else if (status === 'Em produção' || status === 'in-production') {
+                    statusClass = 'status-in-production';
+                    statusText = 'Em produção';
+                } else if (status === 'Realizado' || status === 'completed') {
+                    statusClass = 'status-completed';
+                    statusText = 'Realizado';
+                } else if (status === 'Cancelado' || status === 'cancelled') {
+                    statusClass = 'status-cancelled';
+                    statusText = 'Cancelado';
+                }
+                
+                // ✅ CORREÇÃO: Usar parseFirebaseDate para converter corretamente
+                const startDate = parseFirebaseDate(appointment.serviceDate);
+                const formattedStartDate = formatDate(startDate);
+                
+                // ✅ CORREÇÃO: Calcular data de término
+                const completionDate = calculateCompletionDate(startDate, appointment.estimatedDays || 1);
+                const formattedCompletionDate = formatDate(completionDate);
+                
+                // Formatar hora
+                const serviceTime = appointment.serviceTime || '08:00';
+                
+                appointmentsHTML += `
+                    <div class="appointment-item" data-appointment-id="${appointment.id}">
+                        <div class="appointment-details">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                <h4 style="margin: 0;">${appointment.clientName}</h4>
+                                <div class="appointment-status ${statusClass}">${statusText}</div>
+                            </div>
+                            <p><strong>Agendado por:</strong> ${appointment.scheduledBy || 'Não informado'}</p>
+                            <p><strong>Data de Início:</strong> ${formattedStartDate} às ${serviceTime}</p>
+                            <p><strong>Peças:</strong> ${appointment.quantity || 0} | <strong>Tipo:</strong> ${appointment.serviceType || 'Não informado'}</p>
+                            <p><strong>Previsão de Término:</strong> ${formattedCompletionDate}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            appointmentsContainer.innerHTML = appointmentsHTML;
+        }
+
+        // ============================
+        // INICIALIZAÇÃO
+        // ============================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("🚀 Inicializando sistema para BEM QUERIDA");
+            
+            // Carregar dados do Firebase
+            loadAppointmentsFromFirebase();
+            
+            // Configurar navegação do calendário
             document.getElementById('prev-month').addEventListener('click', function() {
                 currentMonth--;
                 if (currentMonth < 0) {
@@ -1930,126 +1778,1095 @@
                 generateCalendar(currentMonth, currentYear);
             });
             
-            // Event listeners para atualização de informações
-            document.getElementById('entry-date').addEventListener('change', updateScheduleInfo);
-            document.getElementById('service-date').addEventListener('change', updateTimeSlots);
-            document.getElementById('quantity').addEventListener('change', updateScheduleInfo);
-            
-            // Event listener para o formulário de agendamento
-            document.getElementById('appointment-form').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const clientName = document.getElementById('client-name').value;
-                const scheduledBy = document.getElementById('scheduled-by').value;
-                const entryDate = document.getElementById('entry-date').value;
-                const serviceDate = document.getElementById('service-date').value;
-                const quantity = document.getElementById('quantity').value;
-                const serviceType = document.getElementById('service-type').value;
-                const status = document.getElementById('appointment-status').value;
-                const selectedTime = document.querySelector('.time-slot.selected')?.getAttribute('data-time');
-                
-                if (!selectedTime) {
-                    alert('Por favor, selecione um horário.');
-                    return;
-                }
-                
-                if (!clientName) {
-                    alert('Por favor, selecione um cliente.');
-                    return;
-                }
-                
-                if (!entryDate) {
-                    alert('Por favor, informe a data de entrada.');
-                    return;
-                }
-                
-                const estimatedDays = calculateEstimatedDays(serviceDate, parseInt(quantity));
-                const documentNumber = `DOC-${Date.now().toString().slice(-6)}`;
-                
-                const newAppointment = {
-                    clientName,
-                    scheduledBy,
-                    entryDate,
-                    serviceDate,
-                    serviceTime: selectedTime,
-                    quantity: parseInt(quantity),
-                    serviceType,
-                    status: status === 'Agendado' ? 'active' : 
-                           status === 'Em produção' ? 'in-production' :
-                           status === 'Realizado' ? 'completed' : 'cancelled',
-                    estimatedDays,
-                    documentNumber,
-                    createdAt: new Date().toISOString()
-                };
-                
-                try {
-                    const id = await saveAppointmentToFirestoreExtreme(newAppointment);
-                    newAppointment.id = id;
-                    appointments.push(newAppointment);
-                    markDaysAsBookedExtreme(serviceDate, estimatedDays);
-                    generateAppointmentPNG(newAppointment);
-                    loadAppointmentsList();
-                    updateStats();
-                    
-                    alert('Agendamento realizado com sucesso! O comprovante foi baixado automaticamente.');
-                    
-                    document.getElementById('appointment-form').reset();
-                    document.getElementById('entry-date').value = minDate; // Reset para data atual
-                    document.getElementById('time-slots').innerHTML = '';
-                    document.getElementById('entry-datetime').textContent = '-';
-                    document.getElementById('completion-datetime').textContent = '-';
-                    document.getElementById('document-number').textContent = 'Nº do Documento: Aguardando dados...';
-                    document.getElementById('estimated-days').textContent = '0';
-                } catch (error) {
-                    alert('Erro ao realizar agendamento. Tente novamente.');
-                }
-            });
-            
-            // Configuração do modal de edição
-            const editModal = document.getElementById('edit-modal');
-            const closeModalBtn = document.querySelector('.close-modal');
-            const cancelEditBtn = document.getElementById('cancel-edit');
-            const editForm = document.getElementById('edit-form');
-            const togglePasswordBtn = document.getElementById('toggle-password');
-            const editPasswordField = document.getElementById('edit-password');
-            
-            closeModalBtn.addEventListener('click', closeEditModal);
-            cancelEditBtn.addEventListener('click', closeEditModal);
-            
-            editModal.addEventListener('click', function(e) {
-                if (e.target === editModal) {
-                    closeEditModal();
-                }
-            });
-            
-            editForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveEdit();
-            });
-            
-            togglePasswordBtn.addEventListener('click', function() {
-                const type = editPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
-                editPasswordField.setAttribute('type', type);
-                const icon = this.querySelector('i');
-                icon.classList.toggle('fa-eye');
-                icon.classList.toggle('fa-eye-slash');
-            });
+            // Escutar atualizações em tempo real
+            if (db) {
+                db.collection('appointments').onSnapshot((snapshot) => {
+                    console.log("🔄 Atualização em tempo real detectada");
+                    loadAppointmentsFromFirebase();
+                }, (error) => {
+                    console.error("❌ Erro no listener em tempo real:", error);
+                });
+            }
         });
 
-        // LISTENER EXTREMO PARA ATUALIZAÇÕES EM TEMPO REAL
-        db.collection('appointments')
-            .orderBy('createdAt', 'desc')
-            .onSnapshot((snapshot) => {
-                if (!isInitialLoadComplete) return;
-                
-                console.log("🔄 ATUALIZAÇÃO EM TEMPO REAL DETECTADA");
-                loadAppointmentsFromFirestoreExtreme().then(() => {
-                    console.log("✅ SISTEMA SINCRONIZADO EM TEMPO REAL");
-                });
-            }, (error) => {
-                console.error("❌ ERRO NO LISTENER EM TEMPO REAL:", error);
-            });
+        // ============================
+        // API PARA USO EXTERNO
+        // ============================
+        window.agendamentosBemQuerida = {
+            recarregarAgendamentos: function() {
+                loadAppointmentsFromFirebase();
+            },
+            
+            getAgendamentos: function() {
+                return appointments;
+            },
+            
+            getTotalAgendamentos: function() {
+                return appointments.length;
+            }
+        };
 
+    </script>
+
+    
+    <div class="container">
+        <!-- PAINEL DE ACOMPANHAMENTO BEM QUERIDA (NOVO) -->
+        <section class="panel-section">
+            <div class="section-title">
+                <i class="fas fa-tasks"></i>
+                Acompanhamento de Produção
+            </div>
+            <div class="panel-content">
+                <div class="quick-view-container" id="quickViewContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando acompanhamentos...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ============================================ -->
+        <!-- SEÇÃO DE BÔNUS POR CORTE SEM FALHA (ADICIONADA) -->
+        <!-- ============================================ -->
+        <section class="panel-section">
+            <div class="section-title">
+                <i class="fas fa-award"></i>
+                Bônus por Corte Sem Falha
+            </div>
+            <div class="panel-content">
+                <!-- Filtros para visualização -->
+                <div class="bonus-filters-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="filter-bonus-status" style="font-size: 0.9rem;">Filtrar por Status:</label>
+                        <select id="filter-bonus-status">
+                            <option value="todos">Todos</option>
+                            <option value="pendente">Pendente (em revisão)</option>
+                            <option value="deferido">Deferido (sem falha)</option>
+                            <option value="indeferido">Indeferido (com falha)</option>
+                            <option value="pago">Pago</option>
+                        </select>
+                    </div>
+                    
+                    <button id="apply-bonus-filter" class="btn" style="height: auto; padding: 8px 15px;">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
+                    </button>
+                </div>
+                
+                <!-- Resumo de bônus -->
+                <div class="bonus-summary" id="bonus-summary">
+                    <!-- Resumo será preenchido dinamicamente -->
+                </div>
+                
+                <!-- Lista de bônus -->
+                <div id="bonus-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando bônus...</p>
+                    </div>
+                </div>
+                
+                <div class="bonus-info-box">
+                    <strong><i class="fas fa-info-circle"></i> Como funciona o bônus:</strong><br>
+                    • Cortes com 1 a 99 unidades: R$ 25,00 por corte<br>
+                    • Cortes com 100 unidades ou mais: R$ 50,00 por corte<br>
+                    • Status "Em Revisão": Aguardando avaliação do corte<br>
+                    • Status "Deferido": Corte aprovado sem falhas<br>
+                    • Status "Indeferido": Corte com falhas detectadas<br>
+                    • Status "Pago": Bônus já foi pago pelo cliente
+                </div>
+            </div>
+        </section>
+        
+        <!-- NOTA DE COBRANÇA ATUAL (PENDENTE) -->
+        <section class="panel-section">
+            <div class="section-title">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Nota de Cobrança Atual
+            </div>
+            <div class="panel-content">
+                <div id="nota-atual">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando nota atual...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- HISTÓRICO DE NOTAS (PAGAS E CANCELADAS) -->
+        <section class="panel-section">
+            <div class="section-title">
+                <i class="fas fa-history"></i>
+                Histórico de Notas de Cobrança
+            </div>
+            <div class="panel-content">
+                <div id="historico-notas">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Carregando histórico...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="panel-section">
+            <div class="section-title">
+                <i class="fas fa-chart-pie"></i>
+                Relatório Anual
+            </div>
+            <div class="panel-content">
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <p>Nenhum relatório anual disponível</p>
+                    <p class="subtext">Os relatórios anuais aparecerão aqui quando forem gerados</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Container oculto para gerar PNG -->
+    <div id="nota-print" class="nota-print"></div>
+    
+    <!-- Modal para visualização completa -->
+    <div id="visualizacaoModal" class="modal-visualizacao">
+        <div class="modal-visualizacao-content">
+            <button class="close-btn" onclick="fecharModalVisualizacao()">×</button>
+            <h3 class="modal-title">Visualização Completa</h3>
+            
+            <div id="conteudoVisualizacao">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
+    
+    <a href="https://call.doorvi.co/en/home/a582975f330bac0b10d743d0931107300a5a0ed05c06a40e1efce2c9961b671bc01f98b52109d1d0eff5010ed23dcf158baaef6c5f8cfde913c9f7c232ce47ba" class="floating-btn" target="_blank">
+        <i class="fas fa-bell"></i>
+    </a>
+    
+    <footer class="container">
+        <p>Costur Confecções &copy; 2023 - Todos os direitos reservados</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <!-- html2canvas para gerar PNG -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        // ==============================================
+        // CONFIGURAÇÃO DOS DOIS BANCOS DE DADOS FIREBASE
+        // ==============================================
+
+        // 1º BANCO DE DADOS: Notas de Cobrança
+        const firebaseConfigNotas = {
+            apiKey: "AIzaSyChK3nnmmyJ-jxwIgRMkmiJ-toonT6oQCA",
+            authDomain: "gerador-de-notas-e591f.firebaseapp.com",
+            projectId: "gerador-de-notas-e591f",
+            storageBucket: "gerador-de-notas-e591f.firebasestorage.app",
+            messagingSenderId: "700565084876",
+            appId: "1:700565084876:web:f69a2742868da5255f8069"
+        };
+
+        // 2º BANCO DE DADOS: Acompanhamentos de Produção
+        const firebaseConfigAcompanhamentos = {
+            apiKey: "AIzaSyDRpSahfuooSK37x4pC9Q9fKUZrVLg7szk",
+            authDomain: "painel-de-acompanhamento-9b51a.firebaseapp.com",
+            projectId: "painel-de-acompanhamento-9b51a",
+            storageBucket: "painel-de-acompanhamento-9b51a.firebasestorage.app",
+            messagingSenderId: "441234048828",
+            appId: "1:441234048828:web:ca4fe2163aa4b469560039"
+        };
+
+        // ==============================================
+        // INICIALIZAR OS DOIS APPS DO FIREBASE
+        // ==============================================
+
+        // App PRINCIPAL (default) - para notas de cobrança
+        const appNotas = firebase.initializeApp(firebaseConfigNotas, "notas");
+        const dbNotas = firebase.firestore(appNotas);
+
+        // App SECUNDÁRIO - para acompanhamentos de produção
+        const appAcompanhamentos = firebase.initializeApp(firebaseConfigAcompanhamentos, "acompanhamentos");
+        const dbAcompanhamentos = firebase.firestore(appAcompanhamentos);
+        
+        // ==============================================
+        // CONFIGURAÇÃO PARA BÔNUS DE CORTE (MESMO BANCO DAS NOTAS)
+        // ==============================================
+        const BONUS_COLLECTION = 'corteBonus';
+        let allBonuses = [];
+
+        // ==============================================
+        // FUNÇÕES PARA SISTEMA DE BÔNUS
+        // ==============================================
+        function formatCurrency(value) {
+            if (isNaN(value) || value === null || value === undefined) {
+                return 'R$ 0,00';
+            }
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        async function loadBonuses() {
+            try {
+                // Mostrar loading
+                showBonusLoading();
+                
+                const snapshot = await dbNotas.collection(BONUS_COLLECTION)
+                    .orderBy('dataCriacao', 'desc')
+                    .get();
+                
+                allBonuses = [];
+                snapshot.forEach(doc => {
+                    const bonus = doc.data();
+                    bonus.id = doc.id;
+                    
+                    // Filtrar APENAS clientes "BEM QUERIDA"
+                    if (bonus.cliente && bonus.cliente.toUpperCase().includes("BEM QUERIDA")) {
+                        allBonuses.push(bonus);
+                    }
+                });
+                
+                // Atualizar resumo
+                updateBonusSummary();
+                
+                // Exibir todos os bônus inicialmente
+                displayBonuses(allBonuses);
+                
+                if (allBonuses.length > 0) {
+                    showBonusSuccess(`${allBonuses.length} bônus carregados para "Bem Querida"!`);
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar bônus:', error);
+                showBonusError('Erro ao carregar bônus. Verifique sua conexão com a internet.');
+            }
+        }
+
+        function showBonusLoading() {
+            const bonusList = document.getElementById('bonus-list');
+            if (bonusList) {
+                bonusList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #666;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 10px;"></i>
+                        <p>Carregando bônus para "Bem Querida"...</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showBonusError(message) {
+            const bonusList = document.getElementById('bonus-list');
+            if (bonusList) {
+                bonusList.innerHTML = `
+                    <div class="bonus-warning">
+                        <i class="fas fa-exclamation-triangle"></i> ${message}
+                    </div>
+                `;
+            }
+        }
+
+        function showBonusSuccess(message) {
+            // Criar elemento de sucesso temporário
+            const successDiv = document.createElement('div');
+            successDiv.className = 'bonus-info-box';
+            successDiv.style.backgroundColor = '#d4edda';
+            successDiv.style.borderLeftColor = '#28a745';
+            successDiv.innerHTML = `<i class="fas fa-check-circle"></i> <span>${message}</span>`;
+            
+            const container = document.querySelector('#bonus-section .panel-content');
+            container.insertBefore(successDiv, container.firstChild);
+            
+            // Ocultar após 5 segundos
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateBonusSummary() {
+            const summaryContainer = document.getElementById('bonus-summary');
+            
+            if (allBonuses.length === 0) {
+                summaryContainer.innerHTML = `
+                    <div class="bonus-summary-card">
+                        <h3>Total de Bônus</h3>
+                        <div class="value">0</div>
+                        <div class="subtext">registros</div>
+                    </div>
+                    <div class="bonus-summary-card">
+                        <h3>Valor Total</h3>
+                        <div class="value">R$ 0,00</div>
+                        <div class="subtext">em bônus</div>
+                    </div>
+                    <div class="bonus-summary-card">
+                        <h3>Peças Totais</h3>
+                        <div class="value">0</div>
+                        <div class="subtext">unidades</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calcular estatísticas
+            const totalBonus = allBonuses.reduce((sum, bonus) => sum + (bonus.valorBonus || 0), 0);
+            const totalPecas = allBonuses.reduce((sum, bonus) => sum + (bonus.quantidadePecas || 0), 0);
+            
+            // Contar por status
+            const statusCount = {
+                pendente: allBonuses.filter(b => b.status === 'pendente').length,
+                deferido: allBonuses.filter(b => b.status === 'deferido').length,
+                indeferido: allBonuses.filter(b => b.status === 'indeferido').length,
+                pago: allBonuses.filter(b => b.status === 'pago').length
+            };
+            
+            summaryContainer.innerHTML = `
+                <div class="bonus-summary-card">
+                    <h3>Total de Bônus</h3>
+                    <div class="value">${allBonuses.length}</div>
+                    <div class="subtext">registros</div>
+                </div>
+                <div class="bonus-summary-card">
+                    <h3>Valor Total</h3>
+                    <div class="value">R$ ${totalBonus.toFixed(2).replace('.', ',')}</div>
+                    <div class="subtext">em bônus</div>
+                </div>
+                <div class="bonus-summary-card">
+                    <h3>Peças Totais</h3>
+                    <div class="value">${totalPecas}</div>
+                    <div class="subtext">unidades</div>
+                </div>
+                <div class="bonus-summary-card">
+                    <h3>Deferidos</h3>
+                    <div class="value">${statusCount.deferido}</div>
+                    <div class="subtext">sem falhas</div>
+                </div>
+                <div class="bonus-summary-card">
+                    <h3>Pagos</h3>
+                    <div class="value">${statusCount.pago}</div>
+                    <div class="subtext">já quitados</div>
+                </div>
+                <div class="bonus-summary-card">
+                    <h3>Em Análise</h3>
+                    <div class="value">${statusCount.pendente}</div>
+                    <div class="subtext">aguardando</div>
+                </div>
+            `;
+        }
+
+        function displayBonuses(bonuses) {
+            const container = document.getElementById('bonus-list');
+            
+            if (bonuses.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #666;">
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p>Nenhum bônus encontrado para "Bem Querida" com os filtros atuais.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = bonuses.map(bonus => {
+                let statusInfo = {
+                    'pendente': { 
+                        color: 'var(--warning)', 
+                        icon: 'fas fa-clock', 
+                        text: 'EM REVISÃO', 
+                        badgeClass: 'status-bonus-pendente'
+                    },
+                    'deferido': { 
+                        color: 'var(--success)', 
+                        icon: 'fas fa-check-circle', 
+                        text: 'DEFERIDO', 
+                        badgeClass: 'status-bonus-deferido'
+                    },
+                    'indeferido': { 
+                        color: 'var(--danger)', 
+                        icon: 'fas fa-times-circle', 
+                        text: 'INDEFERIDO', 
+                        badgeClass: 'status-bonus-indeferido'
+                    },
+                    'pago': { 
+                        color: '#27ae60', 
+                        icon: 'fas fa-money-bill-wave', 
+                        text: 'PAGO', 
+                        badgeClass: 'status-bonus-pago'
+                    }
+                }[bonus.status] || { 
+                    color: '#666', 
+                    icon: 'fas fa-question', 
+                    text: 'DESCONHECIDO', 
+                    badgeClass: ''
+                };
+                
+                // Formatar datas
+                const dataCriacao = bonus.dataCriacao ? 
+                    new Date(bonus.dataCriacao).toLocaleDateString('pt-BR') : 'N/A';
+                
+                const notaData = bonus.notaData ? 
+                    new Date(bonus.notaData).toLocaleDateString('pt-BR') : 'N/A';
+                
+                // Determinar valor do bônus
+                const valorBonus = bonus.valorBonus || (bonus.quantidadePecas >= 100 ? 50 : 25);
+                const valorTexto = bonus.quantidadePecas >= 100 ? 
+                    'R$ 50,00 (100+ peças)' : 
+                    'R$ 25,00 (1-99 peças)';
+                
+                return `
+                    <div class="bonus-item" style="border-left-color: ${statusInfo.color};">
+                        <div class="bonus-header">
+                            <div class="bonus-cliente">${bonus.cliente || 'BEM QUERIDA'}</div>
+                            <div class="status-badge ${statusInfo.badgeClass}">
+                                <i class="${statusInfo.icon}" style="margin-right: 3px;"></i>
+                                ${statusInfo.text}
+                            </div>
+                        </div>
+                        <div class="bonus-details">
+                            <div class="bonus-info-row">
+                                <div class="bonus-info-label">Nota:</div>
+                                <div class="bonus-info-value">${bonus.notaId || 'N/A'}</div>
+                            </div>
+                            <div class="bonus-info-row">
+                                <div class="bonus-info-label">Data:</div>
+                                <div class="bonus-info-value">${notaData}</div>
+                            </div>
+                            <div class="bonus-info-row">
+                                <div class="bonus-info-label">Peças:</div>
+                                <div class="bonus-info-value">${bonus.quantidadePecas || 0} unidades</div>
+                            </div>
+                            <div class="bonus-info-row">
+                                <div class="bonus-info-label">Bônus:</div>
+                                <div class="bonus-info-value">${valorTexto}</div>
+                            </div>
+                            <div class="bonus-info-row">
+                                <div class="bonus-info-label">Criação:</div>
+                                <div class="bonus-info-value">${dataCriacao}</div>
+                            </div>
+                        </div>
+                        
+                        ${bonus.falhaDescricao ? `
+                        <div class="bonus-warning" style="margin-top: 8px; padding: 8px;">
+                            <strong><i class="fas fa-exclamation-triangle"></i> Falhas detectadas:</strong>
+                            <p style="margin: 3px 0 0 0; font-size: 0.75rem;">${bonus.falhaDescricao}</p>
+                        </div>
+                        ` : ''}
+                        
+                        ${bonus.observacoes ? `
+                        <div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 4px; border-left: 3px solid var(--secondary);">
+                            <strong><i class="fas fa-sticky-note"></i> Observações:</strong>
+                            <p style="margin: 3px 0 0 0; font-size: 0.75rem;">${bonus.observacoes}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function applyBonusFilter() {
+            const selectedStatus = document.getElementById('filter-bonus-status').value;
+            
+            let filteredBonuses = allBonuses;
+            
+            // Aplicar filtro de status
+            if (selectedStatus !== 'todos') {
+                filteredBonuses = filteredBonuses.filter(bonus => {
+                    return bonus.status === selectedStatus;
+                });
+            }
+            
+            // Exibir bônus filtrados
+            displayBonuses(filteredBonuses);
+            
+            // Mostrar mensagem de resultado
+            if (filteredBonuses.length === 0) {
+                showBonusError('Nenhum bônus encontrado com os filtros selecionados.');
+            } else {
+                showBonusSuccess(`${filteredBonuses.length} bônus encontrados para "Bem Querida".`);
+            }
+        }
+
+        // ==============================================
+        // VARIÁVEIS GLOBAIS
+        // ==============================================
+        let todosAcompanhamentos = [];
+
+        // ==============================================
+        // FUNÇÕES DO PAINEL DE ACOMPANHAMENTO (BANCO 2)
+        // ==============================================
+        async function carregarAcompanhamentosBemQuerida() {
+            try {
+                // Usa o SEGUNDO banco de dados (acompanhamentos)
+                const querySnapshot = await dbAcompanhamentos.collection("acompanhamentos").get();
+                todosAcompanhamentos = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // FILTRAR APENAS OS DA MARCA "BEM QUERIDA"
+                    if (data.clienteMarca && data.clienteMarca.toUpperCase() === "BEM QUERIDA") {
+                        todosAcompanhamentos.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    }
+                });
+
+                exibirAcompanhamentos(todosAcompanhamentos);
+
+            } catch (error) {
+                console.error("Erro ao carregar acompanhamentos:", error);
+                document.getElementById('quickViewContainer').innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erro ao carregar acompanhamentos</p>
+                        <p class="subtext">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function exibirAcompanhamentos(acompanhamentos) {
+            const container = document.getElementById('quickViewContainer');
+            
+            if (acompanhamentos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Nenhum acompanhamento encontrado para a Bem Querida</p>
+                        <p class="subtext">Os acompanhamentos aparecerão aqui quando cadastrados</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            acompanhamentos.forEach(acompanhamento => {
+                // Calcular progresso das etapas
+                let etapasRealizadas = 0;
+                let totalEtapas = 0;
+                if (acompanhamento.etapasStatus) {
+                    totalEtapas = Object.keys(acompanhamento.etapasStatus).length;
+                    etapasRealizadas = Object.values(acompanhamento.etapasStatus).filter(status => status === 'Realizado').length;
+                }
+                
+                const progresso = totalEtapas > 0 ? Math.round((etapasRealizadas / totalEtapas) * 100) : 0;
+                
+                html += `
+                    <div class="quick-view-item">
+                        <div class="quick-view-header">
+                            <div class="quick-view-cliente">${acompanhamento.clienteMarca || 'BEM QUERIDA'}</div>
+                            <div class="quick-view-status status-${getStatusClass(acompanhamento.statusGeral)}">
+                                ${acompanhamento.statusGeral || 'Sem status'}
+                            </div>
+                        </div>
+                        <div class="quick-view-details-compact">
+                            <div class="detail-compact">
+                                <span class="detail-label-compact">Modelo</span>
+                                <span class="detail-value-compact">${acompanhamento.modeloNome || '-'}</span>
+                            </div>
+                            <div class="detail-compact">
+                                <span class="detail-label-compact">Etapas</span>
+                                <span class="detail-value-compact">${etapasRealizadas}/${totalEtapas}</span>
+                            </div>
+                            <div class="detail-compact">
+                                <span class="detail-label-compact">Progresso</span>
+                                <span class="detail-value-compact">${progresso}%</span>
+                            </div>
+                            <div class="detail-compact">
+                                <span class="detail-label-compact">Criação</span>
+                                <span class="detail-value-compact">${acompanhamento.dataCriacao ? acompanhamento.dataCriacao.split(' ')[0] : '-'}</span>
+                            </div>
+                        </div>
+                        <div class="quick-view-actions">
+                            <button class="action-btn view-btn" onclick="abrirModalVisualizacao('${acompanhamento.id}')">
+                                <i class="fas fa-eye"></i> Visualizar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function getStatusClass(status) {
+            if (!status) return "aguardando";
+            if (status === "Aguardando") return "aguardando";
+            if (status === "Em produção") return "producao";
+            if (status === "Realizado") return "realizado";
+            return "parado";
+        }
+
+        // ==============================================
+        // FUNÇÕES DO MODAL DE VISUALIZAÇÃO
+        // ==============================================
+        window.abrirModalVisualizacao = function(id) {
+            const acompanhamento = todosAcompanhamentos.find(a => a.id === id);
+            if (!acompanhamento) return;
+            
+            document.getElementById('visualizacaoModal').style.display = "block";
+            exibirConteudoVisualizacao(acompanhamento);
+        };
+
+        window.fecharModalVisualizacao = function() {
+            document.getElementById('visualizacaoModal').style.display = "none";
+        };
+
+        function exibirConteudoVisualizacao(acompanhamento) {
+            let etapasRealizadas = 0;
+            let totalEtapas = 0;
+            if (acompanhamento.etapasStatus) {
+                totalEtapas = Object.keys(acompanhamento.etapasStatus).length;
+                etapasRealizadas = Object.values(acompanhamento.etapasStatus).filter(status => status === 'Realizado').length;
+            }
+            
+            const progresso = totalEtapas > 0 ? Math.round((etapasRealizadas / totalEtapas) * 100) : 0;
+            
+            function getStatusText(status) {
+                if (!status) return "Aguardando";
+                return status;
+            }
+            
+            function getStatusBgClass(status) {
+                if (!status) return "status-aguardando-bg";
+                if (status === "Aguardando") return "status-aguardando-bg";
+                if (status === "Em produção") return "status-producao-bg";
+                if (status === "Realizado") return "status-realizado-bg";
+                return "status-parado-bg";
+            }
+            
+            document.getElementById('conteudoVisualizacao').innerHTML = `
+                <div class="info-section">
+                    <h4>Informações do Cliente</h4>
+                    <div class="info-row">
+                        <div class="info-label">Cliente (Marca):</div>
+                        <div class="info-value">${acompanhamento.clienteMarca || 'BEM QUERIDA'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Data de Criação:</div>
+                        <div class="info-value">${acompanhamento.dataCriacao || 'Não informada'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Última Atualização:</div>
+                        <div class="info-value">${acompanhamento.dataAtualizacao || 'Não informada'}</div>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h4>Informações do Produto</h4>
+                    <div class="info-row">
+                        <div class="info-label">Modelo do Produto:</div>
+                        <div class="info-value">${acompanhamento.modeloNome || 'Não informado'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Status Geral:</div>
+                        <div class="info-value">
+                            <span class="info-status status-${getStatusClass(acompanhamento.statusGeral)}">
+                                ${getStatusText(acompanhamento.statusGeral)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Observações:</div>
+                        <div class="info-value">${acompanhamento.observacoes || 'Nenhuma observação'}</div>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h4>Progresso do Produto</h4>
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Progresso Geral</span>
+                            <span>${etapasRealizadas}/${totalEtapas} etapas (${progresso}%)</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progresso}%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h4>Etapas do Produto</h4>
+                    <div class="etapas-lista-visualizacao" id="listaEtapasVisualizacao">
+                        ${acompanhamento.etapas && acompanhamento.etapas.length > 0 ? 
+                            acompanhamento.etapas.map((etapa, index) => {
+                                const status = acompanhamento.etapasStatus ? acompanhamento.etapasStatus[index] : 'Aguardando';
+                                return `
+                                    <div class="etapa-item-visualizacao ${getStatusClass(status)}">
+                                        <div class="etapa-numero-visualizacao">${index + 1}</div>
+                                        <div class="etapa-nome-visualizacao">${etapa}</div>
+                                        <div class="etapa-status-visualizacao ${getStatusBgClass(status)}">
+                                            ${getStatusText(status)}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')
+                            : '<div class="loading"><p>Nenhuma etapa cadastrada</p></div>'
+                        }
+                    </div>
+                </div>
+                
+                <div class="form-actions" style="display: flex; justify-content: center; margin-top: 20px;">
+                    <button type="button" class="btn-download" onclick="fecharModalVisualizacao()" style="background-color: var(--secondary);">
+                        <i class="fas fa-times"></i> Fechar
+                    </button>
+                </div>
+            `;
+        }
+
+        // ==============================================
+        // FUNÇÕES DAS NOTAS DE COBRANÇA (BANCO 1)
+        // ==============================================
+        function calcularValorTotal(nota) {
+            if (nota.total !== undefined) {
+                return parseFloat(nota.total);
+            }
+            
+            let total = 0;
+            if (nota.services && Array.isArray(nota.services)) {
+                nota.services.forEach(servico => {
+                    if (servico.subtotal !== undefined) {
+                        total += parseFloat(servico.subtotal);
+                    }
+                });
+            }
+            
+            const desconto = parseFloat(nota.discount) || 0;
+            return total - desconto;
+        }
+
+        function determinarStatus(nota) {
+            if (nota.status) return nota.status.toLowerCase();
+            return 'pendente';
+        }
+
+        function criarCardNota(nota) {
+            const status = determinarStatus(nota);
+            const dataFormatada = nota.date ? new Date(nota.date).toLocaleDateString('pt-BR') : 'Data não informada';
+            const valorTotal = calcularValorTotal(nota);
+            
+            let servicosHTML = '';
+            if (nota.services && Array.isArray(nota.services)) {
+                nota.services.forEach(servico => {
+                    const unitPrice = servico.unitPrice ? parseFloat(servico.unitPrice).toFixed(2) : '0.00';
+                    const quantity = servico.quantity || 0;
+                    const subtotal = servico.subtotal ? parseFloat(servico.subtotal).toFixed(2) : '0.00';
+                    
+                    servicosHTML += `
+                        <div class="service-item">
+                            <div class="service-name">${servico.description || 'Serviço'}</div>
+                            <div class="service-model">Modelo: ${servico.model || 'Não informado'}</div>
+                            <div class="service-quantity">Quantidade: ${quantity} unidades</div>
+                            <div class="service-price">Preço unitário: R$ ${unitPrice}</div>
+                            <div class="service-subtotal">Valor do serviço: R$ ${subtotal}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            return `
+                <div class="nota-item" data-nota-id="${nota.id}">
+                    <div class="nota-header" onclick="toggleNotaDetails('${nota.id}')">
+                        <div class="nota-info-compact">
+                            <div class="nota-id">${nota.id || 'Sem ID'}</div>
+                            <div class="nota-status status-${status}">${status.toUpperCase()}</div>
+                            <div class="nota-details-compact">
+                                <span class="nota-valor">R$ ${valorTotal.toFixed(2)}</span>
+                                <span class="nota-data">${dataFormatada}</span>
+                            </div>
+                        </div>
+                        <button class="nota-toggle">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="nota-details-expanded" id="details-${nota.id}">
+                        <div class="nota-details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Data</span>
+                                <span class="detail-value">${dataFormatada}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Desconto</span>
+                                <span class="detail-value">R$ ${(nota.discount || 0).toFixed(2)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Gerado por</span>
+                                <span class="detail-value">${nota.generatedBy || 'Não informado'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Valor Total</span>
+                                <span class="detail-value valor-total">R$ ${valorTotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        ${servicosHTML ? `
+                        <div class="services-list">
+                            <strong>Serviços:</strong>
+                            ${servicosHTML}
+                        </div>
+                        ` : ''}
+
+                        <div class="nota-actions">
+                            <button class="btn-download" onclick="gerarPNG('${nota.id}', '${nota.clientName}', ${valorTotal}, '${dataFormatada}')">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function criarConteudoPrint(nota) {
+            const status = determinarStatus(nota);
+            const dataFormatada = nota.date ? new Date(nota.date).toLocaleDateString('pt-BR') : 'Data não informada';
+            const valorTotal = calcularValorTotal(nota);
+            
+            let servicosHTML = '';
+            if (nota.services && Array.isArray(nota.services)) {
+                nota.services.forEach(servico => {
+                    const unitPrice = servico.unitPrice ? parseFloat(servico.unitPrice).toFixed(2) : '0.00';
+                    const quantity = servico.quantity || 0;
+                    const subtotal = servico.subtotal ? parseFloat(servico.subtotal).toFixed(2) : '0.00';
+                    
+                    servicosHTML += `
+                        <div class="print-service-item">
+                            <div class="service-name">${servico.description || 'Serviço'}</div>
+                            <div class="service-model">Modelo: ${servico.model || 'Não informado'}</div>
+                            <div class="service-quantity">Quantidade: ${quantity} unidades</div>
+                            <div class="service-price">Preço unitário: R$ ${unitPrice}</div>
+                            <div class="service-subtotal">Valor do serviço: R$ ${subtotal}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            return `
+                <div class="nota-print-content">
+                    <div class="print-header">
+                        <h2>Costur Confecções</h2>
+                        <p>Comprovante de serviço - ${nota.clientName}</p>
+                        <p><strong>Status:</strong> ${status.toUpperCase()}</p>
+                    </div>
+                    
+                    <div class="print-details">
+                        <div class="detail-item">
+                            <span class="detail-label">ID da Nota</span>
+                            <span class="detail-value">${nota.id || 'Sem ID'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Data</span>
+                            <span class="detail-value">${dataFormatada}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Desconto</span>
+                            <span class="detail-value">R$ ${(nota.discount || 0).toFixed(2)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Gerado por</span>
+                            <span class="detail-value">${nota.generatedBy || 'Não informado'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Valor Total</span>
+                            <span class="detail-value valor-total">R$ ${valorTotal.toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    ${servicosHTML ? `
+                    <div class="services-list">
+                        <h3>Serviços:</h3>
+                        ${servicosHTML}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function toggleNotaDetails(notaId) {
+            const details = document.getElementById(`details-${notaId}`);
+            const toggle = document.querySelector(`[data-nota-id="${notaId}"] .nota-toggle`);
+            
+            details.classList.toggle('show');
+            toggle.classList.toggle('rotated');
+        }
+
+        function gerarNomeArquivo(clientName, valorTotal, data) {
+            const nomeLimpo = clientName.replace(/[^a-zA-Z0-9]/g, '_');
+            const dataLimpa = data.replace(/\//g, '-');
+            const valorLimpo = valorTotal.toFixed(2).replace('.', '_');
+            
+            return `nota_${nomeLimpo}_${valorLimpo}_${dataLimpa}.png`;
+        }
+
+        function gerarPNG(notaId, clientName, valorTotal, dataFormatada) {
+            // Usa o PRIMEIRO banco de dados (notas)
+            dbNotas.collection("invoices")
+                .where("id", "==", notaId)
+                .get()
+                .then((querySnapshot) => {
+                    if (!querySnapshot.empty) {
+                        const nota = querySnapshot.docs[0].data();
+                        
+                        const printContainer = document.getElementById('nota-print');
+                        printContainer.innerHTML = criarConteudoPrint(nota);
+                        printContainer.style.display = 'block';
+
+                        html2canvas(printContainer, {
+                            scale: 2,
+                            backgroundColor: '#ffffff',
+                            useCORS: true
+                        }).then(canvas => {
+                            const link = document.createElement('a');
+                            const fileName = gerarNomeArquivo(clientName, valorTotal, dataFormatada);
+                            link.download = fileName;
+                            link.href = canvas.toDataURL('image/png');
+                            link.click();
+                            
+                            printContainer.innerHTML = '';
+                            printContainer.style.display = 'none';
+                        }).catch(error => {
+                            console.error('Erro ao gerar PNG:', error);
+                            alert('Erro ao gerar a imagem da nota. Tente novamente.');
+                            printContainer.style.display = 'none';
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar nota:', error);
+                    alert('Erro ao carregar dados da nota.');
+                });
+        }
+
+        // ==============================================
+        // CARREGAR NOTAS DO FIREBASE (BANCO 1)
+        // ==============================================
+        function carregarNotasBemQuerida() {
+            // Usa o PRIMEIRO banco de dados (notas)
+            dbNotas.collection("invoices")
+                .where("clientName", "==", "BEM QUERIDA")
+                .get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        document.getElementById('nota-atual').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt"></i>
+                                <p>Nenhuma nota encontrada para a Bem Querida</p>
+                            </div>
+                        `;
+                        document.getElementById('historico-notas').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt"></i>
+                                <p>Nenhum histórico disponível</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let notasPendentes = [];
+                    let notasHistorico = [];
+
+                    querySnapshot.forEach((doc) => {
+                        const nota = doc.data();
+                        const status = determinarStatus(nota);
+                        
+                        if (status === 'pendente') {
+                            notasPendentes.push(nota);
+                        } else {
+                            notasHistorico.push(nota);
+                        }
+                    });
+
+                    notasPendentes.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                    notasHistorico.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+                    if (notasPendentes.length > 0) {
+                        let htmlPendentes = '';
+                        notasPendentes.forEach(nota => {
+                            htmlPendentes += criarCardNota(nota);
+                        });
+                        document.getElementById('nota-atual').innerHTML = htmlPendentes;
+                    } else {
+                        document.getElementById('nota-atual').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-check-circle"></i>
+                                <p>Nenhuma nota pendente</p>
+                                <p class="subtext">Todas as notas estão quitadas</p>
+                            </div>
+                        `;
+                    }
+
+                    if (notasHistorico.length > 0) {
+                        let htmlHistorico = '';
+                        notasHistorico.forEach(nota => {
+                            htmlHistorico += criarCardNota(nota);
+                        });
+                        document.getElementById('historico-notas').innerHTML = htmlHistorico;
+                    } else {
+                        document.getElementById('historico-notas').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <p>Nenhum histórico disponível</p>
+                                <p class="subtext">As notas quitadas aparecerão aqui</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Erro ao buscar notas: ", error);
+                    document.getElementById('nota-atual').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao carregar notas</p>
+                            <p class="subtext">${error.message}</p>
+                        </div>
+                    `;
+                    document.getElementById('historico-notas').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erro ao carregar histórico</p>
+                            <p class="subtext">${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // ==============================================
+        // INICIALIZAÇÃO DA APLICAÇÃO
+        // ==============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Aplicação iniciada - Costur Confecções Bem Querida');
+            console.log('✅ Conectado a 2 bancos de dados Firebase');
+            console.log('📊 Banco 1: Notas de Cobrança');
+            console.log('📈 Banco 2: Acompanhamentos de Produção');
+            console.log('💰 Sistema de Bônus de Corte adicionado');
+            
+            // Carregar dados inicialmente
+            carregarAcompanhamentosBemQuerida();
+            carregarNotasBemQuerida();
+            
+            // Configurar atualizações automáticas
+            setInterval(carregarAcompanhamentosBemQuerida, 60000);
+            setInterval(carregarNotasBemQuerida, 60000);
+            
+            // Inicializar sistema de bônus
+            setTimeout(() => {
+                loadBonuses();
+                document.getElementById('apply-bonus-filter').addEventListener('click', applyBonusFilter);
+            }, 1000);
+            
+            // Atualizar bônus automaticamente
+            setInterval(loadBonuses, 60000);
+            
+            // Fechar modal ao clicar fora
+            window.onclick = function(event) {
+                const modal = document.getElementById('visualizacaoModal');
+                if (event.target == modal) {
+                    fecharModalVisualizacao();
+                }
+            };
+        });
     </script>
 </body>
 </html>
